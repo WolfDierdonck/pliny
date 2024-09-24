@@ -11,6 +11,26 @@ class AnalyticsAPI:
             "From": "wolf.vandierdonck@gmail.com",
         }
 
+    def get_page_views(self, page_name, start_date, end_date):
+        access = "all-access"
+        agent = "all-agents"
+        granularity = "daily"
+        path = f"/pageviews/per-article/{self.project}/{access}/{agent}/{page_name}/{granularity}/{start_date}/{end_date}"
+        url = self.url + path
+        response = requests.get(url, headers=self.headers)
+        data = response.json()
+        return data["items"][0]["views"]
+    
+    def get_page_edits(self, page_name, start_date, end_date):
+        editor_type = "user"
+        granularity = "daily"
+        path = f"/bytes-difference/net/per-page/{self.project}/{page_name}/{editor_type}/{granularity}/{start_date}/{end_date}"
+        url = self.url + path
+        response = requests.get(url, headers=self.headers)
+        data = response.json()
+        return data["items"][0]["results"][0]["net_bytes_diff"]
+        
+
     def get_most_edited_articles(self, day, month, year):
         editor_type = "user"
         page_type = "content"
