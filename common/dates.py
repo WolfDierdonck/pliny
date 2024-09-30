@@ -12,6 +12,7 @@ class Date:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Date):
+            print("Warning: comparing Date with non-Date")
             return False
 
         return (
@@ -19,6 +20,9 @@ class Date:
             and self.month == other.month
             and self.day == other.day
         )
+
+    def __hash__(self) -> int:
+        return hash((self.year, self.month, self.day))
 
 
 class DateRange:
