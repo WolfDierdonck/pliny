@@ -1,5 +1,7 @@
 import requests
 from typing import Any
+import concurrent.futures
+from concurrent.futures import Future
 
 
 class WikimediaApi:
@@ -15,11 +17,16 @@ class WikimediaApi:
         #     "User-Agent": "pliny_test (wolf.vandierdonck@gmail.com)",
         # }
         self.headers: dict[str, str] = {}
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=100)
 
-    def get_page_history(self, title: str) -> Any:
-        path = f"{self.project}/{self.language}/page/{title}/history"
-        url = self.url + path
+    def get_page_history(self, title: str) -> Future[tuple[str, Any]]:
+        def fetch_and_process(title: str) -> tuple[str, Any]:
+            path = f"{self.project}/{self.language}/page/{title}/history"
+            url = self.url + path
 
-        response = requests.get(url, headers=self.headers)
-        data = response.json()
-        return data
+            response = requests.get(url, headers=self.headers)
+            data = response.json()
+
+            return title, data
+
+        return self.executor.submit(fetch_and_process, title)
