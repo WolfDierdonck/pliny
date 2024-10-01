@@ -1,28 +1,24 @@
+from common.score import BasicScore
+
+
 class BasicProcessor:
     def __init__(self) -> None:
         pass
 
-    def process_test(self, data: list[dict[str, int]]) -> list[str]:
+    def process_test(self, data: list[dict[str, int]]) -> BasicScore:
         """
-        Return the page with the biggest view count delta for each day
+        Return the score for each page/day. Here, the score is simple its view delta from the previous day.
         """
         assert len(data) > 1, "Data must have at least 2 days"
 
+        scores: list[dict[str, int]] = []
         previous_day = {key: value for key, value in data[0].items()}
-        result = []
         for day in data[1:]:
             current_day = {key: value for key, value in day.items()}
 
-            biggest_delta = float("-inf")
-            biggest_delta_article = ""
-            for article, count in current_day.items():
-                previous_count = previous_day[article]
-                delta = count - previous_count
-                if delta > biggest_delta:
-                    biggest_delta = delta
-                    biggest_delta_article = article
-
-            result.append(biggest_delta_article)
+            scores.append(
+                {key: current_day[key] - previous_day[key] for key in current_day}
+            )
             previous_day = current_day
 
-        return result
+        return BasicScore(scores)

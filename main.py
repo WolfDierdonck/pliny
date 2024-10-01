@@ -3,6 +3,8 @@ from analytics_api.analytics_api import AnalyticsAPI
 from dotenv import load_dotenv
 from common.dates import Date, DateRange
 from processor.basic_processor import BasicProcessor
+import matplotlib.pyplot as plt
+from typing import Any
 
 load_dotenv(dotenv_path=".env")
 
@@ -47,5 +49,26 @@ for future in concurrent.futures.as_completed(futures):
 
 processor = BasicProcessor()
 
-result = processor.process_test(data)
-print(result)
+scores = processor.process_test(data).scores
+
+data_dict: Any = {}
+
+# Organize the data
+for time_unit in scores:
+    for key, value in time_unit.items():
+        if key not in data_dict:
+            data_dict[key] = []
+        data_dict[key].append(value)
+
+# Plot each key in the dictionary as a separate line
+for key, values in data_dict.items():
+    plt.plot(values, label=key)
+
+# Add labels and title
+plt.xlabel("Time Unit")
+plt.ylabel("Score")
+plt.title("Scores Line Chart")
+plt.legend()
+
+# Show the plot
+plt.show()
