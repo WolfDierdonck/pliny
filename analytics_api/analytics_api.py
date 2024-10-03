@@ -1,7 +1,6 @@
 import concurrent.futures
 from concurrent.futures import Future
 import requests
-from common.pages import PageMetadata
 from common.dates import Date, DateRange
 from analytics_api.converters import AnalyticsAPIConverter
 
@@ -70,6 +69,8 @@ class AnalyticsAPI:
             url = self.url + path
             response = requests.get(url, headers=self.headers)
             data = response.json()
+            # TODO: fix this, the API returns future dates too for some reason
+            print(url, data)
 
             if "items" not in data or len(data["items"]) == 0:
                 raise ValueError(
@@ -93,13 +94,13 @@ class AnalyticsAPI:
 
     def get_most_edited_articles(
         self, date: Date
-    ) -> Future[tuple[Date, list[PageMetadata]]]:
+    ) -> Future[tuple[Date, list[tuple[str, float]]]]:
         """
-        Get top 100 pages by net bytes difference for a given date
+        Get top 100 pages by net bytes difference for a given date. Output will be sorted by rank.
         https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/edits.html#list-most-edited-pages-by-net-difference-in-bytes
         """
 
-        def fetch_and_process(date: Date) -> tuple[Date, list[PageMetadata]]:
+        def fetch_and_process(date: Date) -> tuple[Date, list[tuple[str, float]]]:
             editor_type = "user"
             page_type = "content"
 
@@ -128,8 +129,7 @@ class AnalyticsAPI:
             for item in top:
                 page_name = item["page_title"]
                 byte_delta = item["net_bytes_diff"]
-                rank = item["rank"]
-                top_pages.append(PageMetadata(page_name, rank, byte_delta=byte_delta))
+                top_pages.append((page_name, byte_delta))
 
             return date, top_pages
 
@@ -137,13 +137,13 @@ class AnalyticsAPI:
 
     def get_most_viewed_articles(
         self, date: Date
-    ) -> Future[tuple[Date, list[PageMetadata]]]:
+    ) -> Future[tuple[Date, list[tuple[str, float]]]]:
         """
-        Get top 1000 pages by views for a given date
+        Get top 1000 pages by views for a given date. Output will be sorted by rank.
         https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html#list-most-viewed-pages
         """
 
-        def fetch_and_process(date: Date) -> tuple[Date, list[PageMetadata]]:
+        def fetch_and_process(date: Date) -> tuple[Date, list[tuple[str, float]]]:
             access = "all-access"
 
             date_str = AnalyticsAPIConverter.get_date_url_format(date)
@@ -168,8 +168,7 @@ class AnalyticsAPI:
             for item in articles:
                 page_name = item["article"]
                 view_count = item["views"]
-                rank = item["rank"]
-                top_pages.append(PageMetadata(page_name, rank, view_count=view_count))
+                top_pages.append((page_name, view_count))
 
             return date, top_pages
 

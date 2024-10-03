@@ -1,15 +1,15 @@
-from typing import Optional
+from common.time_series import TimeSeries
+from common.dates import DateRange
 
 
 class PageMetadata:
-    def __init__(
-        self,
-        name: str,
-        rank: int,
-        view_count: Optional[int] = None,
-        byte_delta: Optional[int] = None,
-    ):
+    def __init__(self, name: str, date_range: DateRange) -> None:
         self.name = name
-        self.view_count = view_count
-        self.rank = rank
-        self.byte_delta = byte_delta
+        self.views = TimeSeries(date_range)
+        self.net_bytes_difference = TimeSeries(date_range)
+
+    def __str__(self) -> str:
+        return f"{self.name}:\n\tViews: {self.views}\n\tNet Bytes Difference: {self.net_bytes_difference}\n"
+
+    def __repr__(self) -> str:
+        return f"PageMetadata({self})"
