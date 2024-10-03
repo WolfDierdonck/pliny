@@ -1,3 +1,6 @@
+from common.time_series import TimeSeries
+
+
 class BasicScore:
-    def __init__(self, scores: list[dict[str, int]]) -> None:
+    def __init__(self, scores: dict[str, TimeSeries]) -> None:
         self.scores = scores
