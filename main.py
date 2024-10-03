@@ -24,7 +24,7 @@ for future in concurrent.futures.as_completed(most_edited_futures):
         print(f"Error processing most edited future: {e}")
 
 # Take 100 random articles to process
-NUM_PAGES = 1000
+NUM_PAGES = 50
 pages_to_process = random.sample(
     list(most_edited_articles), min(NUM_PAGES, len(most_edited_articles))
 )
