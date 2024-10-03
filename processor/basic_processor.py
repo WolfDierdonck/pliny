@@ -1,34 +1,42 @@
-from common.dates import DateRange
-from common.score import BasicScore
-from common.time_series import TimeSeries
+import concurrent.futures
+from analytics_api.analytics_api import AnalyticsAPI
+from common.dates import Date, DateRange
 from common.pages import PageMetadata
+from common.dates import Date, DateRange
+from common.score import BasicScore
+from common.pages import PageMetadata
+from scorer.basic_scorer import BasicScorer
 
 
 class BasicProcessor:
     def __init__(self) -> None:
         pass
 
-    def process_test(self, data: dict[str, PageMetadata]) -> BasicScore:
-        """
-        Return the score for each page/day. Here, the score is simple its view delta from the previous day.
-        """
-        scores = {
-            key: TimeSeries(
-                DateRange(
-                    data[key].views.date_range.start.add_days(1),
-                    data[key].views.date_range.end,
-                )
-            )
-            for key in data
-        }
-        for key, page_metadata in data.items():
-            for day in page_metadata.views.date_range:
-                if day == page_metadata.views.date_range.start:
-                    continue
-                previous_day = day.add_days(-1)
-                delta = page_metadata.views.get_data_point(
-                    day
-                ) - page_metadata.views.get_data_point(previous_day)
-                scores[key].add_data_point(day, delta)
+    def process_pages(self, pages: list[str], date: Date) -> BasicScore:
+        api = AnalyticsAPI()
 
-        return BasicScore(scores)
+        # We need the last week of data to calculate the score
+        date_range = DateRange(date.add_days(-7), date)
+
+        view_futures = [api.get_page_views(page, date_range) for page in pages]
+        edit_futures = [api.get_page_edits(page, date_range) for page in pages]
+
+        all_futures = {future: "view" for future in view_futures}
+        all_futures.update({future: "edit" for future in edit_futures})
+
+        data = {page: PageMetadata(page, date_range) for page in pages}
+        for future in concurrent.futures.as_completed(all_futures):
+            future_type = all_futures[future]
+            try:
+                if future_type == "view":
+                    page, date_range, views = future.result()
+                    data[page].views = views
+                elif future_type == "edit":
+                    page, date_range, edits = future.result()
+                    data[page].net_bytes_difference = edits
+
+            except Exception as e:
+                print(f"Error processing {future_type} future: {e}")
+
+        scorer = BasicScorer()
+        return scorer.score(date, data)

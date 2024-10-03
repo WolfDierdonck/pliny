@@ -2,72 +2,54 @@ import concurrent.futures
 from analytics_api.analytics_api import AnalyticsAPI
 from dotenv import load_dotenv
 from common.dates import Date, DateRange
-from common.pages import PageMetadata
+from common.time_series import TimeSeries
 from processor.basic_processor import BasicProcessor
-import matplotlib.pyplot as plt
+import random
 
 load_dotenv(dotenv_path=".env")
 
 api = AnalyticsAPI()
-start_date = Date(day=1, month=7, year=2024)
-date_range = DateRange(start=start_date, end=start_date.add_days(10))
+start_date = Date(day=5, month=8, year=2024)
+date_range = DateRange(start=start_date, end=start_date.add_days(3))
 
-pages_to_process = [
-    "Earth",
-    "Moon",
-    # "Sun",
-    # "Mars",
-    # "Jupiter",
-    # "Saturn",
-    # "Uranus",
-    # "Neptune",
-    # "Pluto",
-]
+# 1. Get the most edited articles for each day in the date range
+most_edited_articles: set[str] = set()
+most_edited_futures = [api.get_most_edited_articles(date) for date in date_range]
 
-view_futures = [
-    api.get_page_views(page, DateRange(date, date))
-    for page in pages_to_process
-    for date in date_range
-]
-
-edit_futures = [
-    api.get_page_edits(page, DateRange(date, date))
-    for page in pages_to_process
-    for date in date_range
-]
-
-all_futures = {future: "view" for future in view_futures}
-all_futures.update({future: "edit" for future in edit_futures})
-
-data = {page: PageMetadata(page, date_range) for page in pages_to_process}
-for future in concurrent.futures.as_completed(all_futures):
-    future_type = all_futures[future]
+for future in concurrent.futures.as_completed(most_edited_futures):
     try:
-        if future_type == "view":
-            page, date_range, view_count = future.result()
-            data[page].views.add_data_point(date_range.start, view_count)
-        elif future_type == "edit":
-            page, date_range, edit_count = future.result()
-            data[page].net_bytes_difference.add_data_point(date_range.start, edit_count)
-
+        date, articles = future.result()
+        most_edited_articles.update(map(lambda x: x[0], articles))
     except Exception as e:
-        print(f"Error processing {future_type} future: {e}")
+        print(f"Error processing most edited future: {e}")
 
-print(data)
+# Take 100 random articles to process
+NUM_PAGES = 1000
+pages_to_process = random.sample(
+    list(most_edited_articles), min(NUM_PAGES, len(most_edited_articles))
+)
 
+# Process each page for the entire date range. Each loop will process the overall score for all pages for a specific date.
 processor = BasicProcessor()
+scores_time_series = {page: TimeSeries(date_range) for page in pages_to_process}
+for date in date_range:
+    scores = processor.process_pages(pages_to_process, date).scores
+    for page, score in scores.items():
+        scores_time_series[page].add_data_point(date, score)
 
-scores = processor.process_test(data).scores
+for date in date_range:
+    top_scores = []
 
-# Plot each key in the dictionary as a separate line
-for key, time_series in scores.items():
-    plt.plot(time_series.values, label=key)
+    for page, time_series in scores_time_series.items():
+        score = time_series.get_data_point(date)
+        top_scores.append((score, page))
 
-# Add labels and title
-plt.xlabel("Time Unit")
-plt.ylabel("Score")
-plt.title("Scores Line Chart")
-plt.legend()
+    # Sort the list in descending order based on the scores
+    top_scores.sort(reverse=True, key=lambda x: x[0])
 
-# Show the plot
-plt.show()
+    # Print the top 5 entries
+    print("Date:", date)
+    for score, page in top_scores[:5]:
+        print("Page:", page, "Score:", score)
+
+    print("------")
