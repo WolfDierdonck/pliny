@@ -1,5 +1,5 @@
-from common.time_series import TimeSeries
-from common.dates import DateRange
+from .time_series import TimeSeries
+from .dates import DateRange
 
 
 class PageMetadata:

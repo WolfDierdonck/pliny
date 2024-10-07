@@ -1,18 +1,16 @@
 import concurrent.futures
-from analytics_api.analytics_api import AnalyticsAPI
+from ..analytics_api.analytics_api import AnalyticsAPI
 from common.dates import Date, DateRange
 from common.pages import PageMetadata
 from common.dates import Date, DateRange
-from common.score import BasicScore
 from common.pages import PageMetadata
-from scorer.basic_scorer import BasicScorer
 
 
 class BasicProcessor:
     def __init__(self) -> None:
         pass
 
-    def process_pages(self, pages: list[str], date: Date) -> BasicScore:
+    def process_pages(self, pages: list[str], date: Date) -> dict[str, PageMetadata]:
         api = AnalyticsAPI()
 
         # We need the last week of data to calculate the score
@@ -38,5 +36,4 @@ class BasicProcessor:
             except Exception as e:
                 print(f"Error processing {future_type} future: {e}")
 
-        scorer = BasicScorer()
-        return scorer.score(date, data)
+        return data

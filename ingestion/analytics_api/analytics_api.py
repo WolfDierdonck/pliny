@@ -2,7 +2,7 @@ import concurrent.futures
 from concurrent.futures import Future
 import requests
 from common.dates import Date, DateRange
-from analytics_api.converters import AnalyticsAPIConverter
+from .converters import AnalyticsAPIConverter
 from common.time_series import TimeSeries
 import datetime
 

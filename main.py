@@ -1,39 +1,30 @@
-import concurrent.futures
-from analytics_api.analytics_api import AnalyticsAPI
 from dotenv import load_dotenv
 from common.dates import Date, DateRange
 from common.time_series import TimeSeries
-from processor.basic_processor import BasicProcessor
+from ingestion.processor.basic_processor import BasicProcessor
 import random
+from scoring.scorer.basic_scorer import BasicScorer
+import experimentation.sample_articles
 
 load_dotenv(dotenv_path=".env")
 
-api = AnalyticsAPI()
-start_date = Date(day=5, month=8, year=2024)
-date_range = DateRange(start=start_date, end=start_date.add_days(3))
-
-# 1. Get the most edited articles for each day in the date range
-most_edited_articles: set[str] = set()
-most_edited_futures = [api.get_most_edited_articles(date) for date in date_range]
-
-for future in concurrent.futures.as_completed(most_edited_futures):
-    try:
-        date, articles = future.result()
-        most_edited_articles.update(map(lambda x: x[0], articles))
-    except Exception as e:
-        print(f"Error processing most edited future: {e}")
+sample_articles = experimentation.sample_articles.early_august_articles
 
 # Take 100 random articles to process
-NUM_PAGES = 50
+NUM_PAGES = 100
 pages_to_process = random.sample(
-    list(most_edited_articles), min(NUM_PAGES, len(most_edited_articles))
+    list(sample_articles), min(NUM_PAGES, len(sample_articles))
 )
+
+date_range = DateRange(Date(2024, 8, 5), Date(2024, 8, 8))
 
 # Process each page for the entire date range. Each loop will process the overall score for all pages for a specific date.
 processor = BasicProcessor()
+scorer = BasicScorer()
 scores_time_series = {page: TimeSeries(date_range) for page in pages_to_process}
 for date in date_range:
-    scores = processor.process_pages(pages_to_process, date).scores
+    data = processor.process_pages(pages_to_process, date)
+    scores = scorer.score(date, data).scores
     for page, score in scores.items():
         scores_time_series[page].add_data_point(date, score)
 

@@ -1,4 +1,4 @@
-from common.dates import Date, DateRange
+from .dates import Date, DateRange
 
 
 class TimeSeries:
