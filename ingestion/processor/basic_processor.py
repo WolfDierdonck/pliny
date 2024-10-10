@@ -10,7 +10,7 @@ class BasicProcessor:
     def __init__(self) -> None:
         pass
 
-    def process_pages(self, pages: list[str], date: Date) -> dict[str, PageMetadata]:
+    def process_pages(self, pages, date: Date) -> dict[str, PageMetadata]:
         api = AnalyticsAPI()
 
         # We need the last week of data to calculate the score
