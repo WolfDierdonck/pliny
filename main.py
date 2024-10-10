@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from common.dates import Date, DateRange
 from common.time_series import TimeSeries
+from ingestion.mediawiki_api.mediawiki_api import MediaWikiAPI
+from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
 from ingestion.processor.basic_processor import BasicProcessor
 import random
 from scoring.scorer.basic_scorer import BasicScorer
@@ -15,6 +17,25 @@ NUM_PAGES = 100
 pages_to_process = random.sample(
     list(sample_articles), min(NUM_PAGES, len(sample_articles))
 )
+
+#get all pages from a
+media_wiki = MediaWikiAPI()
+starting_word = "z"
+while True: 
+    pages, starting_word = media_wiki.get_all_pages_starting_from(starting_word).result()
+    print(pages)
+
+
+
+# page_iterator = MediaWikiHelper.get_all_pages_iterator()
+# try:
+#     for i in range(100):
+#         next_page = next(page_iterator)
+#         print(next_page)
+# except StopIteration:
+#     pass
+
+# exit()
 
 date_range = DateRange(Date(2024, 8, 5), Date(2024, 8, 8))
 
