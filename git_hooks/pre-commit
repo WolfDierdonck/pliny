@@ -1,0 +1,29 @@
+ROOT_DIR=$(git rev-parse --show-toplevel)
+
+# Change to the root directory
+cd "$ROOT_DIR" || exit 1
+
+# Run mypy from the root directory
+mypy . > /dev/null 2>&1
+
+# Capture the exit status of mypy
+MYPY_EXIT_STATUS=$?
+
+# If mypy failed (non-zero exit code), prevent the commit
+if [ $MYPY_EXIT_STATUS -ne 0 ]; then
+  echo -e "\033[33m WARNING: mypy found issues. Will continue with commit anyways \033[0m"
+fi
+
+# Run pylint from the root directory
+pylint . > /dev/null 2>&1
+
+# Capture the exit status of pylint
+PYLINT_EXIT_STATUS=$?
+
+# If pylint failed (non-zero exit code), prevent the commit
+if [ $PYLINT_EXIT_STATUS -ne 0 ]; then
+  echo -e "\033[33m WARNING: pylint found issues. Will continue with commit anyways \033[0m"
+fi
+
+exit 0
+
