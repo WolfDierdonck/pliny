@@ -2,9 +2,7 @@ import concurrent.futures
 from concurrent.futures import Future
 import requests
 
-class EndOfPageListException(Exception):
-    def __init__(self, final_page_list: list[str]) -> None:
-        self.final_page_list = final_page_list
+#TODO: 
 
 class MediaWikiAPI:
     def __init__(self) -> None:
@@ -15,12 +13,15 @@ class MediaWikiAPI:
         }
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=100)
     
-    def get_all_pages_starting_from(self, page_name: str) -> Future[tuple[list[str], str]]:
-        def fetch_and_process(page_name: str) -> tuple[list[str], str]:
+    def get_all_pages_starting_from(self, page_name: str) -> Future[tuple[list[str], str | None]]:
+        def fetch_and_process(page_name: str) -> tuple[list[str], str | None]:
+            # filter out redirects as many symbols redirect to pages we've already seen; ⬢ redirects to Hexagon 
+            # redirects also result in 404 when querying for edit count on wikimedia analytics api
             params = {
                 "action": "query",
                 "format": "json",
                 "list": "allpages",
+                "apfilterredir": "nonredirects",
                 "apfrom": page_name,
                 "aplimit": "500",
             }
@@ -30,12 +31,13 @@ class MediaWikiAPI:
             if "query" not in data or "allpages" not in data["query"]:
                 raise ValueError(f"Unexpected response: {data}")
 
-            if "continue" not in data:
-                raise EndOfPageListException([page["title"] for page in data["query"]["allpages"]])
-
             pages = data["query"]["allpages"]
-            page_to_continue_from: str = data["continue"]["apcontinue"]
             page_names: list[str] = [page["title"] for page in pages]
+            
+            page_to_continue_from = None
+            if "continue" in data and "apcontinue" in data["continue"]:
+                page_to_continue_from = data["continue"]["apcontinue"]
+
             return (page_names, page_to_continue_from)
             
         return self.executor.submit(fetch_and_process, page_name)

@@ -10,6 +10,12 @@ import experimentation.sample_articles
 
 load_dotenv(dotenv_path=".env")
 
+page_iterator = MediaWikiHelper.get_all_pages_iterator()
+for i in range(100):
+    next_page = next(page_iterator)
+    print(next_page)
+exit()
+
 sample_articles = experimentation.sample_articles.early_august_articles
 
 # Take 100 random articles to process
@@ -17,25 +23,6 @@ NUM_PAGES = 100
 pages_to_process = random.sample(
     list(sample_articles), min(NUM_PAGES, len(sample_articles))
 )
-
-#get all pages from a
-media_wiki = MediaWikiAPI()
-starting_word = "z"
-while True: 
-    pages, starting_word = media_wiki.get_all_pages_starting_from(starting_word).result()
-    print(pages)
-
-
-
-# page_iterator = MediaWikiHelper.get_all_pages_iterator()
-# try:
-#     for i in range(100):
-#         next_page = next(page_iterator)
-#         print(next_page)
-# except StopIteration:
-#     pass
-
-# exit()
 
 date_range = DateRange(Date(2024, 8, 5), Date(2024, 8, 8))
 
