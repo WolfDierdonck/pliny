@@ -4,7 +4,7 @@ import concurrent.futures
 from concurrent.futures import Future
 
 
-class WikimediaApi:
+class WikiMediaApi:
     def __init__(self) -> None:
         self.project = "wikipedia"
         self.language = "en"

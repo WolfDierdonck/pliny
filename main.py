@@ -1,12 +1,19 @@
 from dotenv import load_dotenv
 from common.dates import Date, DateRange
 from common.time_series import TimeSeries
+from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
 from ingestion.processor.basic_processor import BasicProcessor
 import random
 from scoring.scorer.basic_scorer import BasicScorer
 import experimentation.sample_articles
 
 load_dotenv(dotenv_path=".env")
+
+page_iterator = MediaWikiHelper.get_all_pages_iterator()
+for i in range(100):
+    next_page = next(page_iterator)
+    print(next_page)
+exit()
 
 sample_articles = experimentation.sample_articles.early_august_articles
 
