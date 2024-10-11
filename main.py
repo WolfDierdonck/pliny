@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from common.dates import Date, DateRange
 from common.time_series import TimeSeries
-from ingestion.mediawiki_api.mediawiki_api import MediaWikiAPI
 from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
 from ingestion.processor.basic_processor import BasicProcessor
 import random

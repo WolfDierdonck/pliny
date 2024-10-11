@@ -2,8 +2,6 @@ import concurrent.futures
 from concurrent.futures import Future
 import requests
 
-#TODO: 
-
 class MediaWikiAPI:
     def __init__(self) -> None:
         self.url = "https://en.wikipedia.org/w/api.php"
