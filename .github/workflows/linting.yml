@@ -14,16 +14,18 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install data-pipeline dependencies
         run: |
           cd data-pipeline
           python -m pip install --upgrade pip
           pip install pylint
           pip install mypy
           pip install -r requirements.txt
-      - name: Analysing the code with pylint
+      - name: Analysing the data-pipeline with pylint
         run: |
+          cd data-pipeline
           pylint .
-      - name: Analysing the code with mypy
+      - name: Analysing the data-pipeline with mypy
         run: |
+          cd data-pipeline
           mypy .
