@@ -1,12 +1,12 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle
-} from "./ui/navigation-menu";
+  navigationMenuTriggerStyle,
+} from './ui/navigation-menu';
 
 const Navbar: React.FC = () => {
   return (
