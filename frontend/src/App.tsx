@@ -7,7 +7,6 @@ import Timeline from './components/Timeline';
 
 const App: React.FC = () => {
   return (
-    
     <Router>
       <Navbar />
 
