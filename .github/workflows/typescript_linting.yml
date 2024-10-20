@@ -1,0 +1,17 @@
+name: Typescript Linting
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Packages
+        run: |
+          cd frontend
+          npm i
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npm run lint
