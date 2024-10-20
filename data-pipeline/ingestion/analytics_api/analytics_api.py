@@ -8,7 +8,7 @@ import datetime
 
 
 class AnalyticsAPI:
-    def __init__(self) -> None:
+    def __init__(self):
         self.project = "en.wikipedia.org"
         self.url = "https://wikimedia.org/api/rest_v1/metrics"
         self.headers = {
