@@ -2,6 +2,7 @@ ROOT_DIR=$(git rev-parse --show-toplevel)
 
 # Change to the root directory
 cd "$ROOT_DIR" || exit 1
+cd data-pipeline || exit 1
 
 # Run mypy from the root directory
 mypy . > /dev/null 2>&1
