@@ -108,7 +108,7 @@ class AnalyticsAPI:
 
                 try:
                     time_series.add_data_point(date, net_bytes_diff)
-                except ValueError as e:
+                except ValueError as _:
                     pass
 
             return page_name, date_range, time_series

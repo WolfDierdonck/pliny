@@ -8,7 +8,7 @@ from sql.intermediate_table_data import IntermediateTableRow
 
 
 class IntermediateTableProcessor:
-    def __init__(self):
+    def __init__(self) -> None:
         self.wikipediaDataAccessor = WikipediaDataAccessor(
             "PLINY_BIGQUERY_SERVICE_ACCOUNT"
         )
@@ -34,23 +34,23 @@ class IntermediateTableProcessor:
             page: IntermediateTableRow(page) for page in pages
         }
 
-        for future in concurrent.futures.as_completed(view_futures):
+        for view_future in concurrent.futures.as_completed(view_futures):
             try:
-                page, date_range, views = future.result()
+                page, date_range, views = view_future.result()
                 data[page].view_count = views.get_data_point(date)
             except Exception as e:
                 print(f"Error processing view future: {e}")
 
-        for future in concurrent.futures.as_completed(edit_futures):
+        for edit_future in concurrent.futures.as_completed(edit_futures):
             try:
-                page, date_range, edits = future.result()
+                page, date_range, edits = edit_future.result()
                 data[page].net_bytes_change = edits.get_data_point(date)
             except Exception as e:
                 print(f"Error processing edit future: {e}")
 
-        for future in concurrent.futures.as_completed(revision_futures):
+        for revision_future in concurrent.futures.as_completed(revision_futures):
             try:
-                page, revision_metadata = future.result()
+                page, revision_metadata = revision_future.result()
                 data[page].revision_count = revision_metadata.revision_count
                 data[page].editor_count = revision_metadata.editor_count
                 data[page].revert_count = revision_metadata.revert_count
