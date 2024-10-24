@@ -10,7 +10,7 @@ As part of this project, there are three main components all in this repo:
 
 ## Developing
 
-First, you need to create a .env file. You can just copy the .env_template file, and replace the placeholders with the actual values. Additionally, you should also install the git hooks under the git_hooks directory. To do this, just run `cp git_hooks/* .git/hooks` from the root project directory.
+First, you need to create a .env file. You can just copy the .env_template file, and replace the placeholders with the actual values. Note that you will also need to add any JSON files containing secrets to a new `secrets` directory. Additionally, you should also install the git hooks under the git_hooks directory. To do this, just run `cp git_hooks/* .git/hooks` from the root project directory.
 
 ### Data Pipeline (Python)
 
