@@ -42,7 +42,10 @@ class AnalyticsAPI:
             ):  # No data for this range (page just created)
                 return page_name, date_range, TimeSeries(date_range)
 
-            data = response.json()
+            try:
+                data = response.json()
+            except Exception as _:
+                raise ValueError(f"Could not parse response: {response.text}")
 
             if "items" not in data or len(data["items"]) == 0:
                 raise ValueError(
@@ -85,7 +88,10 @@ class AnalyticsAPI:
             ):  # No data for this range (page just created or no edits)
                 return page_name, date_range, TimeSeries(date_range)
 
-            data = response.json()
+            try:
+                data = response.json()
+            except Exception as _:
+                raise ValueError(f"Could not parse response: {response.text}")
 
             if "items" not in data or len(data["items"]) == 0:
                 raise ValueError(
