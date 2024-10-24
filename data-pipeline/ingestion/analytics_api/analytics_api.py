@@ -42,7 +42,10 @@ class AnalyticsAPI:
             ):  # No data for this range (page just created)
                 return page_name, date_range, TimeSeries(date_range)
 
-            data = response.json()
+            try:
+                data = response.json()
+            except Exception as _:
+                raise ValueError(f"Could not parse response: {response.text}")
 
             if "items" not in data or len(data["items"]) == 0:
                 raise ValueError(
@@ -61,7 +64,7 @@ class AnalyticsAPI:
 
         return self.executor.submit(fetch_and_process, page_name, date_range)
 
-    def get_page_edits(
+    def get_page_net_bytes_diff(
         self, page_name: str, date_range: DateRange
     ) -> Future[tuple[str, DateRange, TimeSeries]]:
         """
@@ -85,7 +88,10 @@ class AnalyticsAPI:
             ):  # No data for this range (page just created or no edits)
                 return page_name, date_range, TimeSeries(date_range)
 
-            data = response.json()
+            try:
+                data = response.json()
+            except Exception as _:
+                raise ValueError(f"Could not parse response: {response.text}")
 
             if "items" not in data or len(data["items"]) == 0:
                 raise ValueError(
@@ -106,7 +112,10 @@ class AnalyticsAPI:
 
                 net_bytes_diff = result["net_bytes_diff"]
 
-                time_series.add_data_point(date, net_bytes_diff)
+                try:
+                    time_series.add_data_point(date, net_bytes_diff)
+                except ValueError as _:
+                    pass
 
             return page_name, date_range, time_series
 
