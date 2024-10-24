@@ -61,7 +61,7 @@ class AnalyticsAPI:
 
         return self.executor.submit(fetch_and_process, page_name, date_range)
 
-    def get_page_edits(
+    def get_page_net_bytes_diff(
         self, page_name: str, date_range: DateRange
     ) -> Future[tuple[str, DateRange, TimeSeries]]:
         """
@@ -106,7 +106,10 @@ class AnalyticsAPI:
 
                 net_bytes_diff = result["net_bytes_diff"]
 
-                time_series.add_data_point(date, net_bytes_diff)
+                try:
+                    time_series.add_data_point(date, net_bytes_diff)
+                except ValueError as e:
+                    pass
 
             return page_name, date_range, time_series
 

@@ -1,6 +1,8 @@
 from datetime import date, timedelta
+from functools import total_ordering
 
 
+@total_ordering
 class Date:
     def __init__(self, year: int, month: int, day: int) -> None:
         self.year = year
@@ -40,6 +42,9 @@ class Date:
     def add_days(self, days: int) -> "Date":
         new_py_date = self.to_py_date() + timedelta(days=days)
         return Date.from_py_date(new_py_date)
+
+    def __lt__(self, other: "Date") -> bool:
+        return self.to_py_date() < other.to_py_date()
 
 
 class DateRange:

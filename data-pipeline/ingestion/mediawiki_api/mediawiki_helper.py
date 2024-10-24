@@ -50,5 +50,5 @@ class MediaWikiHelper:
         pass
 
     @staticmethod
-    def get_all_pages_iterator() -> MediaWikiPageListIterator:
-        return MediaWikiPageListIterator("!")
+    def get_all_pages_iterator(start_page: str = "!") -> MediaWikiPageListIterator:
+        return MediaWikiPageListIterator(start_page)

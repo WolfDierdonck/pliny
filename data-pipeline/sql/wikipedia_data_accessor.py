@@ -1,4 +1,3 @@
-from typing import List, Dict
 from functools import lru_cache
 
 from google.cloud import bigquery
@@ -13,7 +12,7 @@ class WikipediaDataAccessor:
         self.client = get_bigquery_client(credentials_env_variable)
         self.dataset_id = "wikipedia_data"
 
-    def create_table(self, table_name: str, schema: List[SchemaField]) -> Table:
+    def create_table(self, table_name: str, schema: list[SchemaField]) -> Table:
         """
         Create a new table in BigQuery
 
@@ -30,6 +29,17 @@ class WikipediaDataAccessor:
         print(f"Created table {table.project}.{table.dataset_id}.{table.table_id}")
         return table
 
+    def delete_table(self, table_name: str) -> None:
+        """
+        Delete a table in BigQuery
+
+        Args:
+            table_name: ID for the table to delete
+        """
+        table_ref = f"{self.client.project}.{self.dataset_id}.{table_name}"
+        self.client.delete_table(table_ref, not_found_ok=True)
+        print(f"Deleted table {table_name}")
+
     @lru_cache(maxsize=128)
     def get_table(self, table_name: str) -> Table:
         """
@@ -44,7 +54,7 @@ class WikipediaDataAccessor:
         table_ref = f"{self.client.project}.{self.dataset_id}.{table_name}"
         return self.client.get_table(table_ref)
 
-    def read_from_table(self, table: Table) -> List[Dict]:
+    def read_from_table(self, table: Table) -> list[dict]:
         """
         Read data from a BigQuery table using the table's read_rows method
 
@@ -57,7 +67,7 @@ class WikipediaDataAccessor:
         rows = self.client.list_rows(table)
         return [dict(row.items()) for row in rows]
 
-    def write_to_table(self, table: Table, rows: List[Dict]) -> None:
+    def write_to_table(self, table: Table, rows: list[dict]) -> None:
         """
         Write data to a BigQuery table using load_table_from_json
 

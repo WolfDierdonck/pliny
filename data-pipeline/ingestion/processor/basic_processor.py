@@ -17,7 +17,7 @@ class BasicProcessor:
         date_range = DateRange(date.add_days(-7), date)
 
         view_futures = [api.get_page_views(page, date_range) for page in pages]
-        edit_futures = [api.get_page_edits(page, date_range) for page in pages]
+        edit_futures = [api.get_page_net_bytes_diff(page, date_range) for page in pages]
 
         all_futures = {future: "view" for future in view_futures}
         all_futures.update({future: "edit" for future in edit_futures})
