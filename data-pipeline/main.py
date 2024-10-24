@@ -1,13 +1,32 @@
+import random
 from dotenv import load_dotenv
+
 from common.dates import Date, DateRange
 from common.time_series import TimeSeries
-# from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
+
 from ingestion.processor.basic_processor import BasicProcessor
-import random
 from scoring.scorer.basic_scorer import BasicScorer
 import experimentation.sample_articles
+from sql.wikipedia_data_accessor import WikipediaDataAccessor
 
 load_dotenv(dotenv_path=".env")
+
+
+wikipediaDataAccessor = WikipediaDataAccessor("PLINY_BIGQUERY_SERVICE_ACCOUNT")
+
+# # Create the table
+# test_table = wikipediaDataAccessor.get_table("test_table")
+
+# # Define dummy data to insert
+# rows = [
+#     {"column1": "value1", "column2": "value2"},
+#     {"column1": "value3", "column2": "value4"},
+# ]
+
+# # Insert dummy data into the table
+# before_rows = wikipediaDataAccessor.read_from_table(test_table)
+# wikipediaDataAccessor.write_to_table(test_table, rows)
+# after_rows = wikipediaDataAccessor.read_from_table(test_table)
 
 # page_iterator = MediaWikiHelper.get_all_pages_iterator()
 # for i in range(1000):

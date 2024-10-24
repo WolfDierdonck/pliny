@@ -3,3 +3,4 @@ python-dotenv
 pylint
 mypy
 types-requests
+google-cloud-bigquery
