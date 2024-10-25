@@ -1,7 +1,6 @@
 import concurrent.futures
 from ..analytics_api.analytics_api import AnalyticsAPI
-from common.dates import Date, DateRange
-from common.dates import Date, DateRange
+from common.dates import Date# , DateRange
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from ingestion.mediawiki_api.mediawiki_api import MediaWikiAPI
 from sql.intermediate_table_data import IntermediateTableRow
