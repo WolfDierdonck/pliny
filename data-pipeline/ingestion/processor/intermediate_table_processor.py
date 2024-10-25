@@ -17,7 +17,7 @@ class IntermediateTableProcessor:
 
     def process(self, pages: list[str], date: Date) -> None:
         # We need the last week of data to calculate the score
-        date_range = DateRange(date, date)
+        # date_range = DateRange(date, date)
 
         # view_futures = [
         #     self.analytics_api.get_page_views(page, date_range) for page in pages

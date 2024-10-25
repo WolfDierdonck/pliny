@@ -85,7 +85,7 @@ class WikipediaDataAccessor:
             source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON
         )
 
-        def load_job(buffer: list[dict]):
+        def load_job(buffer: list[dict]) -> None:
             try:
                 load_job = self.client.load_table_from_json(
                     buffer, table, job_config=job_config
