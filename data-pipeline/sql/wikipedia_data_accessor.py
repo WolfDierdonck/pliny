@@ -1,4 +1,6 @@
 from functools import lru_cache
+import concurrent.futures
+
 
 from google.cloud import bigquery
 from google.cloud.bigquery.table import Table
@@ -11,6 +13,9 @@ class WikipediaDataAccessor:
     def __init__(self, credentials_env_variable: str):
         self.client = get_bigquery_client(credentials_env_variable)
         self.dataset_id = "wikipedia_data"
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=100)
+
+        self.write_buffer: list[dict] = []
 
     def create_table(self, table_name: str, schema: list[SchemaField]) -> Table:
         """
@@ -67,23 +72,41 @@ class WikipediaDataAccessor:
         rows = self.client.list_rows(table)
         return [dict(row.items()) for row in rows]
 
-    def write_to_table(self, table: Table, rows: list[dict]) -> None:
+    def write_to_table(self, table: Table, rows: list[dict], run_async: bool) -> None:
         """
         Write data to a BigQuery table using load_table_from_json
 
         Args:
             table: Table instance to write to
             rows: List of dictionaries representing the rows to be inserted
+            run_async: If True, the load job will be run in a separate thread
         """
         job_config = bigquery.LoadJobConfig(
             source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON
         )
 
-        try:
-            load_job = self.client.load_table_from_json(
-                rows, table, job_config=job_config
-            )
-            load_job.result()  # Wait for the job to complete
-            print(f"Successfully loaded {len(rows)} rows into {table}")
-        except Exception as e:
-            print(f"Encountered error while loading rows: {e}")
+        def load_job(buffer: list[dict]) -> None:
+            try:
+                load_job = self.client.load_table_from_json(
+                    buffer, table, job_config=job_config
+                )
+                load_job.result()  # Wait for the job to complete
+                print(f"Successfully loaded {len(buffer)} rows into {table}")
+            except Exception as e:
+                print(f"Encountered error while loading rows: {e}")
+
+        self.write_buffer.extend(rows)
+
+        if len(self.write_buffer) >= 1000:
+            # Use ThreadPoolExecutor to run the load job in a separate thread
+            if run_async:
+                self.executor.submit(
+                    load_job, self.write_buffer.copy()
+                )  # NOTE: we should keep track of the future object to check for errors
+            else:
+                try:
+                    load_job(self.write_buffer.copy())
+                except Exception as e:
+                    print(f"Error in load job: {e}")
+
+            self.write_buffer = []

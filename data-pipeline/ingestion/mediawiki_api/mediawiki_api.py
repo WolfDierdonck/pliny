@@ -60,7 +60,7 @@ class MediaWikiAPI:
                 "format": "json",
                 "prop": "revisions",
                 "titles": page_name,
-                "rvprop": "timestamp|userid|tags",  # TODO: we can add size here aswell
+                "rvprop": "timestamp|userid|tags|size",
                 "rvstart": start_timestamp,
                 "rvend": end_timestamp,
                 "rvdir": "newer",
@@ -70,7 +70,11 @@ class MediaWikiAPI:
                 params["rvcontinue"] = continue_from
 
             response = requests.get(self.url, headers=self.headers, params=params)
-            data = response.json()
+
+            try:
+                data = response.json()
+            except Exception as _:
+                raise ValueError(f"Could not parse response: {response.text}")
 
             result_continue_from: str | None = None
             if "continue" in data and "rvcontinue" in data["continue"]:
@@ -106,10 +110,14 @@ class MediaWikiAPI:
             revert_count = sum(
                 "mw-reverted" in revision["tags"] for revision in revisions
             )
+            net_bytes_change = (
+                (revisions[-1]["size"] - revisions[0]["size"]) if revisions else 0
+            ) # FIXME: this doesnt include the diff from the first revision
             return page_name, PageRevisionMetadata(
                 revision_count=revision_count,
                 editor_count=editor_count,
                 revert_count=revert_count,
+                net_bytes_change=net_bytes_change,
             )
 
         return self.executor.submit(helper_loop, page_name)

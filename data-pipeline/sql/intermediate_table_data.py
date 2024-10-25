@@ -14,11 +14,11 @@ INTEMEDIATE_TABLE_SCHEMA = [
 class IntermediateTableRow:
     def __init__(self, page_name: str):
         self.page_name = page_name
-        self.view_count = float("nan")
-        self.revision_count = float("nan")
-        self.net_bytes_change = float("nan")
-        self.editor_count = float("nan")
-        self.revert_count = float("nan")
+        self.view_count = 0
+        self.revision_count = 0
+        self.net_bytes_change = 0
+        self.editor_count = 0
+        self.revert_count = 0
 
     def __str__(self) -> str:
         return f"{self.page_name}: view_count={self.view_count}, revision_count={self.revision_count}, net_bytes_change={self.net_bytes_change}, editor_count={self.editor_count}, revert_count={self.revert_count}"
