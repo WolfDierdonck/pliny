@@ -21,6 +21,12 @@ class PageViewDataSource(ABC):
         """
         pass
 
+class PageViewDummy(PageViewDataSource):
+    def get_page_views(self, page: str, date: Date) -> Future[int]:
+        future: Future[int] = Future()
+        future.set_result(0)
+        return future
+
 
 class PageViewAPI(PageViewDataSource):
     def __init__(self) -> None:
