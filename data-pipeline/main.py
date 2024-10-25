@@ -8,7 +8,7 @@ from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from sql.intermediate_table_data import INTEMEDIATE_TABLE_SCHEMA
 from ingestion.processor.page_revision_data_source import PageRevisionAPI
-from ingestion.processor.page_view_data_source import PageViewAPI
+from ingestion.processor.page_view_data_source import PageViewDummy
 
 load_dotenv(dotenv_path=".env")
 
@@ -24,7 +24,7 @@ NUMBER_OF_BATCHES = 10000
 BATCH_WAIT_TIME = 0.7
 
 revision_data_source = PageRevisionAPI()
-view_data_source = PageViewAPI()
+view_data_source = PageViewDummy()
 
 processor = IntermediateTableProcessor(revision_data_source, view_data_source)
 for date in date_range:
