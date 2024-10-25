@@ -19,13 +19,13 @@ class IntermediateTableProcessor:
         # We need the last week of data to calculate the score
         date_range = DateRange(date, date)
 
-        view_futures = [
-            self.analytics_api.get_page_views(page, date_range) for page in pages
-        ]
-        edit_futures = [
-            self.analytics_api.get_page_net_bytes_diff(page, date_range)
-            for page in pages
-        ]
+        # view_futures = [
+        #     self.analytics_api.get_page_views(page, date_range) for page in pages
+        # ]
+        # edit_futures = [
+        #     self.analytics_api.get_page_net_bytes_diff(page, date_range)
+        #     for page in pages
+        # ]
         revision_futures = [
             self.media_wiki_api.get_page_revision_metadata(page, date) for page in pages
         ]
@@ -34,19 +34,19 @@ class IntermediateTableProcessor:
             page: IntermediateTableRow(page) for page in pages
         }
 
-        for view_future in concurrent.futures.as_completed(view_futures):
-            try:
-                page, date_range, views = view_future.result()
-                data[page].view_count = views.get_data_point(date)
-            except Exception as e:
-                print(f"Error processing view future: {e}")
+        # for view_future in concurrent.futures.as_completed(view_futures):
+        #     try:
+        #         page, date_range, views = view_future.result()
+        #         data[page].view_count = int(views.get_data_point(date))
+        #     except Exception as e:
+        #         print(f"Error processing view future: {e}")
 
-        for edit_future in concurrent.futures.as_completed(edit_futures):
-            try:
-                page, date_range, edits = edit_future.result()
-                data[page].net_bytes_change = edits.get_data_point(date)
-            except Exception as e:
-                print(f"Error processing edit future: {e}")
+        # for edit_future in concurrent.futures.as_completed(edit_futures):
+        #     try:
+        #         page, date_range, edits = edit_future.result()
+        #         data[page].net_bytes_change = int(edits.get_data_point(date))
+        #     except Exception as e:
+        #         print(f"Error processing edit future: {e}")
 
         for revision_future in concurrent.futures.as_completed(revision_futures):
             try:
@@ -54,6 +54,7 @@ class IntermediateTableProcessor:
                 data[page].revision_count = revision_metadata.revision_count
                 data[page].editor_count = revision_metadata.editor_count
                 data[page].revert_count = revision_metadata.revert_count
+                data[page].net_bytes_change = revision_metadata.net_bytes_change
             except Exception as e:
                 print(f"Error processing revision future: {e}")
 
@@ -73,4 +74,4 @@ class IntermediateTableProcessor:
                 }
             )
 
-        self.wikipediaDataAccessor.write_to_table(table, rows)
+        self.wikipediaDataAccessor.write_to_table(table, rows, True)
