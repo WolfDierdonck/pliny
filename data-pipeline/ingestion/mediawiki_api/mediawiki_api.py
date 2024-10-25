@@ -48,7 +48,7 @@ class MediaWikiAPI:
 
     def get_page_revision_metadata(
         self, page_name: str, date: Date
-    ) -> Future[tuple[str, PageRevisionMetadata]]:
+    ) -> Future[PageRevisionMetadata]:
         def fetch_and_process(
             page_name: str, continue_from: str | None
         ) -> tuple[list[dict], str | None]:
@@ -93,7 +93,7 @@ class MediaWikiAPI:
             revisions = page_data["revisions"]
             return revisions, result_continue_from
 
-        def helper_loop(page_name: str) -> tuple[str, PageRevisionMetadata]:
+        def helper_loop(page_name: str) -> PageRevisionMetadata:
             revisions = []
             first_page_revisions, continue_from = fetch_and_process(page_name, None)
             revisions.extend(first_page_revisions)
@@ -112,8 +112,8 @@ class MediaWikiAPI:
             )
             net_bytes_change = (
                 (revisions[-1]["size"] - revisions[0]["size"]) if revisions else 0
-            ) # FIXME: this doesnt include the diff from the first revision
-            return page_name, PageRevisionMetadata(
+            )  # FIXME: this doesnt include the diff from the first revision
+            return PageRevisionMetadata(
                 revision_count=revision_count,
                 editor_count=editor_count,
                 revert_count=revert_count,
