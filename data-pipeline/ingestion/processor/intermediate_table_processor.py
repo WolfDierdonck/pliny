@@ -11,10 +11,9 @@ class IntermediateTableProcessor:
         self,
         revision_data_source: PageRevisionDataSource,
         view_data_source: PageViewDataSource,
+        wikipedia_data_accessor: WikipediaDataAccessor,
     ) -> None:
-        self.wikipediaDataAccessor = WikipediaDataAccessor(
-            "PLINY_BIGQUERY_SERVICE_ACCOUNT"
-        )
+        self.wikipediaDataAccessor = wikipedia_data_accessor
         self.revision_data_source = revision_data_source
         self.view_data_source = view_data_source
 
