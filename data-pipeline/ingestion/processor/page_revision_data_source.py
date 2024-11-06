@@ -46,7 +46,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
         return Date(int(year), int(month), int(day))
         
 
-    def __init__(self, dump_dir) -> None:
+    def __init__(self, dump_dir: str) -> None:
         # maps month/year to a dump file's table
         # dump file table maps (page, date) to revision metadata
         self.dump_dir = dump_dir

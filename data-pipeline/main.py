@@ -8,7 +8,7 @@ from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from sql.intermediate_table_data import INTEMEDIATE_TABLE_SCHEMA
 from ingestion.processor.page_revision_data_source import PageRevisionDumpFile
-from ingestion.processor.page_view_data_source import PageViewDummy
+from ingestion.processor.page_view_data_source import PageViewDumpFile
 
 load_dotenv(dotenv_path=".env")
 
@@ -24,7 +24,7 @@ wikipedia_data_accessor.create_table("intermediate_table", INTEMEDIATE_TABLE_SCH
 date_range = DateRange(Date(2024, 11, 1), Date(2024, 11, 1))
 
 revision_data_source = PageRevisionDumpFile("~/Downloads")
-view_data_source = PageViewDummy()
+view_data_source = PageViewDumpFile("~/Downloads")
 
 processor = IntermediateTableProcessor(revision_data_source, view_data_source, wikipedia_data_accessor)
 for date in date_range:
