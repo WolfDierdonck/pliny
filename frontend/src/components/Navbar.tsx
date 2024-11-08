@@ -33,6 +33,13 @@ const Navbar: React.FC = () => {
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link to="/ScoreTable">
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              Score Table
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   );
