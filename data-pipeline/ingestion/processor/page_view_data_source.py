@@ -102,7 +102,7 @@ class PageViewDumpFile(PageViewDataSource):
         # then, get the metadata for the page/date
         # return a future that is already done
 
-        future = Future()
+        future: Future[int] = Future()
         res = dump_file.get((page, date))
         future.set_result(0 if res is None else res)
         return future

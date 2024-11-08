@@ -60,7 +60,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
         # jan 2024 is 2024-10.enwiki.2024-01.tsv 
         # (the first 2024-10 is the dump date, the second date is the data date) 
         filename = os.path.expanduser(f"{self.dump_dir}/2024-10.enwiki.{date.year}-{date.month}.tsv")
-        page_date_to_entries = {}
+        page_date_to_entries: dict[tuple[str, Date], list] = {}
         # read the file and parse as stream
         # open the absolute path to the file
         with open(filename, "r") as f:  
@@ -104,7 +104,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
         # then, get the metadata for the page/date
         # return a future that is already done
 
-        future = Future()
+        future: Future[PageRevisionMetadata] = Future()
         res = dump_file.get((page, date))
         future.set_result(PageRevisionMetadata(0, 0, 0, 0) if res is None else res)
         return future
