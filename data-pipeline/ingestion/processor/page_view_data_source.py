@@ -54,29 +54,33 @@ class PageViewDumpFile(PageViewDataSource):
         # dump file table maps (page, date) to view count
         self.dump_dir = dump_dir
         self.dump_files: dict[Date, dict[tuple[str, Date], int]] = {}
-        cols_names = "wiki_code page_title  page_id daily_total hourly_counts"
-        self.col_name_to_index = {col: i for i, col in enumerate(cols_names.split("\t"))}
+        # unsure about what the last column actually represents, doesn't seem to specify in docs
+        #['en.wikipedia', '!', '7712754', 'desktop', '21', 'B1C1D2E1F1G1J4K1L3N1O1Q1U1V1X1\n']
+        cols_names = "wiki_code,page_title,page_id,access_method,page_views,agent_identifier"
+        self.col_name_to_index = {col: i for i, col in enumerate(cols_names.split(","))}
         super().__init__()
 
     def load_dump_file(self, date: Date) -> dict[tuple[str, Date], int]:
         # load the dump file into memory
-        # pageviews-20241101-automated.bz2  
-        filename = os.path.expanduser(f"{self.dump_dir}/pageviews-{date.year}{date.month}{date.day}-automated.bz2")
-        page_date_to_entries = {}
+        # pageviews-20241101-user  
+        filename = os.path.expanduser(f"{self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user")
         # read the file and parse as stream
         # open the absolute path to the file
         out: dict[tuple[str, Date], int] = {}
         with open(filename, "r") as f:  
             for line in f:
-                cols = line.split("\t")
+                cols = line.split(" ")
                 # skip non-enwiki
                 if cols[self.col_name_to_index["wiki_code"]] != "en.wikipedia":
                     continue
                 
                 page = cols[self.col_name_to_index["page_title"]]
-                if page not in page_date_to_entries:
-                    page_date_to_entries[page] = 0
-                out[(page, date)] += int(cols[self.col_name_to_index["daily_total"]])
+                if (page,date) not in out:
+                    out[(page, date)] = 0
+                try:
+                    out[(page, date)] += int(cols[self.col_name_to_index["page_views"]])
+                except:
+                    raise ValueError("page_views is not correct, the cols are: ", cols)
 
         return out
 
