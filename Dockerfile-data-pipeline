@@ -1,0 +1,12 @@
+# Use Python 3.11 slim image as base
+FROM python:3.11-slim
+
+# Copy the entire project directory into the container
+COPY data-pipeline data-pipeline
+COPY secrets secrets
+COPY .env .env
+
+RUN pip install --no-cache-dir -r ./data-pipeline/requirements.txt
+
+# Set the default command to run your script
+CMD ["python3", "data-pipeline/main.py"]
