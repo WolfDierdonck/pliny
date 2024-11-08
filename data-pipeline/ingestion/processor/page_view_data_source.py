@@ -64,6 +64,12 @@ class PageViewDumpFile(PageViewDataSource):
         # load the dump file into memory
         # pageviews-20241101-user  
         filename = os.path.expanduser(f"{self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user")
+        if(not os.path.exists(filename)):
+            print("downloading page view dump for date", date)
+            # https://dumps.wikimedia.org/other/pageview_complete/2024/2024-11/pageviews-20241101-user.bz2
+            # os.system(f"wget --directory-prefix=~/Downloads https://dumps.wikimedia.org/other/pageviews/{date.year}/{date.year}-{date.month:02}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
+            # os.system(f"bzip2 -d pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
+        
         # read the file and parse as stream
         # open the absolute path to the file
         out: dict[tuple[str, Date], int] = {}
