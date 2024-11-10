@@ -10,10 +10,11 @@ from .client_helpers import get_bigquery_client
 
 
 class WikipediaDataAccessor:
-    def __init__(self, credentials_env_variable: str):
+    def __init__(self, credentials_env_variable: str, buffer_size: int = 1000):
         self.client = get_bigquery_client(credentials_env_variable)
         self.dataset_id = "wikipedia_data"
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=100)
+        self.buffer_size = buffer_size
 
         self.write_buffer: list[dict] = []
 
@@ -97,7 +98,7 @@ class WikipediaDataAccessor:
 
         self.write_buffer.extend(rows)
 
-        if len(self.write_buffer) >= 1000:
+        if len(self.write_buffer) >= self.buffer_size:
             # Use ThreadPoolExecutor to run the load job in a separate thread
             if run_async:
                 self.executor.submit(
