@@ -67,9 +67,6 @@ class PageViewDumpFile(PageViewDataSource):
         # pageviews-20241101-user  
         filename = self.dump_manager.get_page_view_dump_filename(date)
 
-        if(not os.path.exists(filename)):
-            filename = self.dump_manager.get_page_view_dump_filename(date)
-        
         # read the file and parse as stream
         # open the absolute path to the file
         out: dict[str, int] = {}
