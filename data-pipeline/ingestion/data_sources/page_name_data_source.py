@@ -50,7 +50,8 @@ class PageNameDumpFile(PageNameDataSource):
             if (split_line[0] == 'en.wikipedia'
                 and not split_line[1].startswith("File:")
                 and not split_line[1].startswith("Category:")
-                and not split_line[1].startswith("Talk:")):
+                and not split_line[1].startswith("Talk:")
+                and not split_line[1] == "-"):
                 
                 page_name = split_line[1]
                 
