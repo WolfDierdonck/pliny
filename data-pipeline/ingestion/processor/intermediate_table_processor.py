@@ -2,8 +2,8 @@ import concurrent.futures
 from common.dates import Date
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from sql.intermediate_table_data import IntermediateTableRow
-from .page_revision_data_source import PageRevisionDataSource
-from .page_view_data_source import PageViewDataSource
+from ingestion.data_sources.page_revision_data_source import PageRevisionDataSource
+from ingestion.data_sources.page_view_data_source import PageViewDataSource
 
 
 class IntermediateTableProcessor:

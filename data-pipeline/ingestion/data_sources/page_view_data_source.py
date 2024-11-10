@@ -8,6 +8,8 @@ from common.dates import Date, DateRange
 from ingestion.analytics_api.analytics_api import AnalyticsAPI
 from common.time_series import TimeSeries
 
+from ingestion.wikimedia_dumps.dump_manager import DumpManager
+
 
 class PageViewDataSource(ABC):
     @abstractmethod
@@ -51,31 +53,25 @@ class PageViewAPI(PageViewDataSource):
         return processed_future
 
 class PageViewDumpFile(PageViewDataSource):
-    def __init__(self, dump_dir: str) -> None:
+    def __init__(self, dump_manager: DumpManager) -> None:
         # maps month/year to a dump file's table
         # dump file table maps (page, date) to view count
-        self.dump_dir = dump_dir
-        self.dump_files: dict[Date, dict[tuple[str, Date], int]] = {}
-        # unsure about what the last column actually represents, doesn't seem to specify in docs
+        self.dump_manager = dump_manager
+        self.dump_files: dict[Date, dict[tuple[str, Date], int]] = {}   
+        # row structure, for hourly counts: A->1, B->2, ...
         #['en.wikipedia', '!', '7712754', 'desktop', '21', 'B1C1D2E1F1G1J4K1L3N1O1Q1U1V1X1\n']
-        cols_names = "wiki_code,page_title,page_id,access_method,page_views,agent_identifier"
+        cols_names = "wiki_code,page_title,page_id,access_method,page_views,hourly_count"
         self.col_name_to_index = {col: i for i, col in enumerate(cols_names.split(","))}
         super().__init__()
 
     def load_dump_file(self, date: Date) -> dict[tuple[str, Date], int]:
         # load the dump file into memory
         # pageviews-20241101-user  
-        filename = os.path.expanduser(f"{self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user")
+        filename = self.dump_manager.get_page_view_dump_filename(date)
 
         #TODO: make this async, pre-downlad the file
         if(not os.path.exists(filename)):
-                print("downloading page view dump for date", date)
-                # https://dumps.wikimedia.org/other/pageview_complete/2024/2024-11/pageviews-20241101-user.bz2
-                response = requests.get(f"https://dumps.wikimedia.org/other/pageview_complete/{date.year}/{date.year}-{date.month:02}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
-                os.makedirs(self.dump_dir, exist_ok=True)
-                with open(f"{self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2", "wb") as file:
-                    file.write(response.content)
-                os.system(f"bzip2 -d {self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
+            filename = self.dump_manager.get_page_view_dump_filename(date)
         
         # read the file and parse as stream
         # open the absolute path to the file

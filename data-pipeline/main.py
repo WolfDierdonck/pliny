@@ -7,8 +7,9 @@ from ingestion.processor.intermediate_table_processor import IntermediateTablePr
 from ingestion.mediawiki_api.mediawiki_helper import MediaWikiHelper
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from sql.intermediate_table_data import INTEMEDIATE_TABLE_SCHEMA
-from ingestion.processor.page_revision_data_source import PageRevisionDumpFile
-from ingestion.processor.page_view_data_source import PageViewDumpFile
+from ingestion.data_sources.page_revision_data_source import PageRevisionDumpFile
+from ingestion.data_sources.page_view_data_source import PageViewDumpFile
+from ingestion.wikimedia_dumps.dump_manager import DumpManager
 
 load_dotenv(dotenv_path=".env")
 
@@ -21,10 +22,11 @@ wikipedia_data_accessor = WikipediaDataAccessor("PLINY_BIGQUERY_SERVICE_ACCOUNT"
 wikipedia_data_accessor.delete_table("intermediate_table")
 wikipedia_data_accessor.create_table("intermediate_table", INTEMEDIATE_TABLE_SCHEMA)
 
-date_range = DateRange(Date(2024, 11, 1), Date(2024, 11, 1))
+date_range = DateRange(Date(2024, 10, 1), Date(2024, 10, 1))
 
-revision_data_source = PageRevisionDumpFile("~/Downloads")
-view_data_source = PageViewDumpFile("~/Downloads")
+dump_manager = DumpManager("dumps", date_range)
+revision_data_source = PageRevisionDumpFile(dump_manager)
+view_data_source = PageViewDumpFile(dump_manager)
 
 processor = IntermediateTableProcessor(revision_data_source, view_data_source, wikipedia_data_accessor)
 for date in date_range:
