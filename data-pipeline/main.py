@@ -28,10 +28,10 @@ view_data_source = PageViewDumpFile(dump_manager)
 
 processor = IntermediateTableProcessor(revision_data_source, view_data_source, wikipedia_data_accessor)
 for date in date_range:
+    pages = []
     try:
         page_name_data_source = PageNameDumpFile(date, dump_manager)
         while True:
-            pages = []
 
             for i in range(BATCH_SIZE):
                 page = page_name_data_source.get_next_page_name()
@@ -44,10 +44,14 @@ for date in date_range:
                 print("Duplicate pages in batch, WHY????")
             
             processor.process(pages, date)
+            pages = []
 
             if BATCH_WAIT_TIME > 0:
                 time.sleep(BATCH_WAIT_TIME)
 
     except StopIteration:
+        if len(pages) > 0:
+            processor.process(pages, date)
+            pages = []
         print("Finished processing all pages for date", date)
         continue
