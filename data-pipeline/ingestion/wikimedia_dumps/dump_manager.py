@@ -6,7 +6,7 @@ import requests
 from common.dates import Date, DateRange
 
 class DumpManager:
-    def __init__(self, dump_dir, date_range: DateRange):
+    def __init__(self, dump_dir, date_range: DateRange) -> None:
         self.dump_dir = dump_dir
         self.date_range = date_range
         self.dumps_downloaded: dict[Date, Future[str]] = {}
