@@ -2,6 +2,8 @@ import os
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
 
+import requests
+
 from common.dates import Date, DateRange
 from ingestion.analytics_api.analytics_api import AnalyticsAPI
 from common.time_series import TimeSeries
@@ -64,11 +66,16 @@ class PageViewDumpFile(PageViewDataSource):
         # load the dump file into memory
         # pageviews-20241101-user  
         filename = os.path.expanduser(f"{self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user")
+
+        #TODO: make this async, pre-downlad the file
         if(not os.path.exists(filename)):
-            print("downloading page view dump for date", date)
-            # https://dumps.wikimedia.org/other/pageview_complete/2024/2024-11/pageviews-20241101-user.bz2
-            # os.system(f"wget --directory-prefix=~/Downloads https://dumps.wikimedia.org/other/pageviews/{date.year}/{date.year}-{date.month:02}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
-            # os.system(f"bzip2 -d pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
+                print("downloading page view dump for date", date)
+                # https://dumps.wikimedia.org/other/pageview_complete/2024/2024-11/pageviews-20241101-user.bz2
+                response = requests.get(f"https://dumps.wikimedia.org/other/pageview_complete/{date.year}/{date.year}-{date.month:02}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
+                os.makedirs(self.dump_dir, exist_ok=True)
+                with open(f"{self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2", "wb") as file:
+                    file.write(response.content)
+                os.system(f"bzip2 -d {self.dump_dir}/pageviews-{date.year}{date.month:02}{date.day:02}-user.bz2")
         
         # read the file and parse as stream
         # open the absolute path to the file
@@ -83,10 +90,8 @@ class PageViewDumpFile(PageViewDataSource):
                 page = cols[self.col_name_to_index["page_title"]]
                 if (page,date) not in out:
                     out[(page, date)] = 0
-                try:
-                    out[(page, date)] += int(cols[self.col_name_to_index["page_views"]])
-                except:
-                    raise ValueError("page_views is not correct, the cols are: ", cols)
+                
+                out[(page, date)] += int(cols[self.col_name_to_index["page_views"]])
 
         return out
 
