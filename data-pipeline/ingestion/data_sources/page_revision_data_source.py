@@ -69,6 +69,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
         # read the file and parse as stream
         # open the absolute path to the file
         with open(filename, "r") as f:  
+            print("parsing revision dump for month:", date)
             for line in f:
                 cols = line.split("\t")
                 # skip non-revisions
@@ -87,8 +88,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
         # now that entries are grouped by page/date, we can generate the final metadata
         out: dict[tuple[str, Date], PageRevisionMetadata] = {}
         for (page, date), entries in page_date_to_entries.items():
-            print(f"page: {page}, date: {date}, entries: {entries}")
-            out[(page.replace("_", " "), date)] = PageRevisionMetadata(
+            out[(page, date)] = PageRevisionMetadata(
                 revision_count=len(entries),
                 editor_count=len(set(entry["event_user_id"] for entry in entries)),
                 # net_bytes_change is the sum of all revision_text_bytes, not a total delta
