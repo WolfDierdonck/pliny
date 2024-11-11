@@ -10,23 +10,30 @@ from ingestion.data_sources.page_revision_data_source import PageRevisionDumpFil
 from ingestion.data_sources.page_view_data_source import PageViewDumpFile
 from ingestion.data_sources.page_name_data_source import PageNameDumpFile
 from ingestion.wikimedia_dumps.dump_manager import DumpManager
+from logger import Logger, Component
 
 load_dotenv(dotenv_path=".env")
 
 BATCH_SIZE = 10000
 BATCH_WAIT_TIME = 0.0
 
-wikipedia_data_accessor = WikipediaDataAccessor("PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=100000)
+logger = Logger("data-pipeline")
+
+wikipedia_data_accessor = WikipediaDataAccessor(
+    logger, "PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=100000
+)
 wikipedia_data_accessor.delete_table("intermediate_table")
 wikipedia_data_accessor.create_table("intermediate_table", INTEMEDIATE_TABLE_SCHEMA)
 
-date_range = DateRange(Date(2024, 10, 1), Date(2024, 10, 1))
+date_range = DateRange(Date(2024, 10, 1), Date(2024, 10, 3))
 
-dump_manager = DumpManager("dumps", date_range)
-revision_data_source = PageRevisionDumpFile(dump_manager)
-view_data_source = PageViewDumpFile(dump_manager)
+dump_manager = DumpManager(logger, "dumps", date_range)
+revision_data_source = PageRevisionDumpFile(logger, dump_manager)
+view_data_source = PageViewDumpFile(logger, dump_manager)
 
-processor = IntermediateTableProcessor(revision_data_source, view_data_source, wikipedia_data_accessor)
+processor = IntermediateTableProcessor(
+    logger, revision_data_source, view_data_source, wikipedia_data_accessor
+)
 for date in date_range:
     pages = []
     try:
@@ -36,13 +43,16 @@ for date in date_range:
             for i in range(BATCH_SIZE):
                 page = page_name_data_source.get_next_page_name()
                 if i == 0:
-                    print("Just started a batch from page", page, "for date", date)
+                    logger.info(
+                        f"Just started a batch from page {page} for date {date}",
+                        Component.CORE,
+                    )
 
                 pages.append(page)
 
             if len(set(pages)) != len(pages):
-                print("Duplicate pages in batch, WHY????")
-            
+                logger.info("Duplicate pages in batch, WHY????", Component.CORE)
+
             processor.process(pages, date)
             pages = []
 
@@ -53,5 +63,5 @@ for date in date_range:
         if len(pages) > 0:
             processor.process(pages, date)
             pages = []
-        print("Finished processing all pages for date", date)
+        logger.info(f"Finished processing all pages for date {date}", Component.CORE)
         continue

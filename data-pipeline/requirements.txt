@@ -4,3 +4,5 @@ pylint
 mypy
 types-requests
 google-cloud-bigquery
+tqdm
+types-tqdm
