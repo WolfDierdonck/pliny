@@ -62,6 +62,11 @@ for date in date_range:
     except StopIteration:
         if len(pages) > 0:
             processor.process(pages, date)
+
+            t = wikipedia_data_accessor.get_table("intermediate_table")
+            wikipedia_data_accessor.write_to_table(
+                t, [], run_async=False, buffer_load=False
+            )
             pages = []
         logger.info(f"Finished processing all pages for date {date}", Component.CORE)
         continue

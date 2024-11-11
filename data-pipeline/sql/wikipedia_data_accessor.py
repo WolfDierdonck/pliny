@@ -80,7 +80,9 @@ class WikipediaDataAccessor:
         rows = self.client.list_rows(table)
         return [dict(row.items()) for row in rows]
 
-    def write_to_table(self, table: Table, rows: list[dict], run_async: bool) -> None:
+    def write_to_table(
+        self, table: Table, rows: list[dict], run_async: bool, buffer_load: bool = True
+    ) -> None:
         """
         Write data to a BigQuery table using load_table_from_json
 
@@ -110,7 +112,7 @@ class WikipediaDataAccessor:
 
         self.write_buffer.extend(rows)
 
-        if len(self.write_buffer) >= self.buffer_size:
+        if not buffer_load or len(self.write_buffer) >= self.buffer_size:
             # Use ThreadPoolExecutor to run the load job in a separate thread
             if run_async:
                 self.executor.submit(
