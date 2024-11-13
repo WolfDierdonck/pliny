@@ -21,7 +21,7 @@ BATCH_WAIT_TIME = 0.0
 logger = Logger("data-pipeline")
 
 wikipedia_data_accessor = WikipediaDataAccessor(
-    logger, "PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=100000
+    logger, "PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=1000000
 )
 # wikipedia_data_accessor.delete_table("intermediate_table")
 # wikipedia_data_accessor.create_table("intermediate_table", INTEMEDIATE_TABLE_SCHEMA)
