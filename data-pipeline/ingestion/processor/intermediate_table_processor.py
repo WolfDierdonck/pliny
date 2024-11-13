@@ -4,11 +4,13 @@ from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from sql.intermediate_table_data import IntermediateTableRow
 from ingestion.data_sources.page_revision_data_source import PageRevisionDataSource
 from ingestion.data_sources.page_view_data_source import PageViewDataSource
+from logger import Logger, Component
 
 
 class IntermediateTableProcessor:
     def __init__(
         self,
+        logger: Logger,
         revision_data_source: PageRevisionDataSource,
         view_data_source: PageViewDataSource,
         wikipedia_data_accessor: WikipediaDataAccessor,
@@ -16,6 +18,7 @@ class IntermediateTableProcessor:
         self.wikipediaDataAccessor = wikipedia_data_accessor
         self.revision_data_source = revision_data_source
         self.view_data_source = view_data_source
+        self.logger = logger
 
     def process(self, pages: list[str], date: Date) -> None:
         # We need the last week of data to calculate the score
@@ -39,7 +42,9 @@ class IntermediateTableProcessor:
                 views = view_future.result()
                 data[page].view_count = views
             except Exception as e:
-                print(f"Error processing view future for page {page}: {e}")
+                self.logger.error(
+                    f"Error processing view future for page {page}: {e}", Component.CORE
+                )
 
         for revision_future in concurrent.futures.as_completed(
             revision_futures.values()
@@ -55,7 +60,10 @@ class IntermediateTableProcessor:
                 data[page].revert_count = revision_metadata.revert_count
                 data[page].net_bytes_change = revision_metadata.net_bytes_change
             except Exception as e:
-                print(f"Error processing revision future for page {page}: {e}")
+                self.logger.error(
+                    f"Error processing revision future for page {page}: {e}",
+                    Component.CORE,
+                )
         table = self.wikipediaDataAccessor.get_table("intermediate_table")
 
         rows = []
