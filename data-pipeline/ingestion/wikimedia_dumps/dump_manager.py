@@ -65,7 +65,7 @@ class DumpManager:
                 and next_day not in self.dumps_downloaded
             ):
                 self.dumps_downloaded[next_day] = self.executor.submit(
-                    self.get_page_view_dump_filename, next_day
+                    download_page, next_day
                 )
             return f"dumps/pageviews-{date.year}{date.month:02}{date.day:02}-user"
 
