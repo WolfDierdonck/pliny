@@ -1,4 +1,3 @@
-import concurrent.futures
 from common.dates import Date
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from sql.intermediate_table_data import IntermediateTableRow
