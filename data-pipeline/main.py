@@ -22,10 +22,10 @@ logger = Logger("data-pipeline")
 wikipedia_data_accessor = WikipediaDataAccessor(
     logger, "PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=100000
 )
-wikipedia_data_accessor.delete_table("intermediate_table")
-wikipedia_data_accessor.create_table("intermediate_table", INTEMEDIATE_TABLE_SCHEMA)
+# wikipedia_data_accessor.delete_table("intermediate_table")
+# wikipedia_data_accessor.create_table("intermediate_table", INTEMEDIATE_TABLE_SCHEMA)
 
-date_range = DateRange(Date(2024, 10, 1), Date(2024, 10, 3))
+date_range = DateRange(Date(2024, 9, 4), Date(2024, 9, 6))
 
 dump_manager = DumpManager(logger, "dumps", date_range)
 revision_data_source = PageRevisionDumpFile(logger, dump_manager)
@@ -49,9 +49,6 @@ for date in date_range:
                     )
 
                 pages.append(page)
-
-            if len(set(pages)) != len(pages):
-                logger.info("Duplicate pages in batch, WHY????", Component.CORE)
 
             processor.process(pages, date)
             pages = []
