@@ -63,7 +63,7 @@ for date in date_range:
 
             t = wikipedia_data_accessor.get_table("intermediate_table")
             wikipedia_data_accessor.write_to_table(
-                t, [], run_async=False, buffer_load=False
+                t, [], run_async=False, flush_buffer=True
             )
             pages = []
         logger.info(f"Finished processing all pages for date {date}", Component.CORE)
