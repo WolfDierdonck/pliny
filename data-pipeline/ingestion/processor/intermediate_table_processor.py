@@ -34,11 +34,8 @@ class IntermediateTableProcessor:
             page: IntermediateTableRow(page) for page in pages
         }
 
-        for view_future in concurrent.futures.as_completed(view_futures.values()):
+        for page, view_future in view_futures.items():
             try:
-                page = next(
-                    page for page, f in view_futures.items() if f == view_future
-                )
                 views = view_future.result()
                 data[page].view_count = views
             except Exception as e:
@@ -46,14 +43,8 @@ class IntermediateTableProcessor:
                     f"Error processing view future for page {page}: {e}", Component.CORE
                 )
 
-        for revision_future in concurrent.futures.as_completed(
-            revision_futures.values()
-        ):
+        for page, revision_future in revision_futures.items():
             try:
-                # Retrieve the input (page) from the dictionary
-                page = next(
-                    page for page, f in revision_futures.items() if f == revision_future
-                )
                 revision_metadata = revision_future.result()
                 data[page].revision_count = revision_metadata.revision_count
                 data[page].editor_count = revision_metadata.editor_count
