@@ -5,7 +5,8 @@ from common.dates import Date, DateRange
 
 from ingestion.processor.intermediate_table_processor import IntermediateTableProcessor
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
-from sql.intermediate_table_data import INTEMEDIATE_TABLE_SCHEMA
+
+# from sql.intermediate_table_data import INTEMEDIATE_TABLE_SCHEMA
 from ingestion.data_sources.page_revision_data_source import PageRevisionDumpFile
 from ingestion.data_sources.page_view_data_source import PageViewDumpFile
 from ingestion.data_sources.page_name_data_source import PageNameDumpFile
