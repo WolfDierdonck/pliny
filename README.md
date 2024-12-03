@@ -24,7 +24,11 @@ Finally, you can run the program with `python3 ./data-pipeline/main.py` from the
 
 ### Backend (Go)
 
-TODO
+All of the code for this component is in the `backend` folder.
+
+Make sure you have Go installed, the version used to develop this is `1.23.3`. Also make sure you have the Go extension in VSCode installed for linting/etc.
+
+You'll need to install the Go dependencies with `go get .` inside the `backend` folder. Then, you can run the backend using `go run *.go` and it'll run on localhost:8080.
 
 ### Frontend (TypeScript)
 
@@ -34,4 +38,4 @@ Make sure you have both the `ESLint` and `Prettier` extensions installed and ena
 
 Then, you'll need to install all the dependencies using `npm i` inside the `frontend` folder. Note this should be done every time you pull new changes and a new package is added.
 
-Finally, you can run the webapp using `npm start` and it'll run on localhost.
+Finally, you can run the webapp using `npm start` and it'll run on localhost:3000.
