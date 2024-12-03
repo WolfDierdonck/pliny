@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@radix-ui/react-navigation-menu": "^1.2.1",
     "@shadcn/ui": "^0.0.4",
