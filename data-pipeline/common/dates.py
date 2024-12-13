@@ -46,6 +46,20 @@ class Date:
     def __lt__(self, other: "Date") -> bool:
         return self.to_py_date() < other.to_py_date()
 
+    @staticmethod
+    def from_str(date_str: str) -> "Date":
+        if date_str.count("-") != 2:
+            raise ValueError("Date string must have format YYYY-MM-DD")
+
+        year_str, month_str, day_str = date_str.split("-")
+        if not year_str.isdigit() or not month_str.isdigit() or not day_str.isdigit():
+            raise ValueError("Date string must be all digits")
+
+        year = int(year_str)
+        month = int(month_str)
+        day = int(day_str)
+        return Date(year, month, day)
+
 
 class DateRange:
     def __init__(self, start: Date, end: Date):
