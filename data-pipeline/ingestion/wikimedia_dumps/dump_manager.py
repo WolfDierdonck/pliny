@@ -3,6 +3,7 @@ import concurrent.futures
 import os
 import requests
 from tqdm import tqdm
+from datetime import datetime, timedelta
 
 from common.dates import Date, DateRange
 from logger import Logger, Component
@@ -79,20 +80,35 @@ class DumpManager:
 
     def get_page_revision_dump_filename(self, date: Date) -> str:
         # check if file exists
-        if os.path.exists(f"dumps/2024-10.enwiki.{date.year}-{date.month:02}.tsv"):
-            return f"dumps/2024-10.enwiki.{date.year}-{date.month:02}.tsv"
+
+        # get the current month
+        current_date = datetime.now()
+
+        if date.year == current_date.year and date.month == current_date.month:
+            raise ValueError("Cannot download current month's data")
+
+        last_month_date = current_date.replace(day=1) - timedelta(days=1)
+
+        last_month_year = last_month_date.year
+        last_month_month = last_month_date.month
+
+        final_file_name = f"{last_month_year}-{last_month_month:02}.enwiki.{date.year}-{date.month:02}.tsv"
+        final_file_path = f"dumps/{final_file_name}"
+
+        if os.path.exists(final_file_path):
+            return final_file_path
 
         self.logger.info(
             f"Downloading page revision dump for date {date}", Component.DATASOURCE
         )
         # https://dumps.wikimedia.org/other/mediawiki_history/2024-10/enwiki/2024-10.enwiki.2024-11.tsv.bz2
+        intermediate_file_name = final_file_name + ".bz2"
 
-        url = f"https://dumps.wikimedia.org/other/mediawiki_history/2024-10/enwiki/2024-10.enwiki.{date.year}-{date.month:02}.tsv.bz2"
-        filename = f"dumps/2024-10.enwiki.{date.year}-{date.month:02}.tsv.bz2"
-        self._download_with_progress_bar(url, filename)
+        url = f"https://dumps.wikimedia.org/other/mediawiki_history/{last_month_year}-{last_month_month:02}/enwiki/{intermediate_file_name}"
+        self._download_with_progress_bar(url, f"dumps/{intermediate_file_name}")
 
         self.logger.info(
             f"Decompressing page revision dump for date {date}", Component.DATASOURCE
         )
-        os.system(f"bzip2 -d dumps/2024-10.enwiki.{date.year}-{date.month:02}.tsv.bz2")
-        return f"dumps/2024-10.enwiki.{date.year}-{date.month:02}.tsv"
+        os.system(f"bzip2 -d dumps/{intermediate_file_name}")
+        return final_file_path

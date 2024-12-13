@@ -20,7 +20,7 @@ Make sure you have both the `pylint` and `mypy type checker` extensions installe
 
 You will also need to create a Python venv, use at least version `3.11` to do this (can be done from the vscode command pallete).
 
-Finally, you can run the program with `python3 ./data-pipeline/main.py` from the root project directory.
+Finally, you can run the program with `python3 ./data-pipeline/main.py` from the root project directory. Note that this takes in arguments to specify what to process. You can learn about all the arguments by using `--help`
 
 ### Backend (Go)
 
