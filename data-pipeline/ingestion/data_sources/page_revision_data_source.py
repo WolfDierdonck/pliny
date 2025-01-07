@@ -90,8 +90,9 @@ class PageRevisionDumpFile(PageRevisionDataSource):
                     aggregated_data[date][page] = []
 
                 aggregated_data[date][page].append(
-                    {
-                        "event_user_id": cols[self.col_name_to_index["event_user_id"]],
+                    {   
+                        # using event_user_text_historical as some revisions are made by editors with no id but a name
+                        "event_user_text_historical": cols[self.col_name_to_index["event_user_text_historical"]],
                         "revision_text_bytes_diff": cols[
                             self.col_name_to_index["revision_text_bytes_diff"]
                         ],
@@ -106,7 +107,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
 
                 self.dates_data[date][page] = PageRevisionMetadata(
                     revision_count=len(entries),
-                    editor_count=len(set(entry["event_user_id"] for entry in entries)),
+                    editor_count=len(set(entry["event_user_text_historical"] for entry in entries)),
                     # net_bytes_change is the total number of bytes changed in the day
                     net_bytes_change=sum(
                         int(
