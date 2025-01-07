@@ -106,18 +106,29 @@ class MediaWikiAPI:
 
             # Process revisions into three integers
             revision_count = len(revisions)
-            editor_count = len(set(revision["userid"] for revision in revisions))
+            editor_count = len(set(revision["userid"] for revision in revisions)) #TODO: unsure if userid here can be empty like dump
             revert_count = sum(
                 "mw-reverted" in revision["tags"] for revision in revisions
             )
             net_bytes_change = (
                 (revisions[-1]["size"] - revisions[0]["size"]) if revisions else 0
             )  # FIXME: this doesnt include the diff from the first revision
+            total_bytes_reverted = (
+                sum(
+                    int(
+                        revision["diff"]
+                        if "mw-reverted" in revision["tags"] and revision["diff"].isnumeric() 
+                        else 0
+                    )
+                    for revision in revisions
+                    )
+            )            
             return PageRevisionMetadata(
                 revision_count=revision_count,
                 editor_count=editor_count,
                 revert_count=revert_count,
                 net_bytes_change=net_bytes_change,
+                total_bytes_reverted=total_bytes_reverted
             )
 
         return self.executor.submit(helper_loop, page_name)
