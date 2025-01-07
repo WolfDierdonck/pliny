@@ -115,11 +115,12 @@ class MediaWikiAPI:
             )  # FIXME: this doesnt include the diff from the first revision
             total_bytes_reverted = (
                 sum(
-                    int(
+                    abs(
+                        int(
                         revision["diff"]
                         if "mw-reverted" in revision["tags"] and revision["diff"].isnumeric() 
                         else 0
-                    )
+                    ))
                     for revision in revisions
                     )
             )            

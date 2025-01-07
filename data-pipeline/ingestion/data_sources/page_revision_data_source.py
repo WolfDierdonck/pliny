@@ -120,12 +120,14 @@ class PageRevisionDumpFile(PageRevisionDataSource):
                     revert_count=sum(
                         "revert" in entry["revision_tags"] for entry in entries
                     ),
-                    total_bytes_reverted=sum(
-                        int(
-                            abs(entry["revision_text_bytes_diff"])
-                            if "revert" in entry["revision_tags"] and entry["revision_text_bytes_diff"].isnumeric()
-                            else 0
-                        ) 
+                    total_bytes_reverted=
+                        sum(
+                            abs(
+                                int(entry["revision_text_bytes_diff"]
+                                if "revert" in entry["revision_tags"] and entry["revision_text_bytes_diff"].isnumeric()
+                                else 0
+                                )
+                            )
                         for entry in entries
                     )
                 )
