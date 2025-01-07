@@ -5,6 +5,7 @@ class PageRevisionMetadata:
         editor_count: int,
         revert_count: int,
         net_bytes_change: int,
+        revert_bytes_change: int
     ):
         self.revision_count = revision_count
         self.editor_count = editor_count
