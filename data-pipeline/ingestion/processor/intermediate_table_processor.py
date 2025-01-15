@@ -49,6 +49,7 @@ class IntermediateTableProcessor:
                 data[page].editor_count = revision_metadata.editor_count
                 data[page].revert_count = revision_metadata.revert_count
                 data[page].net_bytes_change = revision_metadata.net_bytes_change
+                data[page].total_bytes_reverted = revision_metadata.total_bytes_reverted
             except Exception as e:
                 self.logger.error(
                     f"Error processing revision future for page {page}: {e}",
@@ -67,6 +68,7 @@ class IntermediateTableProcessor:
                     "net_bytes_change": intermediate_table_row.net_bytes_change,
                     "editor_count": intermediate_table_row.editor_count,
                     "revert_count": intermediate_table_row.revert_count,
+                    "total_bytes_reverted": intermediate_table_row.total_bytes_reverted
                 }
             )
 

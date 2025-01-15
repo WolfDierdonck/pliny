@@ -8,6 +8,7 @@ INTEMEDIATE_TABLE_SCHEMA = [
     SchemaField("net_bytes_change", "INT64", mode="REQUIRED"),
     SchemaField("editor_count", "INT64", mode="REQUIRED"),
     SchemaField("revert_count", "INT64", mode="REQUIRED"),
+    SchemaField("total_bytes_reverted", "INT64", mode="REQUIRED"),
 ]
 
 
@@ -19,9 +20,10 @@ class IntermediateTableRow:
         self.net_bytes_change = 0
         self.editor_count = 0
         self.revert_count = 0
+        self.total_bytes_reverted = 0
 
     def __str__(self) -> str:
-        return f"{self.page_name}: view_count={self.view_count}, revision_count={self.revision_count}, net_bytes_change={self.net_bytes_change}, editor_count={self.editor_count}, revert_count={self.revert_count}"
+        return f"{self.page_name}: view_count={self.view_count}, revision_count={self.revision_count}, net_bytes_change={self.net_bytes_change}, editor_count={self.editor_count}, revert_count={self.revert_count} total_bytes_reverted={self.total_bytes_reverted}"
 
     def __repr__(self) -> str:
         return f"IntermediateTableRow({self})"
