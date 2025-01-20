@@ -60,6 +60,11 @@ def parse_args() -> argparse.Namespace:
         default=0.0,
         help="Wait time between ingest batches in seconds (default: 0.0)",
     )
+    ingest_group.add_argument(
+        "--recreate-table",
+        action="store_true",
+        help="Recreate the table with the new INTERMEDIATE_TABLE_SCHEMA. Use this carefully",
+    )
 
     # Score group
     score_group = parser.add_argument_group("score arguments")
@@ -145,6 +150,16 @@ if __name__ == "__main__":
         ingest_batch_wait: float = args.ingest_batch_wait
 
         date_range = DateRange(ingest_start, ingest_end)
+
+        if args.recreate_table:
+            print(
+                "Recreate table argument passed. Please type 'I am sure' to confirm the operation. ONLY DO THIS IF YOU WANT TO DELETE ALL EXISTING DATA:"
+            )
+            confirm = input()
+            if confirm != "I am sure":
+                print("Aborting operation")
+                exit(1)
+
         ingest_dates(
             logger=logger,
             date_range=date_range,
@@ -153,6 +168,7 @@ if __name__ == "__main__":
             edit_source_str=ingest_edit_source,
             batch_size=ingest_batch_size,
             batch_wait=ingest_batch_wait,
+            recreate_table=args.recreate_table,
         )
 
     score: bool = args.score

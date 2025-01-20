@@ -16,6 +16,7 @@ from ingestion.data_sources.page_name_data_source import (
     PageNameWikiMediaAPI,
 )
 from ingestion.wikimedia_dumps.dump_manager import DumpManager
+from sql.intermediate_table_data import recreate_intermediate_table
 
 
 def ingest_dates(
@@ -26,10 +27,14 @@ def ingest_dates(
     edit_source_str: str,
     batch_size: int,
     batch_wait: float,
+    recreate_table: bool = False,
 ) -> None:
     wikipedia_data_accessor = WikipediaDataAccessor(
         logger, "PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=batch_size * 10
     )
+
+    if recreate_table:
+        recreate_intermediate_table(wikipedia_data_accessor)
 
     dump_manager = DumpManager(logger, "dumps", date_range)
 
