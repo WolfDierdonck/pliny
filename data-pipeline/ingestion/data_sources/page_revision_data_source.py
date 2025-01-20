@@ -90,10 +90,11 @@ class PageRevisionDumpFile(PageRevisionDataSource):
                     aggregated_data[date][page] = []
 
                 aggregated_data[date][page].append(
-                    {
-                        "event_user_id": cols[self.col_name_to_index["event_user_id"]],
-                        "revision_text_bytes": cols[
-                            self.col_name_to_index["revision_text_bytes"]
+                    {   
+                        # using event_user_text_historical as some revisions are made by editors with no id but a name
+                        "event_user_text_historical": cols[self.col_name_to_index["event_user_text_historical"]],
+                        "revision_text_bytes_diff": cols[
+                            self.col_name_to_index["revision_text_bytes_diff"]
                         ],
                         "revision_tags": cols[self.col_name_to_index["revision_tags"]],
                     }
@@ -105,13 +106,12 @@ class PageRevisionDumpFile(PageRevisionDataSource):
                     self.dates_data[date] = {}
 
                 self.dates_data[date][page] = PageRevisionMetadata(
-                    revision_count=len(entries),
-                    editor_count=len(set(entry["event_user_id"] for entry in entries)),
-                    # net_bytes_change is the sum of all revision_text_bytes, not a total delta
-                    net_bytes_change=sum(
+                    edit_count=len(entries),
+                    editor_count=len(set(entry["event_user_text_historical"] for entry in entries)),
+                    total_bytes_changed=sum(
                         int(
-                            entry["revision_text_bytes"]
-                            if entry["revision_text_bytes"].isnumeric()
+                            entry["revision_text_bytes_diff"]
+                            if entry["revision_text_bytes_diff"].isnumeric()
                             else 0
                         )
                         for entry in entries
@@ -119,6 +119,16 @@ class PageRevisionDumpFile(PageRevisionDataSource):
                     revert_count=sum(
                         "revert" in entry["revision_tags"] for entry in entries
                     ),
+                    total_bytes_reverted=
+                        sum(
+                            abs(
+                                int(entry["revision_text_bytes_diff"]
+                                if "revert" in entry["revision_tags"] and entry["revision_text_bytes_diff"].isnumeric()
+                                else 0
+                                )
+                            )
+                        for entry in entries
+                    )
                 )
 
     def get_page_revision_metadata(
@@ -135,5 +145,5 @@ class PageRevisionDumpFile(PageRevisionDataSource):
 
         future: Future[PageRevisionMetadata] = Future()
         res = date_data.get(page)
-        future.set_result(PageRevisionMetadata(0, 0, 0, 0) if res is None else res)
+        future.set_result(PageRevisionMetadata(0, 0, 0, 0, 0) if res is None else res)
         return future

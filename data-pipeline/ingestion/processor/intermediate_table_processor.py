@@ -45,10 +45,11 @@ class IntermediateTableProcessor:
         for page, revision_future in revision_futures.items():
             try:
                 revision_metadata = revision_future.result()
-                data[page].revision_count = revision_metadata.revision_count
+                data[page].edit_count = revision_metadata.edit_count
                 data[page].editor_count = revision_metadata.editor_count
                 data[page].revert_count = revision_metadata.revert_count
-                data[page].net_bytes_change = revision_metadata.net_bytes_change
+                data[page].total_bytes_changed = revision_metadata.total_bytes_changed
+                data[page].total_bytes_reverted = revision_metadata.total_bytes_reverted
             except Exception as e:
                 self.logger.error(
                     f"Error processing revision future for page {page}: {e}",
@@ -63,10 +64,11 @@ class IntermediateTableProcessor:
                     "date": date.to_py_date().isoformat(),
                     "page_name": page_name,
                     "view_count": intermediate_table_row.view_count,
-                    "revision_count": intermediate_table_row.revision_count,
-                    "net_bytes_change": intermediate_table_row.net_bytes_change,
+                    "edit_count": intermediate_table_row.edit_count,
+                    "total_bytes_changed": intermediate_table_row.total_bytes_changed,
                     "editor_count": intermediate_table_row.editor_count,
                     "revert_count": intermediate_table_row.revert_count,
+                    "total_bytes_reverted": intermediate_table_row.total_bytes_reverted,
                 }
             )
 
