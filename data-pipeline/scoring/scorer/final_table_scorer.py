@@ -41,10 +41,10 @@ class FinalTableScorer:
 
         query = f"""
             INSERT INTO wikipedia_data.top_vandalism_final_table (
-                select date, page_name as 'article', log(revert_count) + log(net_bytes_change) as 'score' from (
-                    SELECT page_name, revert_count, net_bytes_change, date
+                select date, page_name as 'article', log(revert_count) + log(total_bytes_changed) as 'score' from (
+                    SELECT page_name, revert_count, total_bytes_changed, date
                     FROM wikipedia_data. intermediate_table_sep
-                    where date={self._get_sql_date(date)} and revert_count > 0 and net_bytes_change > 0
+                    where date={self._get_sql_date(date)} and revert_count > 0 and total_bytes_changed > 0
                 )
                 order by score desc
                 limit {self.insert_limit}

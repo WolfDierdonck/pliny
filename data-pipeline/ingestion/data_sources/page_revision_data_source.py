@@ -106,10 +106,9 @@ class PageRevisionDumpFile(PageRevisionDataSource):
                     self.dates_data[date] = {}
 
                 self.dates_data[date][page] = PageRevisionMetadata(
-                    revision_count=len(entries),
+                    edit_count=len(entries),
                     editor_count=len(set(entry["event_user_text_historical"] for entry in entries)),
-                    # net_bytes_change is the total number of bytes changed in the day
-                    net_bytes_change=sum(
+                    total_bytes_changed=sum(
                         int(
                             entry["revision_text_bytes_diff"]
                             if entry["revision_text_bytes_diff"].isnumeric()
