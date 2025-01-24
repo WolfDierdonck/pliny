@@ -7,6 +7,12 @@ import (
 )
 
 func main() {
+	// Setup bigquery client
+	err := initBigQueryClient()
+	if err != nil {
+		panic(err)
+	}
+
 	router := gin.Default()
 	router.GET("/topViews", getTopViews)
 	router.Run("localhost:8080")
