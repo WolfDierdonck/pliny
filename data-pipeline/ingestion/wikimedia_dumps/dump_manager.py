@@ -112,3 +112,11 @@ class DumpManager:
         )
         os.system(f"bzip2 -d dumps/{intermediate_file_name}")
         return final_file_path
+
+    def delete_page_view_dump(self, date: Date) -> None:
+        filename = self.get_page_view_dump_filename(date)
+        os.remove(filename)
+
+    def delete_page_revision_dump(self, date: Date) -> None:
+        filename = self.get_page_revision_dump_filename(date)
+        os.remove(filename)
