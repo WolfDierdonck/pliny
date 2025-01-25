@@ -61,6 +61,11 @@ def parse_args() -> argparse.Namespace:
         help="Wait time between ingest batches in seconds (default: 0.0)",
     )
     ingest_group.add_argument(
+        "--delete-dump-files",
+        action="store_true",
+        help="Delete dump files after ingesting that day's data",
+    )
+    ingest_group.add_argument(
         "--recreate-table",
         action="store_true",
         help="Recreate the table with the new INTERMEDIATE_TABLE_SCHEMA. Use this carefully",
@@ -148,10 +153,12 @@ if __name__ == "__main__":
         ingest_edit_source: str = args.ingest_edit_source
         ingest_batch_size: int = args.ingest_batch_size
         ingest_batch_wait: float = args.ingest_batch_wait
+        delete_dump_files: bool = args.delete_dump_files
+        recreate_table: bool = args.recreate_table
 
         date_range = DateRange(ingest_start, ingest_end)
 
-        if args.recreate_table:
+        if recreate_table:
             print(
                 "Recreate table argument passed. Please type 'I am sure' to confirm the operation. ONLY DO THIS IF YOU WANT TO DELETE ALL EXISTING DATA:"
             )
@@ -168,7 +175,8 @@ if __name__ == "__main__":
             edit_source_str=ingest_edit_source,
             batch_size=ingest_batch_size,
             batch_wait=ingest_batch_wait,
-            recreate_table=args.recreate_table,
+            delete_dump_files=delete_dump_files,
+            recreate_table=recreate_table,
         )
 
     score: bool = args.score

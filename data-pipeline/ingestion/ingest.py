@@ -1,3 +1,4 @@
+from datetime import timedelta
 import time
 
 from logger import Logger, Component
@@ -27,6 +28,7 @@ def ingest_dates(
     edit_source_str: str,
     batch_size: int,
     batch_wait: float,
+    delete_dump_files: bool,
     recreate_table: bool = False,
 ) -> None:
     wikipedia_data_accessor = WikipediaDataAccessor(
@@ -90,4 +92,14 @@ def ingest_dates(
                 )
                 pages = []
             logger.info(f"Finished ingesting all pages for date {date}", Component.CORE)
+            if delete_dump_files:
+                dump_manager.delete_page_view_dump(date)
+                logger.info(f"Deleted page view dump for date {date}", Component.CORE)
+
+                next_day = date.to_py_date() + timedelta(days=1)
+                if next_day.month != date.month:
+                    dump_manager.delete_page_revision_dump(date)
+                    logger.info(
+                        f"Deleted page revision dump for date {date}", Component.CORE
+                    )
             continue
