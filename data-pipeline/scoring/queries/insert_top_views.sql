@@ -1,10 +1,10 @@
 INSERT INTO wikipedia_data.top_views_final_table (
-    SELECT date, page_name as 'article', view_count as 'views'
+    SELECT date, page_name, view_count
     FROM (
         SELECT date, page_name, view_count
-        FROM wikipedia_data.intermediate_table_sep
+        FROM wikipedia_data.intermediate_table
         where date={{date}}
     )
-    order by views desc
+    order by view_count desc
     limit {{limit}}
 )
