@@ -9,7 +9,7 @@ import { ScoreTable } from './components/ScoreTable';
 const App: React.FC = () => {
   return (
     <Router>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/bubble-chart" element={<BubbleChart />} />
