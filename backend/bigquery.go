@@ -24,6 +24,14 @@ func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) string {
 	return query
 }
 
+func (bqc *BigQueryClient) getMockQuery(date string, limit int) string {
+	query := bqc.queries["fetch_mock.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
+	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
+
+	return query
+}
+
 var bqClient BigQueryClient
 
 func initBigQueryClient() error {
@@ -82,4 +90,32 @@ func fetchTopViewsFromBigQuery(date string, limit int) ([]TopViewsData, error) {
 		views = append(views, row)
 	}
 	return views, nil
+}
+
+func fetchMockFromBigQuery(date string, limit int) ([]MockData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getMockQuery(date, limit)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	var mock []MockData
+	for {
+		var row MockData
+		err := it.Next(&row)
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("it.Next: %v", err)
+		}
+		mock = append(mock, row)
+	}
+	return mock, nil
 }

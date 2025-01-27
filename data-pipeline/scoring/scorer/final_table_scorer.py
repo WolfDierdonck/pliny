@@ -50,3 +50,14 @@ class FinalTableScorer:
         }
 
         self._run_query(file_name, params)
+
+    def compute_mock(self, date: Date) -> None:
+        self.logger.info(f"Computing mock for {date}", Component.DATABASE)
+
+        file_name = "insert_mock.sql"
+        params = {
+            "date": self._get_sql_date(date),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
