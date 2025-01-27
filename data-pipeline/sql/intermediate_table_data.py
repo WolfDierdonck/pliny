@@ -16,7 +16,7 @@ INTERMEDIATE_TABLE_SCHEMA = [
 def recreate_intermediate_table(wikipedia_data_accessor: WikipediaDataAccessor) -> None:
     wikipedia_data_accessor.delete_table("intermediate_table")
     wikipedia_data_accessor.create_table(
-        "intermediate_table", INTERMEDIATE_TABLE_SCHEMA
+        "intermediate_table", INTERMEDIATE_TABLE_SCHEMA, partition_on_date=True
     )
 
 

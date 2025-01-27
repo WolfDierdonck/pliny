@@ -1,6 +1,7 @@
 from logger import Logger, Component
 from common.dates import Date
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
+import os
 
 
 class FinalTableScorer:
@@ -14,42 +15,38 @@ class FinalTableScorer:
         self.insert_limit = insert_limit
         self.logger = logger
 
+        current_file_path = os.path.abspath(
+            __file__
+        )  # Get the absolute path of the current file
+        base_path = os.path.dirname(
+            os.path.dirname(current_file_path)
+        )  # Get the parent parent directory
+        sql_path = os.path.join(base_path, "queries")
+
+        # Read all files in the queries directory
+        all_query_files = os.listdir(sql_path)
+        self.queries = {}
+        for query_file in all_query_files:
+            with open(os.path.join(sql_path, query_file)) as f:
+                self.queries[query_file] = f.read()
+
+    def _run_query(self, file_name: str, params: dict[str, str]) -> None:
+        query_template = self.queries[file_name]
+        for key, value in params.items():
+            query_template = query_template.replace("{{" + key + "}}", value)
+
+        self.wikipedia_data_accessor.client.query_and_wait(query_template)
+
     def _get_sql_date(self, date: Date) -> str:
         return f"'{date.year}-{date.month:02d}-{date.day:02d}'"
 
     def compute_top_views(self, date: Date) -> None:
-        wda = self.wikipedia_data_accessor
-
-        query = f"""
-            INSERT INTO wikipedia_data.top_views_final_table (
-                select date, page_name as 'article', view_count as 'views'
-                from (
-                    SELECT date, page_name, view_count
-                    FROM wikipedia_data.intermediate_table_sep
-                    where date={self._get_sql_date(date)}
-                )
-                order by views desc
-                limit {self.insert_limit}
-            )
-        """
-
         self.logger.info(f"Computing top views for {date}", Component.DATABASE)
-        wda.client.query_and_wait(query)
 
-    def compute_top_vandalism(self, date: Date) -> None:
-        wda = self.wikipedia_data_accessor
+        file_name = "insert_top_views.sql"
+        params = {
+            "date": self._get_sql_date(date),
+            "limit": str(self.insert_limit),
+        }
 
-        query = f"""
-            INSERT INTO wikipedia_data.top_vandalism_final_table (
-                select date, page_name as 'article', log(revert_count) + log(total_bytes_changed) as 'score' from (
-                    SELECT page_name, revert_count, total_bytes_changed, date
-                    FROM wikipedia_data. intermediate_table_sep
-                    where date={self._get_sql_date(date)} and revert_count > 0 and total_bytes_changed > 0
-                )
-                order by score desc
-                limit {self.insert_limit}
-            )
-        """
-
-        self.logger.info(f"Computing top vandalism for {date}", Component.DATABASE)
-        wda.client.query_and_wait(query)
+        self._run_query(file_name, params)
