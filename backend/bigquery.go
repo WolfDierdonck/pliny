@@ -17,8 +17,8 @@ type BigQueryClient struct {
 }
 
 func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) string {
-	query := bqc.queries["top_views.sql"]
-	query = strings.ReplaceAll(query, "{{date}}", date)
+	query := bqc.queries["fetch_top_views.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
 	return query
@@ -64,11 +64,28 @@ func fetchTopViewsFromBigQuery() ([]TopViewsData, error) {
 	}
 
 	query := bqClient.getTopViewsQuery("2024-09-01", 10)
-
+	// print query
 	it, err := bqClient.client.Query(query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
+
+	// for {
+	// 	var row map[string]interface{}
+	// 	err := it.Next(&row)
+	// 	if err == iterator.Done {
+	// 		break
+	// 	}
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("it.Next: %v", err)
+	// 	}
+
+	// 	// Convert row to JSON
+	// 	rowJSON, err := json.MarshalIndent(row, "", "  ")
+
+	// 	// Print row as JSON
+	// 	fmt.Println(string(rowJSON))
+	// }
 
 	var views []TopViewsData
 	for {

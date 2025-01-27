@@ -1,6 +1,9 @@
 package main
 
+import "cloud.google.com/go/civil"
+
 type TopViewsData struct {
-	Article string `json:"article"`
-	Views   int    `json:"views"`
+	Date      civil.Date `bigquery:"date" json:"date"`
+	PageName  string     `bigquery:"page_name" json:"page_name"`
+	ViewCount int        `bigquery:"view_count" json:"view_count"`
 }
