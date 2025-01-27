@@ -56,36 +56,18 @@ func initBigQueryClient() error {
 	return nil
 }
 
-func fetchTopViewsFromBigQuery() ([]TopViewsData, error) {
+func fetchTopViewsFromBigQuery(date string, limit int) ([]TopViewsData, error) {
 	ctx := context.Background()
 
 	if bqClient.client == nil {
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopViewsQuery("2024-09-01", 10)
-	// print query
+	query := bqClient.getTopViewsQuery(date, limit)
 	it, err := bqClient.client.Query(query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
-
-	// for {
-	// 	var row map[string]interface{}
-	// 	err := it.Next(&row)
-	// 	if err == iterator.Done {
-	// 		break
-	// 	}
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("it.Next: %v", err)
-	// 	}
-
-	// 	// Convert row to JSON
-	// 	rowJSON, err := json.MarshalIndent(row, "", "  ")
-
-	// 	// Print row as JSON
-	// 	fmt.Println(string(rowJSON))
-	// }
 
 	var views []TopViewsData
 	for {
