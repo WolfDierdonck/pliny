@@ -37,13 +37,13 @@ class WikipediaDataAccessor:
         """
         table_ref = f"{self.client.project}.{self.dataset_id}.{table_name}"
         table = Table(table_ref, schema=schema)
-        table = self.client.create_table(table, exists_ok=True)
         if partition_on_date:
             table.time_partitioning = bigquery.TimePartitioning(
                 type_=bigquery.TimePartitioningType.DAY,
                 field="date",
                 expiration_ms=1000 * 60 * 60 * 24 * 365 * 10,
-            )  # 10 years
+            )
+        table = self.client.create_table(table, exists_ok=True)
         self.logger.info(
             f"Created table {table.project}.{table.dataset_id}.{table.table_id}",
             Component.DATABASE,
