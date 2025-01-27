@@ -22,7 +22,9 @@ class WikipediaDataAccessor:
 
         self.write_buffer: list[dict] = []
 
-    def create_table(self, table_name: str, schema: list[SchemaField]) -> Table:
+    def create_table(
+        self, table_name: str, schema: list[SchemaField], partition_on_date: bool
+    ) -> Table:
         """
         Create a new table in BigQuery
 
@@ -36,6 +38,12 @@ class WikipediaDataAccessor:
         table_ref = f"{self.client.project}.{self.dataset_id}.{table_name}"
         table = Table(table_ref, schema=schema)
         table = self.client.create_table(table, exists_ok=True)
+        if partition_on_date:
+            table.time_partitioning = bigquery.TimePartitioning(
+                type_=bigquery.TimePartitioningType.DAY,
+                field="date",
+                expiration_ms=1000 * 60 * 60 * 24 * 365 * 10,
+            )  # 10 years
         self.logger.info(
             f"Created table {table.project}.{table.dataset_id}.{table.table_id}",
             Component.DATABASE,
@@ -81,7 +89,11 @@ class WikipediaDataAccessor:
         return [dict(row.items()) for row in rows]
 
     def write_to_table(
-        self, table: Table, rows: list[dict], run_async: bool, flush_buffer: bool = False
+        self,
+        table: Table,
+        rows: list[dict],
+        run_async: bool,
+        flush_buffer: bool = False,
     ) -> None:
         """
         Write data to a BigQuery table using load_table_from_json

@@ -66,7 +66,7 @@ def parse_args() -> argparse.Namespace:
         help="Delete dump files after ingesting that day's data",
     )
     ingest_group.add_argument(
-        "--recreate-table",
+        "--recreate-intermediate-table",
         action="store_true",
         help="Recreate the table with the new INTERMEDIATE_TABLE_SCHEMA. Use this carefully",
     )
@@ -83,6 +83,11 @@ def parse_args() -> argparse.Namespace:
         "--score-end",
         type=str,
         help="End date for scoring (required if --score is set). Specified in YYYY-MM-DD format",
+    )
+    score_group.add_argument(
+        "--recreate-final-tables",
+        action="store_true",
+        help="Recreate the final table with their schemas. Use this carefully",
     )
 
     args = parser.parse_args()
@@ -154,13 +159,13 @@ if __name__ == "__main__":
         ingest_batch_size: int = args.ingest_batch_size
         ingest_batch_wait: float = args.ingest_batch_wait
         delete_dump_files: bool = args.delete_dump_files
-        recreate_table: bool = args.recreate_table
+        recreate_intermediate_table: bool = args.recreate_intermediate_table
 
         date_range = DateRange(ingest_start, ingest_end)
 
-        if recreate_table:
+        if recreate_intermediate_table:
             print(
-                "Recreate table argument passed. Please type 'I am sure' to confirm the operation. ONLY DO THIS IF YOU WANT TO DELETE ALL EXISTING DATA:"
+                "Recreate intermediate table argument passed. Please type 'I am sure' to confirm the operation. ONLY DO THIS IF YOU WANT TO DELETE ALL EXISTING DATA:"
             )
             confirm = input()
             if confirm != "I am sure":
@@ -176,13 +181,27 @@ if __name__ == "__main__":
             batch_size=ingest_batch_size,
             batch_wait=ingest_batch_wait,
             delete_dump_files=delete_dump_files,
-            recreate_table=recreate_table,
+            recreate_table=recreate_intermediate_table,
         )
 
     score: bool = args.score
     if score:
         score_start: Date = Date.from_str(args.score_start)
         score_end: Date = Date.from_str(args.score_end)
+        recreate_final_tables: bool = args.recreate_final_tables
+
+        if recreate_final_tables:
+            print(
+                "Recreate final table argument passed . Please type 'I am sure' to confirm the operation. ONLY DO THIS IF YOU WANT TO DELETE ALL EXISTING DATA:"
+            )
+            confirm = input()
+            if confirm != "I am sure":
+                print("Aborting operation")
+                exit(1)
 
         date_range = DateRange(score_start, score_end)
-        score_dates(logger=logger, date_range=date_range)
+        score_dates(
+            logger=logger,
+            date_range=date_range,
+            recreate_final_tables=recreate_final_tables,
+        )
