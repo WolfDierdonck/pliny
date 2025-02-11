@@ -110,26 +110,33 @@ class MediaWikiAPI:
             revert_count = sum(
                 "mw-reverted" in revision["tags"] for revision in revisions
             )
-            total_bytes_changed = (
-                (revisions[-1]["size"] - revisions[0]["size"]) if revisions else 0
-            )  # FIXME: this doesnt include the diff from the first revision
-            total_bytes_reverted = sum(
-                abs(
-                    int(
-                        revision["diff"]
-                        if "mw-reverted" in revision["tags"]
-                        and revision["diff"].isnumeric()
-                        else 0
-                    )
+
+            # FIXME: This doesn't compute the delta of the first revision, since it doesn't have a previous revision to compare to
+            byte_deltas = []
+            for i in range(len(revisions) - 1):
+                byte_deltas.append(
+                    revisions[i + 1]["size"] - revisions[i]["size"]
                 )
-                for revision in revisions
-            )
+
+            net_bytes_changed = sum(byte_deltas)
+            abs_bytes_changed = sum(abs(delta) for delta in byte_deltas)
+
+            revision_byte_deltas = []
+            for i in range(len(revisions)):
+                if "mw-reverted" in revisions[i + 1]["tags"]:
+                    revision_byte_deltas.append(
+                        revisions[i + 1]["size"] - revisions[i]["size"]
+                    )
+                
+            abs_bytes_reverted = sum(abs(delta) for delta in revision_byte_deltas)
+
             return PageRevisionMetadata(
                 edit_count=edit_count,
                 editor_count=editor_count,
                 revert_count=revert_count,
-                total_bytes_changed=total_bytes_changed,
-                total_bytes_reverted=total_bytes_reverted,
+                net_bytes_changed=net_bytes_changed,
+                abs_bytes_changed=abs_bytes_changed,
+                abs_bytes_reverted=abs_bytes_reverted,
             )
 
         return self.executor.submit(helper_loop, page_name)
