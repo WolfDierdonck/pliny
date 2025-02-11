@@ -65,3 +65,14 @@ class FinalTableScorer:
         }
 
         self._run_query(file_name, params)
+
+    def compute_top_growing(self, date: Date) -> None:
+        self.logger.info(f"Computing top growing for {date}", Component.DATABASE)
+
+        file_name = "insert_top_growing.sql"
+        params = {
+            "date": self._get_sql_date(date),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)

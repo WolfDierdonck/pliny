@@ -18,3 +18,9 @@ type TopVandalismData struct {
 	EditCount       int        `bigquery:"edit_count" json:"edit_count"`
 	PercentReverted float64    `bigquery:"percent_reverted" json:"percent_reverted"`
 }
+
+type TopGrowingData struct {
+	Date            civil.Date `bigquery:"date" json:"date"`
+	PageName        string     `bigquery:"page_name" json:"page_name"`
+	NetBytesChanged int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+}

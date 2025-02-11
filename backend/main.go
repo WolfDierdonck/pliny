@@ -17,6 +17,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/topViews/:date/:limit", getTopViews)
 	router.GET("/topVandalism/:startDate/:endDate/:limit", getTopVandalism)
+	router.GET("/topGrowing/:date/:limit", getTopGrowing)
 	router.Run("localhost:8080")
 }
 
@@ -51,4 +52,20 @@ func getTopVandalism(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, vandalism)
+}
+
+func getTopGrowing(c *gin.Context) {
+	date := c.Param("date")
+	limit, err := strconv.Atoi(c.Param("limit"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	growing, err := fetchTopGrowingFromBigQuery(date, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, growing)
 }

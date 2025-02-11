@@ -33,6 +33,14 @@ func (bqc *BigQueryClient) getTopVandalismQuery(startDate string, endDate string
 	return query
 }
 
+func (bqc *BigQueryClient) getTopGrowingQuery(date string, limit int) string {
+	query := bqc.queries["fetch_top_growing.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
+	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
+
+	return query
+}
+
 var bqClient BigQueryClient
 
 func initBigQueryClient() error {
@@ -119,4 +127,32 @@ func fetchTopVandalismFromBigQuery(startDate string, endDate string, limit int) 
 		vandalism = append(vandalism, row)
 	}
 	return vandalism, nil
+}
+
+func fetchTopGrowingFromBigQuery(date string, limit int) ([]TopGrowingData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getTopGrowingQuery(date, limit)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	var growing []TopGrowingData
+	for {
+		var row TopGrowingData
+		err := it.Next(&row)
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("it.Next: %v", err)
+		}
+		growing = append(growing, row)
+	}
+	return growing, nil
 }
