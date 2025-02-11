@@ -11,7 +11,7 @@ const Home = () => {
   const [vandalismData, setVandalismData] = useState<TopVandalismData[]>([]);
 
   useEffect(() => {
-    getTopViewsData()
+    getTopViewsData('2024-09-01', 10)
       .then((data) => {
         setViewData(data);
       })
