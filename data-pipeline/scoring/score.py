@@ -23,11 +23,17 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("edit_count", "INT64", mode="REQUIRED"),
         SchemaField("percent_reverted", "FLOAT64", mode="REQUIRED"),
     ],
+    "top_growing_final_table": [
+        SchemaField("date", "DATE", mode="REQUIRED"),
+        SchemaField("page_name", "STRING", mode="REQUIRED"),
+        SchemaField("net_bytes_changed", "INT64", mode="REQUIRED"),
+    ],
 }
 
 PARTITION_COLUMNS: dict[str, str] = {
     "top_views_final_table": "date",
     "top_vandalism_final_table": "end_date",
+    "top_growing_final_table": "date",
 }
 
 
@@ -54,3 +60,4 @@ def score_dates(
         logger.info(f"Starting scoring for date {date}", Component.CORE)
         scorer.compute_top_views(date)
         scorer.compute_top_vandalism(date)
+        scorer.compute_top_growing(date)
