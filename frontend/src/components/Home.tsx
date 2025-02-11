@@ -11,12 +11,13 @@ const Home = () => {
   const [vandalismData, setVandalismData] = useState<TopVandalismData[]>([]);
 
   useEffect(() => {
-    getTopViewsData('2024-09-01', 10).then((data) => {
-      setViewData(data);
-    });
-    getTopVandalismData('2024-09-01', '2024-09-07', 10).then((data) => {
-      setVandalismData(data);
-    });
+    getTopViewsData()
+      .then((data) => {
+        setViewData(data);
+      })
+      .catch((error) => {
+        console.error('Failed to get data', error);
+      });
   }, []);
 
   return (
