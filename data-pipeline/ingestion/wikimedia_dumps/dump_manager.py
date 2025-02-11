@@ -83,6 +83,7 @@ class DumpManager:
 
         # get the current month
         current_date = datetime.now()
+        current_date = current_date.replace(month=1)
 
         if date.year == current_date.year and date.month == current_date.month:
             raise ValueError("Cannot download current month's data")
