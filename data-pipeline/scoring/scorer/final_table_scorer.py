@@ -1,3 +1,4 @@
+from datetime import timedelta
 from logger import Logger, Component
 from common.dates import Date
 from sql.wikipedia_data_accessor import WikipediaDataAccessor
@@ -46,6 +47,20 @@ class FinalTableScorer:
         file_name = "insert_top_views.sql"
         params = {
             "date": self._get_sql_date(date),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
+
+    def compute_top_vandalism(self, date: Date) -> None:
+        self.logger.info(f"Computing top vandalism for {date}", Component.DATABASE)
+
+        one_week_ago = date.to_py_date() - timedelta(days=6)
+
+        file_name = "insert_top_vandalism.sql"
+        params = {
+            "startDate": self._get_sql_date(Date.from_py_date(one_week_ago)),
+            "endDate": self._get_sql_date(date),
             "limit": str(self.insert_limit),
         }
 

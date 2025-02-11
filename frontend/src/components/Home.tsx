@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { getTopViewsData, TopViewsData } from '../lib/api';
+import {
+  getTopVandalismData,
+  getTopViewsData,
+  TopVandalismData,
+  TopViewsData,
+} from '../lib/api';
 
 const Home = () => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
+  const [vandalismData, setVandalismData] = useState<TopVandalismData[]>([]);
 
   useEffect(() => {
-    getTopViewsData().then((data) => {
+    getTopViewsData('2024-09-01', 10).then((data) => {
       setViewData(data);
+    });
+    getTopVandalismData('2024-09-01', '2024-09-07', 10).then((data) => {
+      setVandalismData(data);
     });
   }, []);
 
@@ -20,11 +29,20 @@ const Home = () => {
         from our backend.
       </p>
 
-      <p>The data from BigQuery is:</p>
+      <p className="mt-4 font-bold">The view data from BigQuery is:</p>
       <ul>
-        {viewData.map((item) => (
-          <li key={item.article}>
-            {item.article}: {item.views}
+        {viewData.map((item: TopViewsData) => (
+          <li key={item.page_name}>
+            {item.page_name}: {item.view_count}
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-4 font-bold">The vandalism data from BigQuery is:</p>
+      <ul>
+        {vandalismData.map((item: TopVandalismData) => (
+          <li key={item.page_name}>
+            {item.page_name}: {item.percent_reverted}
           </li>
         ))}
       </ul>

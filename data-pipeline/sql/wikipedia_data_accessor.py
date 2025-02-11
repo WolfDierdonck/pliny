@@ -23,7 +23,7 @@ class WikipediaDataAccessor:
         self.write_buffer: list[dict] = []
 
     def create_table(
-        self, table_name: str, schema: list[SchemaField], partition_on_date: bool
+        self, table_name: str, schema: list[SchemaField], partition_on_date: bool, partition_column: str = "date"
     ) -> Table:
         """
         Create a new table in BigQuery
@@ -40,7 +40,7 @@ class WikipediaDataAccessor:
         if partition_on_date:
             table.time_partitioning = bigquery.TimePartitioning(
                 type_=bigquery.TimePartitioningType.DAY,
-                field="date",
+                field=partition_column,
                 expiration_ms=1000 * 60 * 60 * 24 * 365 * 10,
             )
         table = self.client.create_table(table, exists_ok=True)
