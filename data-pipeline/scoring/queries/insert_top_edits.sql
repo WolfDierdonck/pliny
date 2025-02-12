@@ -1,4 +1,4 @@
-SELECT wikipedia_data.top_edits_final_table
+INSERT INTO wikipedia_data.top_edits_final_table
 SELECT
     CAST({{date}} AS DATE) AS date,
     *

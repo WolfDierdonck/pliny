@@ -1,9 +1,9 @@
 SELECT
-    date
+    date,
     page_name,
     view_count,
     revert_count,
-    bytes_reverted,
+    abs_bytes_reverted,
     edit_count,
     percent_reverted
 FROM
