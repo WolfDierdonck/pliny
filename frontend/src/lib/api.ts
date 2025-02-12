@@ -39,3 +39,20 @@ export async function getTopVandalismData(
   }
   return await response.json();
 }
+
+export type TopGrowingData = {
+  date: string;
+  page_name: string;
+  net_bytes_changed: number;
+};
+
+export async function getTopGrowingData(
+  date: string,
+  limit: number,
+): Promise<TopGrowingData[]> {
+  const response = await fetch(`/topGrowing/${date}/${limit}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
+}
