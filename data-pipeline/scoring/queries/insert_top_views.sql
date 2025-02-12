@@ -1,10 +1,16 @@
-INSERT INTO wikipedia_data.top_views_final_table (
-    SELECT date, page_name, view_count
-    FROM (
-        SELECT date, page_name, view_count
+INSERT INTO wikipedia_data.top_views_final_table
+SELECT
+    CAST({{date}} AS DATE) AS date,
+    *
+FROM
+    (
+        SELECT
+            page_name, 
+            CAST(AVG(view_count) AS INT) as view_count
         FROM wikipedia_data.intermediate_table
-        where date={{date}}
+        WHERE
+            {{dateSelectionStr}}
+        GROUP BY page_name
+        ORDER BY view_count DESC
+        LIMIT {{limit}}
     )
-    order by view_count desc
-    limit {{limit}}
-)

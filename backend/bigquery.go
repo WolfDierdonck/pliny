@@ -16,18 +16,17 @@ type BigQueryClient struct {
 	queries map[string]string
 }
 
-func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) string {
-	query := bqc.queries["fetch_top_views.sql"]
+func (bqc *BigQueryClient) getTopEditorsQuery(date string, limit int) string {
+	query := bqc.queries["fetch_top_editors.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
 	return query
 }
 
-func (bqc *BigQueryClient) getTopVandalismQuery(startDate string, endDate string, limit int) string {
-	query := bqc.queries["fetch_top_vandalism.sql"]
-	query = strings.ReplaceAll(query, "{{startDate}}", fmt.Sprintf("'%s'", startDate))
-	query = strings.ReplaceAll(query, "{{endDate}}", fmt.Sprintf("'%s'", endDate))
+func (bqc *BigQueryClient) getTopEditsQuery(date string, limit int) string {
+	query := bqc.queries["fetch_top_edits.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
 	return query
@@ -37,6 +36,36 @@ func (bqc *BigQueryClient) getTopGrowingQuery(date string, limit int) string {
 	query := bqc.queries["fetch_top_growing.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
+
+	return query
+}
+
+func (bqc *BigQueryClient) getTopVandalismQuery(date string, limit int) string {
+	query := bqc.queries["fetch_top_vandalism.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
+	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
+
+	return query
+}
+
+func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) string {
+	query := bqc.queries["fetch_top_views.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
+	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
+
+	return query
+}
+
+func (bqc *BigQueryClient) getTotalMetadataQuery(date string) string {
+	query := bqc.queries["fetch_total_metadata.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
+
+	return query
+}
+
+func (bqc *BigQueryClient) getWikipediaGrowthQuery(date string) string {
+	query := bqc.queries["fetch_wikipedia_growth.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 
 	return query
 }
@@ -73,22 +102,10 @@ func initBigQueryClient() error {
 	return nil
 }
 
-func fetchTopViewsFromBigQuery(date string, limit int) ([]TopViewsData, error) {
-	ctx := context.Background()
-
-	if bqClient.client == nil {
-		return nil, fmt.Errorf("BigQuery client is not initialized")
-	}
-
-	query := bqClient.getTopViewsQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("client.Query: %v", err)
-	}
-
-	var views []TopViewsData
+func FetchRows[T any](it *bigquery.RowIterator) ([]T, error) {
+	var rows []T
 	for {
-		var row TopViewsData
+		var row T
 		err := it.Next(&row)
 		if err == iterator.Done {
 			break
@@ -96,37 +113,49 @@ func fetchTopViewsFromBigQuery(date string, limit int) ([]TopViewsData, error) {
 		if err != nil {
 			return nil, fmt.Errorf("it.Next: %v", err)
 		}
-		views = append(views, row)
+		rows = append(rows, row)
 	}
-	return views, nil
+	return rows, nil
 }
 
-func fetchTopVandalismFromBigQuery(startDate string, endDate string, limit int) ([]TopVandalismData, error) {
+func fetchTopEditorsFromBigQuery(date string, limit int) ([]TopEditorsData, error) {
 	ctx := context.Background()
 
 	if bqClient.client == nil {
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopVandalismQuery(startDate, endDate, limit)
+	query := bqClient.getTopEditorsQuery(date, limit)
 	it, err := bqClient.client.Query(query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
 
-	var vandalism []TopVandalismData
-	for {
-		var row TopVandalismData
-		err := it.Next(&row)
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("it.Next: %v", err)
-		}
-		vandalism = append(vandalism, row)
+	rows, err := FetchRows[TopEditorsData](it)
+	if err != nil {
+		return nil, err
 	}
-	return vandalism, nil
+	return rows, nil
+}
+
+func fetchTopEditsFromBigQuery(date string, limit int) ([]TopEditsData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getTopEditsQuery(date, limit)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[TopEditsData](it)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
 
 func fetchTopGrowingFromBigQuery(date string, limit int) ([]TopGrowingData, error) {
@@ -142,17 +171,89 @@ func fetchTopGrowingFromBigQuery(date string, limit int) ([]TopGrowingData, erro
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
 
-	var growing []TopGrowingData
-	for {
-		var row TopGrowingData
-		err := it.Next(&row)
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("it.Next: %v", err)
-		}
-		growing = append(growing, row)
+	rows, err := FetchRows[TopGrowingData](it)
+	if err != nil {
+		return nil, err
 	}
-	return growing, nil
+	return rows, nil
+}
+
+func fetchTopVandalismFromBigQuery(date string, limit int) ([]TopVandalismData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getTopVandalismQuery(date, limit)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[TopVandalismData](it)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func fetchTopViewsFromBigQuery(date string, limit int) ([]TopViewsData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getTopViewsQuery(date, limit)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[TopViewsData](it)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func fetchTotalMetadataFromBigQuery(date string) ([]TotalMetadataData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getTotalMetadataQuery(date)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[TotalMetadataData](it)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func fetchWikipediaGrowthFromBigQuery(date string) ([]WikipediaGrowthData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getWikipediaGrowthQuery(date)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[WikipediaGrowthData](it)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
