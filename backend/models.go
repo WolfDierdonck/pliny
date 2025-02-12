@@ -30,6 +30,14 @@ type TopVandalismData struct {
 	PercentReverted  float64    `bigquery:"percent_reverted" json:"percent_reverted"`
 }
 
+type TopViewDeltaData struct {
+	Date              civil.Date `bigquery:"date" json:"date"`
+	PageName          string     `bigquery:"page_name" json:"page_name"`
+	CurrentViewCount  int        `bigquery:"current_view_count" json:"current_view_count"`
+	PreviousViewCount int        `bigquery:"previous_view_count" json:"previous_view_count"`
+	ViewCountRatio    float64    `bigquery:"view_count_ratio" json:"view_count_ratio"`
+}
+
 type TopViewsData struct {
 	Date      civil.Date `bigquery:"date" json:"date"`
 	PageName  string     `bigquery:"page_name" json:"page_name"`
