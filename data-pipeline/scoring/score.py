@@ -37,7 +37,7 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("page_name", "STRING", mode="REQUIRED"),
         SchemaField("current_view_count", "INT64", mode="REQUIRED"),
         SchemaField("previous_view_count", "INT64", mode="REQUIRED"),
-        SchemaField("view_count_ratio", "INT64", mode="REQUIRED"),
+        SchemaField("view_count_ratio", "FLOAT64", mode="REQUIRED"),
     ],
     "top_views_final_table": [
         SchemaField("date", "DATE", mode="REQUIRED"),
