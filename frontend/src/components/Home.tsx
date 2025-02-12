@@ -1,12 +1,15 @@
 import React from 'react';
+import '../styles/Home.css';
 import TopViewsBarGraph from './visualizations/TopViewsBarGraph';
+import TopVandalismBarGraph from './visualizations/TopVandalismBarGraph';
+import TopGrowingArticles from './visualizations/TopGrowingArticles';
 
 const Home = () => {
   return (
-    <div className="newspaper-layout">
-      <header className="header newspaper-header">
-        <h1 className="title newspaper-title">Pliny</h1>
-        <p className="subtitle newspaper-subtitle">
+    <div className="home-container">
+      <header className="home-header">
+        <h1 className="home-title">Pliny</h1>
+        <p className="home-description">
           Wikipedia is largest and most comprehensive source of information in
           the world. Unlike the encyclopedias of the past, Wikipedia is a living
           document that is constantly updated by volunteers from around the
@@ -14,20 +17,38 @@ const Home = () => {
           knowledge.
         </p>
       </header>
-      <main className="content">
-        <section className="main-article">
-          <h2 className="section-title">Top Views</h2>
+      <main className="home-main">
+        <section className="home-section">
+          <aside className="home-aside">
+            <p>
+              Knowledge is constantly changing on Wikipedia. This month, the
+              most edited pages are about XXXX, XXXX, and XXXX.
+            </p>
+          </aside>
           <TopViewsBarGraph />
         </section>
-        <aside className="sidebar">
-          <h2 className="section-title">Most Edited Pages</h2>
-          <p>
-            Knowledge is constantly changing on Wikipedia. This month, the most
-            edited pages are about XXXX, XXXX, and XXXX.
-          </p>
-        </aside>
+        <section className="home-section">
+          <aside className="home-aside">
+            <p>
+              As anyone can contribute to Wikipedia, it is under a constant
+              storm of vandalism. Some pages, however, are more susceptible than
+              others.
+            </p>
+          </aside>
+          <TopVandalismBarGraph />
+        </section>
+        <section className="home-section">
+          <aside className="home-aside">
+            <p>
+              Wikipedia is a living document that is constantly updated by
+              volunteers from around the world. This month, the most edited
+              pages are about XXXX, XXXX, and XXXX.
+            </p>
+          </aside>
+          <TopGrowingArticles />
+        </section>
       </main>
-      <footer className="footer">
+      <footer className="home-footer">
         <p>&copy; 2024 Pliny. All rights reserved.</p>
       </footer>
     </div>
