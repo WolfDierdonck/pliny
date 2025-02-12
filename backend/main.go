@@ -19,6 +19,7 @@ func main() {
 	router.GET("/topEdits/:date/:limit", getTopEdits)
 	router.GET("/topGrowing/:date/:limit", getTopGrowing)
 	router.GET("/topVandalism/:date/:limit", getTopVandalism)
+	router.GET("/topViewDelta/:date/:limit", getTopViewDelta)
 	router.GET("/topViews/:date/:limit", getTopViews)
 	router.GET("/totalMetadata/:date", getTotalMetadata)
 	router.GET("/wikipediaGrowth/:date", getWikipediaGrowth)
@@ -87,6 +88,22 @@ func getTopVandalism(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, vandalism)
+}
+
+func getTopViewDelta(c *gin.Context) {
+	date := c.Param("date")
+	limit, err := strconv.Atoi(c.Param("limit"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	viewDelta, err := fetchTopViewDeltaFromBigQuery(date, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, viewDelta)
 }
 
 func getTopViews(c *gin.Context) {

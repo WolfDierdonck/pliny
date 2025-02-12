@@ -48,6 +48,14 @@ func (bqc *BigQueryClient) getTopVandalismQuery(date string, limit int) string {
 	return query
 }
 
+func (bqc *BigQueryClient) getTopViewDeltaQuery(date string, limit int) string {
+	query := bqc.queries["fetch_top_view_delta.sql"]
+	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
+	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
+
+	return query
+}
+
 func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) string {
 	query := bqc.queries["fetch_top_views.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
@@ -192,6 +200,26 @@ func fetchTopVandalismFromBigQuery(date string, limit int) ([]TopVandalismData, 
 	}
 
 	rows, err := FetchRows[TopVandalismData](it)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func fetchTopViewDeltaFromBigQuery(date string, limit int) ([]TopViewDeltaData, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query := bqClient.getTopViewDeltaQuery(date, limit)
+	it, err := bqClient.client.Query(query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[TopViewDeltaData](it)
 	if err != nil {
 		return nil, err
 	}

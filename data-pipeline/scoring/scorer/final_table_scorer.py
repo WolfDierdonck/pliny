@@ -97,6 +97,20 @@ class FinalTableScorer:
 
         self._run_query(file_name, params)
 
+    def compute_top_view_delta(self, date: Date) -> None:
+        self.logger.info(f"Computing top view delta for {date}", Component.DATABASE)
+
+        previous_date = Date.from_py_date(date.to_py_date() - timedelta(days=1))
+
+        file_name = "insert_top_view_delta.sql"
+        params = {
+            "todayDate": self._get_sql_date(date),
+            "yesterdayDate": self._get_sql_date(previous_date),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
+
     def compute_top_views(self, date: Date) -> None:
         self.logger.info(f"Computing top views for {date}", Component.DATABASE)
 
