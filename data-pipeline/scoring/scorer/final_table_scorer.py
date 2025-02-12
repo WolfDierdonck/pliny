@@ -41,26 +41,33 @@ class FinalTableScorer:
     def _get_sql_date(self, date: Date) -> str:
         return f"'{date.year}-{date.month:02d}-{date.day:02d}'"
 
-    def compute_top_views(self, date: Date) -> None:
-        self.logger.info(f"Computing top views for {date}", Component.DATABASE)
+    def _get_date_selection_str(self, date: Date, lookback_days: int) -> str:
+        s = f"date={self._get_sql_date(date)}"
+        for i in range(1, lookback_days):
+            lookback_date = Date.from_py_date(date.to_py_date() - timedelta(days=i))
+            s += f" OR date={self._get_sql_date(lookback_date)}"
 
-        file_name = "insert_top_views.sql"
+        return s
+
+    def compute_top_editors(self, date: Date) -> None:
+        self.logger.info(f"Computing top editors for {date}", Component.DATABASE)
+
+        file_name = "insert_top_editors.sql"
         params = {
             "date": self._get_sql_date(date),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
             "limit": str(self.insert_limit),
         }
 
         self._run_query(file_name, params)
 
-    def compute_top_vandalism(self, date: Date) -> None:
-        self.logger.info(f"Computing top vandalism for {date}", Component.DATABASE)
+    def compute_top_edits(self, date: Date) -> None:
+        self.logger.info(f"Computing top edits for {date}", Component.DATABASE)
 
-        one_week_ago = date.to_py_date() - timedelta(days=6)
-
-        file_name = "insert_top_vandalism.sql"
+        file_name = "insert_top_edits.sql"
         params = {
-            "startDate": self._get_sql_date(Date.from_py_date(one_week_ago)),
-            "endDate": self._get_sql_date(date),
+            "date": self._get_sql_date(date),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
             "limit": str(self.insert_limit),
         }
 
@@ -72,7 +79,52 @@ class FinalTableScorer:
         file_name = "insert_top_growing.sql"
         params = {
             "date": self._get_sql_date(date),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
             "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
+
+    def compute_top_vandalism(self, date: Date) -> None:
+        self.logger.info(f"Computing top vandalism for {date}", Component.DATABASE)
+
+        file_name = "insert_top_vandalism.sql"
+        params = {
+            "date": self._get_sql_date(date),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
+
+    def compute_top_views(self, date: Date) -> None:
+        self.logger.info(f"Computing top views for {date}", Component.DATABASE)
+
+        file_name = "insert_top_views.sql"
+        params = {
+            "date": self._get_sql_date(date),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
+
+    def compute_total_metadata(self, date: Date) -> None:
+        self.logger.info(f"Computing total metadata for {date}", Component.DATABASE)
+
+        file_name = "insert_total_metadata.sql"
+        params = {
+            "date": self._get_sql_date(date),
+        }
+
+        self._run_query(file_name, params)
+
+    def compute_wikipedia_growth(self, date: Date) -> None:
+        self.logger.info(f"Computing wikipedia growth for {date}", Component.DATABASE)
+
+        file_name = "insert_wikipedia_growth.sql"
+        params = {
+            "date": self._get_sql_date(date),
         }
 
         self._run_query(file_name, params)

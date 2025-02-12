@@ -15,10 +15,78 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.GET("/topViews/:date/:limit", getTopViews)
-	router.GET("/topVandalism/:startDate/:endDate/:limit", getTopVandalism)
+	router.GET("/topEditors/:date/:limit", getTopEditors)
+	router.GET("/topEdits/:date/:limit", getTopEdits)
 	router.GET("/topGrowing/:date/:limit", getTopGrowing)
+	router.GET("/topVandalism/:date/:limit", getTopVandalism)
+	router.GET("/topViews/:date/:limit", getTopViews)
+	router.GET("/totalMetadata/:date", getTotalMetadata)
+	router.GET("/wikipediaGrowth/:date", getWikipediaGrowth)
 	router.Run("localhost:8080")
+}
+
+func getTopEditors(c *gin.Context) {
+	date := c.Param("date")
+	limit, err := strconv.Atoi(c.Param("limit"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	editors, err := fetchTopEditorsFromBigQuery(date, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, editors)
+}
+
+func getTopEdits(c *gin.Context) {
+	date := c.Param("date")
+	limit, err := strconv.Atoi(c.Param("limit"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	edits, err := fetchTopEditsFromBigQuery(date, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, edits)
+}
+
+func getTopGrowing(c *gin.Context) {
+	date := c.Param("date")
+	limit, err := strconv.Atoi(c.Param("limit"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	growing, err := fetchTopGrowingFromBigQuery(date, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, growing)
+}
+
+func getTopVandalism(c *gin.Context) {
+	date := c.Param("date")
+	limit, err := strconv.Atoi(c.Param("limit"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	vandalism, err := fetchTopVandalismFromBigQuery(date, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, vandalism)
 }
 
 func getTopViews(c *gin.Context) {
@@ -37,35 +105,24 @@ func getTopViews(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, views)
 }
 
-func getTopVandalism(c *gin.Context) {
-	startDate := c.Param("startDate")
-	endDate := c.Param("endDate")
-	limit, err := strconv.Atoi(c.Param("limit"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
-		return
-	}
+func getTotalMetadata(c *gin.Context) {
+	date := c.Param("date")
 
-	vandalism, err := fetchTopVandalismFromBigQuery(startDate, endDate, limit)
+	metadata, err := fetchTotalMetadataFromBigQuery(date)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, vandalism)
+	c.IndentedJSON(http.StatusOK, metadata)
 }
 
-func getTopGrowing(c *gin.Context) {
+func getWikipediaGrowth(c *gin.Context) {
 	date := c.Param("date")
-	limit, err := strconv.Atoi(c.Param("limit"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
-		return
-	}
 
-	growing, err := fetchTopGrowingFromBigQuery(date, limit)
+	growth, err := fetchWikipediaGrowthFromBigQuery(date)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, growing)
+	c.IndentedJSON(http.StatusOK, growth)
 }
