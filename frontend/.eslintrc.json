@@ -16,6 +16,7 @@
   "plugins": ["@typescript-eslint", "react"],
   "rules": {
     // Add your custom rules here
+    "react/no-unescaped-entities": "off",
     "no-unused-vars": "error",
     "no-trailing-spaces": "error",
     "eol-last": ["error", "always"],
