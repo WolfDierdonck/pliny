@@ -89,6 +89,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Recreate the final table with their schemas. Use this carefully",
     )
+    score_group.add_argument(
+        "--score-tables",
+        type=str,
+        nargs="+",
+        help="List of tables to score. If not provided, all tables will be scored",
+    )
 
     args = parser.parse_args()
 
@@ -140,6 +146,10 @@ def parse_args() -> argparse.Namespace:
             parser.error("--score-start can only be used when --score is set")
         if args.score_end:
             parser.error("--score-end can only be used when --score is set")
+        if args.recreate_final_tables:
+            parser.error("--recreate-final-tables can only be used when --score is set")
+        if args.score_tables:
+            parser.error("--score-tables can only be used when --score is set")
 
     return args
 
@@ -189,6 +199,7 @@ if __name__ == "__main__":
         score_start: Date = Date.from_str(args.score_start)
         score_end: Date = Date.from_str(args.score_end)
         recreate_final_tables: bool = args.recreate_final_tables
+        score_tables: list[str] = args.score_tables
 
         if recreate_final_tables:
             print(
@@ -204,4 +215,5 @@ if __name__ == "__main__":
             logger=logger,
             date_range=date_range,
             recreate_final_tables=recreate_final_tables,
+            score_tables=score_tables,
         )
