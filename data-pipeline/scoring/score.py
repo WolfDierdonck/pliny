@@ -70,16 +70,35 @@ PARTITION_COLUMNS: dict[str, str] = {
 
 
 def score_dates(
-    logger: Logger, date_range: DateRange, recreate_final_tables: bool
+    logger: Logger,
+    date_range: DateRange,
+    recreate_final_tables: bool,
+    score_tables: list[str],
 ) -> None:
     wikipedia_data_accessor = WikipediaDataAccessor(
         logger, "PLINY_BIGQUERY_SERVICE_ACCOUNT", buffer_size=1
     )
     scorer = FinalTableScorer(logger, wikipedia_data_accessor, insert_limit=100)
 
+    processed_score_tables = []
+    if score_tables:
+        for table in score_tables:
+            table = f"{table}_final_table"
+            if table not in FINAL_TABLE_SCHEMAS:
+                logger.error(
+                    f"Table {table} not found in final table schemas. Exiting",
+                    Component.CORE,
+                )
+                exit()
+            processed_score_tables.append(table)
+    else:
+        for table in FINAL_TABLE_SCHEMAS:
+            processed_score_tables.append(table)
+
     if recreate_final_tables:
         logger.info("Recreating final tables", Component.CORE)
-        for table_name, schema in FINAL_TABLE_SCHEMAS.items():
+        for table_name in processed_score_tables:
+            schema = FINAL_TABLE_SCHEMAS[table_name]
             wikipedia_data_accessor.delete_table(table_name)
             wikipedia_data_accessor.create_table(
                 table_name,
@@ -90,11 +109,26 @@ def score_dates(
 
     for date in date_range:
         logger.info(f"Starting scoring for date {date}", Component.CORE)
-        scorer.compute_top_editors(date)
-        scorer.compute_top_edits(date)
-        scorer.compute_top_growing(date)
-        scorer.compute_top_vandalism(date)
-        scorer.compute_top_view_delta(date)
-        scorer.compute_top_views(date)
-        scorer.compute_total_metadata(date)
-        scorer.compute_wikipedia_growth(date)
+        if "top_editors_final_table" in processed_score_tables:
+            scorer.compute_top_editors(date)
+
+        if "top_edits_final_table" in processed_score_tables:
+            scorer.compute_top_edits(date)
+
+        if "top_growing_final_table" in processed_score_tables:
+            scorer.compute_top_growing(date)
+
+        if "top_vandalism_final_table" in processed_score_tables:
+            scorer.compute_top_vandalism(date)
+
+        if "top_view_delta_final_table" in processed_score_tables:
+            scorer.compute_top_view_delta(date)
+
+        if "top_views_final_table" in processed_score_tables:
+            scorer.compute_top_views(date)
+
+        if "total_metadata_final_table" in processed_score_tables:
+            scorer.compute_total_metadata(date)
+
+        if "wikipedia_growth_final_table" in processed_score_tables:
+            scorer.compute_wikipedia_growth(date)
