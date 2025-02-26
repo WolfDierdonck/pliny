@@ -1,4 +1,4 @@
-INSERT INTO wikipedia_data.top_view_delta_final_table
+INSERT INTO wikipedia_data.top_views_gained_final_table
 SELECT 
   today.date as date,
   today.page_name as page_name,

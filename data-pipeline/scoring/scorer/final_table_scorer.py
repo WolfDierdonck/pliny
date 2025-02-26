@@ -84,6 +84,18 @@ class FinalTableScorer:
         }
 
         self._run_query(file_name, params)
+    
+    def compute_top_shrinking(self, date: Date) -> None:
+        self.logger.info(f"Computing top shrinking for {date}", Component.DATABASE)
+
+        file_name = "insert_top_shrinking.sql"
+        params = {
+            "date": self._get_sql_date(date),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
 
     def compute_top_vandalism(self, date: Date) -> None:
         self.logger.info(f"Computing top vandalism for {date}", Component.DATABASE)
@@ -97,12 +109,26 @@ class FinalTableScorer:
 
         self._run_query(file_name, params)
 
-    def compute_top_view_delta(self, date: Date) -> None:
-        self.logger.info(f"Computing top view delta for {date}", Component.DATABASE)
+    def compute_top_views_gained(self, date: Date) -> None:
+        self.logger.info(f"Computing top views gained for {date}", Component.DATABASE)
 
         previous_date = Date.from_py_date(date.to_py_date() - timedelta(days=1))
 
-        file_name = "insert_top_view_delta.sql"
+        file_name = "insert_top_views_gained.sql"
+        params = {
+            "todayDate": self._get_sql_date(date),
+            "yesterdayDate": self._get_sql_date(previous_date),
+            "limit": str(self.insert_limit),
+        }
+
+        self._run_query(file_name, params)
+    
+    def compute_top_views_lost(self, date: Date) -> None:
+        self.logger.info(f"Computing top views lost for {date}", Component.DATABASE)
+
+        previous_date = Date.from_py_date(date.to_py_date() - timedelta(days=1))
+
+        file_name = "insert_top_views_lost.sql"
         params = {
             "todayDate": self._get_sql_date(date),
             "yesterdayDate": self._get_sql_date(previous_date),
@@ -127,16 +153,6 @@ class FinalTableScorer:
         self.logger.info(f"Computing total metadata for {date}", Component.DATABASE)
 
         file_name = "insert_total_metadata.sql"
-        params = {
-            "date": self._get_sql_date(date),
-        }
-
-        self._run_query(file_name, params)
-
-    def compute_wikipedia_growth(self, date: Date) -> None:
-        self.logger.info(f"Computing wikipedia growth for {date}", Component.DATABASE)
-
-        file_name = "insert_wikipedia_growth.sql"
         params = {
             "date": self._get_sql_date(date),
         }
