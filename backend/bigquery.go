@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/bigquery"
 	"google.golang.org/api/iterator"
@@ -14,77 +15,114 @@ import (
 type BigQueryClient struct {
 	client  *bigquery.Client
 	queries map[string]string
+	limiter RateLimiter
 }
 
-func (bqc *BigQueryClient) getTopEditorsQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopEditorsQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_editors.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopEditsQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopEditsQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_edits.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopGrowingQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopGrowingQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_growing.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopShrinkingQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopShrinkingQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_shrinking.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopVandalismQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopVandalismQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_vandalism.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopViewsGainedQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopViewsGainedQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_views_gained.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopViewsLostQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopViewsLostQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_views_lost.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) string {
+func (bqc *BigQueryClient) getTopViewsQuery(date string, limit int) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_top_views.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 	query = strings.ReplaceAll(query, "{{limit}}", fmt.Sprintf("%d", limit))
 
-	return query
+	return &query, nil
 }
 
-func (bqc *BigQueryClient) getTotalMetadataQuery(date string) string {
+func (bqc *BigQueryClient) getTotalMetadataQuery(date string) (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
 	query := bqc.queries["fetch_total_metadata.sql"]
 	query = strings.ReplaceAll(query, "{{date}}", fmt.Sprintf("'%s'", date))
 
-	return query
+	return &query, nil
 }
 
 var bqClient BigQueryClient
@@ -116,6 +154,8 @@ func initBigQueryClient() error {
 		bqClient.queries[file.Name()] = string(query)
 	}
 
+	bqClient.limiter = NewRateLimiter(600, 30*time.Second)
+
 	return nil
 }
 
@@ -142,8 +182,12 @@ func fetchTopEditorsFromBigQuery(date string, limit int) ([]TopEditorsData, erro
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopEditorsQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopEditorsQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -162,8 +206,12 @@ func fetchTopEditsFromBigQuery(date string, limit int) ([]TopEditsData, error) {
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopEditsQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopEditsQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -182,8 +230,12 @@ func fetchTopGrowingFromBigQuery(date string, limit int) ([]TopGrowingData, erro
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopGrowingQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopGrowingQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -202,8 +254,12 @@ func fetchTopShrinkingFromBigQuery(date string, limit int) ([]TopShrinkingData, 
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopShrinkingQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopShrinkingQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -222,8 +278,12 @@ func fetchTopVandalismFromBigQuery(date string, limit int) ([]TopVandalismData, 
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopVandalismQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopVandalismQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -242,8 +302,12 @@ func fetchTopViewsGainedFromBigQuery(date string, limit int) ([]TopViewsGainedDa
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopViewsGainedQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopViewsGainedQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -262,8 +326,12 @@ func fetchTopViewsLostFromBigQuery(date string, limit int) ([]TopViewsLostData, 
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopViewsLostQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopViewsLostQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -282,8 +350,12 @@ func fetchTopViewsFromBigQuery(date string, limit int) ([]TopViewsData, error) {
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTopViewsQuery(date, limit)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTopViewsQuery(date, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
@@ -302,8 +374,12 @@ func fetchTotalMetadataFromBigQuery(date string) ([]TotalMetadataData, error) {
 		return nil, fmt.Errorf("BigQuery client is not initialized")
 	}
 
-	query := bqClient.getTotalMetadataQuery(date)
-	it, err := bqClient.client.Query(query).Read(ctx)
+	query, err := bqClient.getTotalMetadataQuery(date)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("client.Query: %v", err)
 	}
