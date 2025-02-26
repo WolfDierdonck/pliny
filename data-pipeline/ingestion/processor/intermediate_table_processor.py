@@ -5,6 +5,21 @@ from ingestion.data_sources.page_revision_data_source import PageRevisionDataSou
 from ingestion.data_sources.page_view_data_source import PageViewDataSource
 from logger import Logger, Component
 
+BAD_PAGE_NAMES = set(
+    [
+        "Main_Page",
+        "Special:Search",
+        "Wikipedia:Featured_pictures",
+        "Administrators'_noticeboard/Incidents",
+        "Sandbox",
+        "Teahouse",
+        "Help_desk",
+        "Portal:Current_events",
+        "Administrator_intervention_against_vandalism",
+        "Main_Page/Errors",
+    ]
+)
+
 
 class IntermediateTableProcessor:
     def __init__(
@@ -60,6 +75,13 @@ class IntermediateTableProcessor:
 
         rows = []
         for page_name, intermediate_table_row in data.items():
+            if (
+                page_name in BAD_PAGE_NAMES
+                or intermediate_table_row.view_count is None
+                or intermediate_table_row.view_count < 10
+            ):
+                continue
+
             rows.append(
                 {
                     "date": date.to_py_date().isoformat(),

@@ -80,10 +80,11 @@ class PageViewDumpFile(PageViewDataSource):
                 f"Parsing page view dump for date: {date}", Component.DATASOURCE
             )
             for line in f:
-                cols = line.split(" ")
                 # skip non-enwiki
-                if cols[self.col_name_to_index["wiki_code"]] != "en.wikipedia":
+                if not line.startswith("en.wikipedia"):
                     continue
+
+                cols = line.split(" ")
 
                 if cols[self.col_name_to_index["wiki_code"]] == "en.wikiquote":
                     break
@@ -92,7 +93,6 @@ class PageViewDumpFile(PageViewDataSource):
                 if page not in out:
                     out[page] = 0
 
-                assert cols[self.col_name_to_index["page_views"]].isnumeric()
                 out[page] += int(cols[self.col_name_to_index["page_views"]])
 
         return out
