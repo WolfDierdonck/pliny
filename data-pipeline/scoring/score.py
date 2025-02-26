@@ -62,6 +62,7 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("total_view_count", "INT64", mode="REQUIRED"),
         SchemaField("total_editor_count", "INT64", mode="REQUIRED"),
         SchemaField("total_revert_count", "INT64", mode="REQUIRED"),
+        SchemaField("total_net_bytes_changed", "INT64", mode="REQUIRED"),
     ],
 }
 
