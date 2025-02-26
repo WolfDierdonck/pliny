@@ -23,6 +23,11 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("page_name", "STRING", mode="REQUIRED"),
         SchemaField("net_bytes_changed", "INT64", mode="REQUIRED"),
     ],
+    "top_shrinking_final_table": [
+        SchemaField("date", "DATE", mode="REQUIRED"),
+        SchemaField("page_name", "STRING", mode="REQUIRED"),
+        SchemaField("net_bytes_changed", "INT64", mode="REQUIRED"),
+    ],
     "top_vandalism_final_table": [
         SchemaField("date", "DATE", mode="REQUIRED"),
         SchemaField("page_name", "STRING", mode="REQUIRED"),
@@ -32,7 +37,14 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("edit_count", "INT64", mode="REQUIRED"),
         SchemaField("percent_reverted", "FLOAT64", mode="REQUIRED"),
     ],
-    "top_view_delta_final_table": [
+    "top_views_gained_final_table": [
+        SchemaField("date", "DATE", mode="REQUIRED"),
+        SchemaField("page_name", "STRING", mode="REQUIRED"),
+        SchemaField("current_view_count", "INT64", mode="REQUIRED"),
+        SchemaField("previous_view_count", "INT64", mode="REQUIRED"),
+        SchemaField("view_count_ratio", "FLOAT64", mode="REQUIRED"),
+    ],
+    "top_views_lost_final_table": [
         SchemaField("date", "DATE", mode="REQUIRED"),
         SchemaField("page_name", "STRING", mode="REQUIRED"),
         SchemaField("current_view_count", "INT64", mode="REQUIRED"),
@@ -50,10 +62,7 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("total_view_count", "INT64", mode="REQUIRED"),
         SchemaField("total_editor_count", "INT64", mode="REQUIRED"),
         SchemaField("total_revert_count", "INT64", mode="REQUIRED"),
-    ],
-    "wikipedia_growth_final_table": [
-        SchemaField("date", "DATE", mode="REQUIRED"),
-        SchemaField("wikipedia_growth_bytes", "INT64", mode="REQUIRED"),
+        SchemaField("total_net_bytes_changed", "INT64", mode="REQUIRED"),
     ],
 }
 
@@ -61,11 +70,12 @@ PARTITION_COLUMNS: dict[str, str] = {
     "top_editors_final_table": "date",
     "top_edits_final_table": "date",
     "top_growing_final_table": "date",
+    "top_shrinking_final_table": "date",
     "top_vandalism_final_table": "date",
-    "top_view_delta_final_table": "date",
+    "top_views_gained_final_table": "date",
+    "top_views_lost_final_table": "date",
     "top_views_final_table": "date",
     "total_metadata_final_table": "date",
-    "wikipedia_growth_final_table": "date",
 }
 
 
@@ -118,17 +128,20 @@ def score_dates(
         if "top_growing_final_table" in processed_score_tables:
             scorer.compute_top_growing(date)
 
+        if "top_shrinking_final_table" in processed_score_tables:
+            scorer.compute_top_shrinking(date)
+
         if "top_vandalism_final_table" in processed_score_tables:
             scorer.compute_top_vandalism(date)
 
-        if "top_view_delta_final_table" in processed_score_tables:
-            scorer.compute_top_view_delta(date)
+        if "top_views_gained_final_table" in processed_score_tables:
+            scorer.compute_top_views_gained(date)
+
+        if "top_views_lost_final_table" in processed_score_tables:
+            scorer.compute_top_views_lost(date)
 
         if "top_views_final_table" in processed_score_tables:
             scorer.compute_top_views(date)
 
         if "total_metadata_final_table" in processed_score_tables:
             scorer.compute_total_metadata(date)
-
-        if "wikipedia_growth_final_table" in processed_score_tables:
-            scorer.compute_wikipedia_growth(date)

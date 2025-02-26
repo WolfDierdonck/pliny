@@ -20,6 +20,12 @@ type TopGrowingData struct {
 	NetBytesChanged int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
 }
 
+type TopShrinkingData struct {
+	Date            civil.Date `bigquery:"date" json:"date"`
+	PageName        string     `bigquery:"page_name" json:"page_name"`
+	NetBytesChanged int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+}
+
 type TopVandalismData struct {
 	Date             civil.Date `bigquery:"date" json:"date"`
 	PageName         string     `bigquery:"page_name" json:"page_name"`
@@ -30,7 +36,15 @@ type TopVandalismData struct {
 	PercentReverted  float64    `bigquery:"percent_reverted" json:"percent_reverted"`
 }
 
-type TopViewDeltaData struct {
+type TopViewsGainedData struct {
+	Date              civil.Date `bigquery:"date" json:"date"`
+	PageName          string     `bigquery:"page_name" json:"page_name"`
+	CurrentViewCount  int        `bigquery:"current_view_count" json:"current_view_count"`
+	PreviousViewCount int        `bigquery:"previous_view_count" json:"previous_view_count"`
+	ViewCountRatio    float64    `bigquery:"view_count_ratio" json:"view_count_ratio"`
+}
+
+type TopViewsLostData struct {
 	Date              civil.Date `bigquery:"date" json:"date"`
 	PageName          string     `bigquery:"page_name" json:"page_name"`
 	CurrentViewCount  int        `bigquery:"current_view_count" json:"current_view_count"`
@@ -45,14 +59,10 @@ type TopViewsData struct {
 }
 
 type TotalMetadataData struct {
-	Date             civil.Date `bigquery:"date" json:"date"`
-	TotalEditCount   int        `bigquery:"total_edit_count" json:"total_edit_count"`
-	TotalViewCount   int        `bigquery:"total_view_count" json:"total_view_count"`
-	TotalEditorCount int        `bigquery:"total_editor_count" json:"total_editor_count"`
-	TotalRevertCount int        `bigquery:"total_revert_count" json:"total_revert_count"`
-}
-
-type WikipediaGrowthData struct {
 	Date                 civil.Date `bigquery:"date" json:"date"`
-	WikipediaGrowthBytes int        `bigquery:"wikipedia_growth_bytes" json:"wikipedia_growth_bytes"`
+	TotalEditCount       int        `bigquery:"total_edit_count" json:"total_edit_count"`
+	TotalViewCount       int        `bigquery:"total_view_count" json:"total_view_count"`
+	TotalEditorCount     int        `bigquery:"total_editor_count" json:"total_editor_count"`
+	TotalRevertCount     int        `bigquery:"total_revert_count" json:"total_revert_count"`
+	TotalNetBytesChanged int        `bigquery:"total_net_bytes_changed" json:"total_net_bytes_changed"`
 }
