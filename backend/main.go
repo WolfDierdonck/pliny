@@ -3,7 +3,10 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/gin-contrib/cache"
+	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,16 +17,18 @@ func main() {
 		panic(err)
 	}
 
+	store := persistence.NewInMemoryStore(time.Hour)
+
 	router := gin.Default()
-	router.GET("/topEditors/:date/:limit", getTopEditors)
-	router.GET("/topEdits/:date/:limit", getTopEdits)
-	router.GET("/topGrowing/:date/:limit", getTopGrowing)
-	router.GET("/topShrinking/:date/:limit", getTopShrinking)
-	router.GET("/topVandalism/:date/:limit", getTopVandalism)
-	router.GET("/topViewsGained/:date/:limit", getTopViewsGained)
-	router.GET("/topViewsLost/:date/:limit", getTopViewsLost)
-	router.GET("/topViews/:date/:limit", getTopViews)
-	router.GET("/totalMetadata/:date", getTotalMetadata)
+	router.GET("/topEditors/:date/:limit", cache.CachePage(store, time.Hour, getTopEditors))
+	router.GET("/topEdits/:date/:limit", cache.CachePage(store, time.Hour, getTopEdits))
+	router.GET("/topGrowing/:date/:limit", cache.CachePage(store, time.Hour, getTopGrowing))
+	router.GET("/topShrinking/:date/:limit", cache.CachePage(store, time.Hour, getTopShrinking))
+	router.GET("/topVandalism/:date/:limit", cache.CachePage(store, time.Hour, getTopVandalism))
+	router.GET("/topViewsGained/:date/:limit", cache.CachePage(store, time.Hour, getTopViewsGained))
+	router.GET("/topViewsLost/:date/:limit", cache.CachePage(store, time.Hour, getTopViewsLost))
+	router.GET("/topViews/:date/:limit", cache.CachePage(store, time.Hour, getTopViews))
+	router.GET("/totalMetadata/:date", cache.CachePage(store, time.Hour, getTotalMetadata))
 	router.Run("localhost:8080")
 }
 
