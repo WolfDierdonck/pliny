@@ -41,6 +41,10 @@ class FinalTableScorer:
     def _get_sql_date(self, date: Date) -> str:
         return f"'{date.year}-{date.month:02d}-{date.day:02d}'"
 
+    def _get_prev_sql_date(self, date: Date, lookback: int) -> str:
+        prev_date = Date.from_py_date(date.to_py_date() - timedelta(days=lookback))
+        return self._get_sql_date(prev_date)
+
     def _get_date_selection_str(self, date: Date, lookback_days: int) -> str:
         s = f"date={self._get_sql_date(date)}"
         for i in range(1, lookback_days):
@@ -84,7 +88,7 @@ class FinalTableScorer:
         }
 
         self._run_query(file_name, params)
-    
+
     def compute_top_shrinking(self, date: Date) -> None:
         self.logger.info(f"Computing top shrinking for {date}", Component.DATABASE)
 
@@ -112,26 +116,24 @@ class FinalTableScorer:
     def compute_top_views_gained(self, date: Date) -> None:
         self.logger.info(f"Computing top views gained for {date}", Component.DATABASE)
 
-        previous_date = Date.from_py_date(date.to_py_date() - timedelta(days=1))
-
         file_name = "insert_top_views_gained.sql"
         params = {
             "todayDate": self._get_sql_date(date),
-            "yesterdayDate": self._get_sql_date(previous_date),
+            "yesterdayDate": self._get_prev_sql_date(date, 1),
+            "twoDaysAgoDate": self._get_prev_sql_date(date, 2),
             "limit": str(self.insert_limit),
         }
 
         self._run_query(file_name, params)
-    
+
     def compute_top_views_lost(self, date: Date) -> None:
         self.logger.info(f"Computing top views lost for {date}", Component.DATABASE)
-
-        previous_date = Date.from_py_date(date.to_py_date() - timedelta(days=1))
 
         file_name = "insert_top_views_lost.sql"
         params = {
             "todayDate": self._get_sql_date(date),
-            "yesterdayDate": self._get_sql_date(previous_date),
+            "yesterdayDate": self._get_prev_sql_date(date, 1),
+            "twoDaysAgoDate": self._get_prev_sql_date(date, 2),
             "limit": str(self.insert_limit),
         }
 
@@ -142,8 +144,13 @@ class FinalTableScorer:
 
         file_name = "insert_top_views.sql"
         params = {
-            "date": self._get_sql_date(date),
-            "dateSelectionStr": self._get_date_selection_str(date, 3),
+            "date_0": self._get_sql_date(date),
+            "date_1": self._get_prev_sql_date(date, 1),
+            "date_2": self._get_prev_sql_date(date, 2),
+            "date_3": self._get_prev_sql_date(date, 3),
+            "date_4": self._get_prev_sql_date(date, 4),
+            "date_5": self._get_prev_sql_date(date, 5),
+            "date_6": self._get_prev_sql_date(date, 6),
             "limit": str(self.insert_limit),
         }
 

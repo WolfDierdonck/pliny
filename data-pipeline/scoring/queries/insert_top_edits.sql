@@ -1,16 +1,23 @@
 INSERT INTO wikipedia_data.top_edits_final_table
 SELECT
     CAST({{date}} AS DATE) AS date,
-    *
+    *,
+    abs_bytes_changed / edit_count as avg_bytes_changed_per_edit
 FROM
     (
         SELECT
             page_name, 
-            CAST(AVG(edit_count) AS INT) as edit_count
+            CAST(AVG(view_count) AS INT) as view_count,
+            CAST(AVG(edit_count) AS INT) as edit_count,
+            CAST(AVG(revert_count) AS INT) as revert_count,
+            CAST(AVG(editor_count) AS INT) as editor_count,
+            CAST(AVG(net_bytes_changed) AS INT) as net_bytes_changed,
+            CAST(AVG(abs_bytes_changed) AS INT) as abs_bytes_changed,
+            CAST(AVG(abs_bytes_reverted) AS INT) as abs_bytes_reverted
         FROM wikipedia_data.intermediate_table
-        WHERE
-            {{dateSelectionStr}}
+        WHERE {{dateSelectionStr}}
         GROUP BY page_name
-        ORDER BY edit_count DESC
-        LIMIT {{limit}}
     )
+WHERE edit_count > 0 AND abs_bytes_changed / edit_count > 100
+ORDER BY edit_count DESC
+LIMIT {{limit}}
