@@ -2,10 +2,10 @@ INSERT INTO wikipedia_data.top_vandalism_final_table
 WITH grouped AS (
   SELECT
     page_name,
-    CAST(AVG(view_count) AS INT) AS view_count,
-    CAST(AVG(revert_count) AS INT) AS revert_count,
-    CAST(AVG(abs_bytes_reverted) AS INT) AS abs_bytes_reverted,
-    CAST(AVG(edit_count) AS INT) AS edit_count
+    SUM(view_count) AS view_count,
+    SUM(revert_count) AS revert_count,
+    SUM(abs_bytes_reverted) AS abs_bytes_reverted,
+    SUM(edit_count) AS edit_count
   FROM
     wikipedia_data.intermediate_table
   WHERE
