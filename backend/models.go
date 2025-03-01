@@ -59,19 +59,21 @@ type TopVandalismData struct {
 }
 
 type TopViewsGainedData struct {
-	Date              civil.Date `bigquery:"date" json:"date"`
-	PageName          string     `bigquery:"page_name" json:"page_name"`
-	CurrentViewCount  int        `bigquery:"current_view_count" json:"current_view_count"`
-	PreviousViewCount int        `bigquery:"previous_view_count" json:"previous_view_count"`
-	ViewCountRatio    float64    `bigquery:"view_count_ratio" json:"view_count_ratio"`
+	Date                civil.Date `bigquery:"date" json:"date"`
+	PageName            string     `bigquery:"page_name" json:"page_name"`
+	CurrentViewCount    int        `bigquery:"current_view_count" json:"current_view_count"`
+	OneDayAgoViewCount  int        `bigquery:"one_day_ago_view_count" json:"one_day_ago_view_count"`
+	TwoDaysAgoViewCount int        `bigquery:"two_days_ago_view_count" json:"two_days_ago_view_count"`
+	ViewCountRatio      float64    `bigquery:"view_count_ratio" json:"view_count_ratio"`
 }
 
 type TopViewsLostData struct {
-	Date              civil.Date `bigquery:"date" json:"date"`
-	PageName          string     `bigquery:"page_name" json:"page_name"`
-	CurrentViewCount  int        `bigquery:"current_view_count" json:"current_view_count"`
-	PreviousViewCount int        `bigquery:"previous_view_count" json:"previous_view_count"`
-	ViewCountRatio    float64    `bigquery:"view_count_ratio" json:"view_count_ratio"`
+	Date                civil.Date `bigquery:"date" json:"date"`
+	PageName            string     `bigquery:"page_name" json:"page_name"`
+	CurrentViewCount    int        `bigquery:"current_view_count" json:"current_view_count"`
+	OneDayAgoViewCount  int        `bigquery:"one_day_ago_view_count" json:"one_day_ago_view_count"`
+	TwoDaysAgoViewCount int        `bigquery:"two_days_ago_view_count" json:"two_days_ago_view_count"`
+	ViewCountRatio      float64    `bigquery:"view_count_ratio" json:"view_count_ratio"`
 }
 
 type TopViewsData struct {
