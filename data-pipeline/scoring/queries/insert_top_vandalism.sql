@@ -17,12 +17,17 @@ WITH grouped AS (
   SELECT
     CAST({{date}} AS DATE) AS date,
     *,
-    SAFE_DIVIDE(revert_count, edit_count) AS percent_reverted
+    revert_count/edit_count AS percent_reverted,
+    abs_bytes_reverted/revert_count AS avg_bytes_reverted_per_revert
   FROM
     grouped
   WHERE
-    revert_count > 3 and abs_bytes_reverted > 20 and view_count > 100
+    revert_count > 3 and 
+    abs_bytes_reverted > 20 and 
+    view_count > 100 and 
+    revert_count/edit_count > 0.7 and
+    abs_bytes_reverted/revert_count > 50
   ORDER BY
-    percent_reverted DESC
+    revert_count DESC
   LIMIT {{limit}}
 )

@@ -88,7 +88,7 @@ class FinalTableScorer:
         }
 
         self._run_query(file_name, params)
-    
+
     def compute_top_shrinking(self, date: Date) -> None:
         self.logger.info(f"Computing top shrinking for {date}", Component.DATABASE)
 
@@ -107,7 +107,7 @@ class FinalTableScorer:
         file_name = "insert_top_vandalism.sql"
         params = {
             "date": self._get_sql_date(date),
-            "dateSelectionStr": self._get_date_selection_str(date, 7),
+            "dateSelectionStr": self._get_date_selection_str(date, 3),
             "limit": str(self.insert_limit),
         }
 

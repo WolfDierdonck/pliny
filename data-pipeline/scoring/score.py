@@ -17,6 +17,8 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("date", "DATE", mode="REQUIRED"),
         SchemaField("page_name", "STRING", mode="REQUIRED"),
         SchemaField("edit_count", "INT64", mode="REQUIRED"),
+        SchemaField("abs_bytes_changed", "INT64", mode="REQUIRED"),
+        SchemaField("avg_bytes_changed_per_edit", "FLOAT64", mode="REQUIRED"),
     ],
     "top_growing_final_table": [
         SchemaField("date", "DATE", mode="REQUIRED"),
@@ -36,6 +38,7 @@ FINAL_TABLE_SCHEMAS: dict[str, list[SchemaField]] = {
         SchemaField("abs_bytes_reverted", "INT64", mode="REQUIRED"),
         SchemaField("edit_count", "INT64", mode="REQUIRED"),
         SchemaField("percent_reverted", "FLOAT64", mode="REQUIRED"),
+        SchemaField("avg_bytes_reverted_per_revert", "FLOAT64", mode="REQUIRED"),
     ],
     "top_views_gained_final_table": [
         SchemaField("date", "DATE", mode="REQUIRED"),
