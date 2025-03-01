@@ -3,21 +3,39 @@ package main
 import "cloud.google.com/go/civil"
 
 type TopEditorsData struct {
-	Date        civil.Date `bigquery:"date" json:"date"`
-	PageName    string     `bigquery:"page_name" json:"page_name"`
-	EditorCount int        `bigquery:"editor_count" json:"editor_count"`
+	Date             civil.Date `bigquery:"date" json:"date"`
+	PageName         string     `bigquery:"page_name" json:"page_name"`
+	ViewCount        int        `bigquery:"view_count" json:"view_count"`
+	EditCount        int        `bigquery:"edit_count" json:"edit_count"`
+	RevertCount      int        `bigquery:"revert_count" json:"revert_count"`
+	EditorCount      int        `bigquery:"editor_count" json:"editor_count"`
+	NetBytesChanged  int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+	AbsBytesChanged  int        `bigquery:"abs_bytes_changed" json:"abs_bytes_changed"`
+	AbsBytesReverted int        `bigquery:"abs_bytes_reverted" json:"abs_bytes_reverted"`
 }
 
 type TopEditsData struct {
-	Date      civil.Date `bigquery:"date" json:"date"`
-	PageName  string     `bigquery:"page_name" json:"page_name"`
-	EditCount int        `bigquery:"edit_count" json:"edit_count"`
+	Date             civil.Date `bigquery:"date" json:"date"`
+	PageName         string     `bigquery:"page_name" json:"page_name"`
+	ViewCount        int        `bigquery:"view_count" json:"view_count"`
+	EditCount        int        `bigquery:"edit_count" json:"edit_count"`
+	RevertCount      int        `bigquery:"revert_count" json:"revert_count"`
+	EditorCount      int        `bigquery:"editor_count" json:"editor_count"`
+	NetBytesChanged  int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+	AbsBytesChanged  int        `bigquery:"abs_bytes_changed" json:"abs_bytes_changed"`
+	AbsBytesReverted int        `bigquery:"abs_bytes_reverted" json:"abs_bytes_reverted"`
 }
 
 type TopGrowingData struct {
-	Date            civil.Date `bigquery:"date" json:"date"`
-	PageName        string     `bigquery:"page_name" json:"page_name"`
-	NetBytesChanged int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+	Date             civil.Date `bigquery:"date" json:"date"`
+	PageName         string     `bigquery:"page_name" json:"page_name"`
+	ViewCount        int        `bigquery:"view_count" json:"view_count"`
+	EditCount        int        `bigquery:"edit_count" json:"edit_count"`
+	RevertCount      int        `bigquery:"revert_count" json:"revert_count"`
+	EditorCount      int        `bigquery:"editor_count" json:"editor_count"`
+	NetBytesChanged  int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+	AbsBytesChanged  int        `bigquery:"abs_bytes_changed" json:"abs_bytes_changed"`
+	AbsBytesReverted int        `bigquery:"abs_bytes_reverted" json:"abs_bytes_reverted"`
 }
 
 type TopShrinkingData struct {
@@ -27,13 +45,17 @@ type TopShrinkingData struct {
 }
 
 type TopVandalismData struct {
-	Date             civil.Date `bigquery:"date" json:"date"`
-	PageName         string     `bigquery:"page_name" json:"page_name"`
-	ViewCount        int        `bigquery:"view_count" json:"view_count"`
-	RevertCount      int        `bigquery:"revert_count" json:"revert_count"`
-	AbsBytesReverted int        `bigquery:"abs_bytes_reverted" json:"abs_bytes_reverted"`
-	EditCount        int        `bigquery:"edit_count" json:"edit_count"`
-	PercentReverted  float64    `bigquery:"percent_reverted" json:"percent_reverted"`
+	Date                      civil.Date `bigquery:"date" json:"date"`
+	PageName                  string     `bigquery:"page_name" json:"page_name"`
+	ViewCount                 int        `bigquery:"view_count" json:"view_count"`
+	EditCount                 int        `bigquery:"edit_count" json:"edit_count"`
+	RevertCount               int        `bigquery:"revert_count" json:"revert_count"`
+	EditorCount               int        `bigquery:"editor_count" json:"editor_count"`
+	NetBytesChanged           int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+	AbsBytesChanged           int        `bigquery:"abs_bytes_changed" json:"abs_bytes_changed"`
+	AbsBytesReverted          int        `bigquery:"abs_bytes_reverted" json:"abs_bytes_reverted"`
+	PercentReverted           float64    `bigquery:"percent_reverted" json:"percent_reverted"`
+	AvgBytesRevertedPerRevert float64    `bigquery:"avg_bytes_reverted_per_revert" json:"avg_bytes_reverted_per_revert"`
 }
 
 type TopViewsGainedData struct {
@@ -53,9 +75,21 @@ type TopViewsLostData struct {
 }
 
 type TopViewsData struct {
-	Date      civil.Date `bigquery:"date" json:"date"`
-	PageName  string     `bigquery:"page_name" json:"page_name"`
-	ViewCount int        `bigquery:"view_count" json:"view_count"`
+	Date             civil.Date `bigquery:"date" json:"date"`
+	PageName         string     `bigquery:"page_name" json:"page_name"`
+	ViewCount_0      int        `bigquery:"view_count_0" json:"view_count_0"`
+	EditCount        int        `bigquery:"edit_count" json:"edit_count"`
+	RevertCount      int        `bigquery:"revert_count" json:"revert_count"`
+	EditorCount      int        `bigquery:"editor_count" json:"editor_count"`
+	NetBytesChanged  int        `bigquery:"net_bytes_changed" json:"net_bytes_changed"`
+	AbsBytesChanged  int        `bigquery:"abs_bytes_changed" json:"abs_bytes_changed"`
+	AbsBytesReverted int        `bigquery:"abs_bytes_reverted" json:"abs_bytes_reverted"`
+	ViewCount_1      int        `bigquery:"view_count_1" json:"view_count_1"`
+	ViewCount_2      int        `bigquery:"view_count_2" json:"view_count_2"`
+	ViewCount_3      int        `bigquery:"view_count_3" json:"view_count_3"`
+	ViewCount_4      int        `bigquery:"view_count_4" json:"view_count_4"`
+	ViewCount_5      int        `bigquery:"view_count_5" json:"view_count_5"`
+	ViewCount_6      int        `bigquery:"view_count_6" json:"view_count_6"`
 }
 
 type TotalMetadataData struct {

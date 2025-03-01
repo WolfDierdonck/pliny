@@ -2,10 +2,14 @@ SELECT
     date,
     page_name,
     view_count,
-    revert_count,
-    abs_bytes_reverted,
     edit_count,
-    percent_reverted
+    revert_count,
+    editor_count,
+    net_bytes_changed,
+    abs_bytes_changed,
+    abs_bytes_reverted,
+    percent_reverted,
+    avg_bytes_reverted_per_revert
 FROM
     wikipedia_data.top_vandalism_final_table
 WHERE
