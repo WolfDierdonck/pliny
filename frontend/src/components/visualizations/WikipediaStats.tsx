@@ -7,7 +7,7 @@ const WikipediaStats = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTotalMetadata('2024-09-04')
+    getTotalMetadata('2024-09-07')
       .then((statsData) => setStats(statsData))
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));

@@ -7,7 +7,7 @@ const TopGrowingArticles = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTopGrowingData('2024-09-04', 10)
+    getTopGrowingData('2024-09-07', 10)
       .then((data) => {
         setTopGrowingData(data);
       })
