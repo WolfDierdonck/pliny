@@ -16,7 +16,7 @@ const TopEditsBarGraph = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTopEditsData('2024-09-01', 15)
+    getTopEditsData('2024-09-04', 15)
       .then((data) => {
         const processedData = data.map((item, index) => ({
           ...item,

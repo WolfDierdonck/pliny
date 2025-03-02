@@ -9,9 +9,9 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
-import { getTopViewDeltaData, TopViewDeltaData } from '../../lib/api';
+import { getTopViewsGainedData, TopViewsGainedData } from '../../lib/api';
 
-type TopTrendingArticles = TopViewDeltaData & { growth_percentage: string };
+type TopTrendingArticles = TopViewsGainedData & { growth_percentage: string };
 
 const TopTrendingArticles = () => {
   const [data, setData] = useState<TopTrendingArticles[]>([]);
@@ -19,7 +19,7 @@ const TopTrendingArticles = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTopViewDeltaData('2024-09-07', 10)
+    getTopViewsGainedData('2024-09-07', 10)
       .then((data) => {
         const processedData = data.map((item) => ({
           ...item,

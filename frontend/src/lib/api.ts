@@ -1,7 +1,19 @@
 export type TopViewsData = {
   date: string;
   page_name: string;
-  view_count: number;
+  view_count_0: number;
+  edit_count: number;
+  revert_count: number;
+  editor_count: number;
+  net_bytes_changed: number;
+  abs_bytes_changed: number;
+  abs_bytes_reverted: number;
+  view_count_1: number;
+  view_count_2: number;
+  view_count_3: number;
+  view_count_4: number;
+  view_count_5: number;
+  view_count_6: number;
 };
 
 export async function getTopViewsData(
@@ -16,14 +28,16 @@ export async function getTopViewsData(
 }
 
 export type TopVandalismData = {
-  start_date: string;
-  end_date: string;
   page_name: string;
   view_count: number;
-  revert_count: number;
-  bytes_reverted: number;
   edit_count: number;
+  revert_count: number;
+  editor_count: number;
+  net_bytes_changed: number;
+  abs_bytes_changed: number;
+  abs_bytes_reverted: number;
   percent_reverted: number;
+  avg_bytes_reverted_per_revert: number;
 };
 
 export async function getTopVandalismData(
@@ -40,7 +54,13 @@ export async function getTopVandalismData(
 export type TopGrowingData = {
   date: string;
   page_name: string;
+  view_count: number;
+  edit_count: number;
+  revert_count: number;
+  editor_count: number;
   net_bytes_changed: number;
+  abs_bytes_changed: number;
+  abs_bytes_reverted: number;
 };
 
 export async function getTopGrowingData(
@@ -57,7 +77,13 @@ export async function getTopGrowingData(
 export type TopEditorsData = {
   date: string;
   page_name: string;
+  view_count: number;
+  edit_count: number;
+  revert_count: number;
   editor_count: number;
+  net_bytes_changed: number;
+  abs_bytes_changed: number;
+  abs_bytes_reverted: number;
 };
 
 export async function getTopEditorsData(
@@ -74,7 +100,13 @@ export async function getTopEditorsData(
 export type TopEditsData = {
   date: string;
   page_name: string;
+  view_count: number;
   edit_count: number;
+  revert_count: number;
+  editor_count: number;
+  net_bytes_changed: number;
+  abs_bytes_changed: number;
+  abs_bytes_reverted: number;
 };
 
 export async function getTopEditsData(
@@ -88,19 +120,20 @@ export async function getTopEditsData(
   return await response.json();
 }
 
-export type TopViewDeltaData = {
-  date: string;
+// Changed type name from TopViewGrowthData to TopViewsGainedData
+export type TopViewsGainedData = {
   page_name: string;
   current_view_count: number;
-  previous_view_count: number;
+  one_day_ago_view_count: number;
+  two_days_ago_view_count: number;
   view_count_ratio: number;
 };
 
-export async function getTopViewDeltaData(
+export async function getTopViewsGainedData(
   date: string,
   limit: number,
-): Promise<TopViewDeltaData[]> {
-  const response = await fetch(`/topViewDelta/${date}/${limit}`);
+): Promise<TopViewsGainedData[]> {
+  const response = await fetch(`/topViewsGained/${date}/${limit}`);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -112,6 +145,7 @@ export type WikipediaStatsData = {
   total_view_count: number;
   total_editor_count: number;
   total_revert_count: number;
+  total_net_bytes_changed: number;
 };
 
 export async function getTotalMetadata(
@@ -126,17 +160,15 @@ export async function getTotalMetadata(
   return data[0];
 }
 
-export type WikipediaGrowthData = {
-  wikipedia_growth_bytes: number;
-};
+// todo: top views lost
+// date as date,
+// page_name,
+// current_view_count,
+// one_day_ago_view_count,
+// two_days_ago_view_count,
+// view_count_ratio
 
-export async function getWikipediaGrowth(
-  date: string,
-): Promise<WikipediaGrowthData> {
-  const response = await fetch(`/wikipediaGrowth/${date}`);
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  const data = await response.json();
-  return data[0];
-}
+// todo: top shrinking
+// date,
+// page_name,
+// net_bytes_changed

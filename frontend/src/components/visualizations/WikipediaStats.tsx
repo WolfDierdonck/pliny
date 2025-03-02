@@ -1,26 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import {
-  getTotalMetadata,
-  getWikipediaGrowth,
-  WikipediaStatsData,
-  WikipediaGrowthData,
-} from '../../lib/api';
+import { getTotalMetadata, WikipediaStatsData } from '../../lib/api';
 
 const WikipediaStats = () => {
   const [stats, setStats] = useState<WikipediaStatsData | null>(null);
-  const [growth, setGrowth] = useState<WikipediaGrowthData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([
-      getTotalMetadata('2024-09-01'),
-      getWikipediaGrowth('2024-09-01'),
-    ])
-      .then(([statsData, growthData]) => {
-        setStats(statsData);
-        setGrowth(growthData);
-      })
+    getTotalMetadata('2024-09-04')
+      .then((statsData) => setStats(statsData))
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
   }, []);
@@ -51,7 +39,7 @@ const WikipediaStats = () => {
     return isNegative ? `-${formatted}` : `+${formatted}`;
   };
 
-  if (isLoading || !stats || !growth) {
+  if (isLoading || !stats) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
         {[...Array(5)].map((_, i) => (
@@ -98,7 +86,7 @@ const WikipediaStats = () => {
     },
     {
       label: 'Net Growth',
-      value: growth.wikipedia_growth_bytes,
+      value: stats.total_net_bytes_changed,
       icon: '📈',
       color: 'bg-indigo-50 text-indigo-700',
       format: formatBytes,

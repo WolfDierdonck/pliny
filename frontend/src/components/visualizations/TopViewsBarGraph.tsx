@@ -14,7 +14,7 @@ const TopViewsBarGraph = () => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
 
   useEffect(() => {
-    getTopViewsData('2024-09-01', 10)
+    getTopViewsData('2024-09-04', 10)
       .then((data) => setViewData(data))
       .catch((error) => console.error('Failed to get data', error));
   }, []);
@@ -27,7 +27,7 @@ const TopViewsBarGraph = () => {
         <XAxis dataKey="page_name" angle={-45} textAnchor="end" height={100} />
         <YAxis />
         <Tooltip />
-        <Bar dataKey="view_count" fill="#8884d8" />
+        <Bar dataKey="view_count_0" fill="#8884d8" />
       </BarChart>
     </ResponsiveContainer>
   );
