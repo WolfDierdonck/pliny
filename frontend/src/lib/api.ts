@@ -120,7 +120,6 @@ export async function getTopEditsData(
   return await response.json();
 }
 
-// Changed type name from TopViewGrowthData to TopViewsGainedData
 export type TopViewsGainedData = {
   page_name: string;
   current_view_count: number;
@@ -160,15 +159,39 @@ export async function getTotalMetadata(
   return data[0];
 }
 
-// todo: top views lost
-// date as date,
-// page_name,
-// current_view_count,
-// one_day_ago_view_count,
-// two_days_ago_view_count,
-// view_count_ratio
+export type TopViewsLostData = {
+  date: string;
+  page_name: string;
+  current_view_count: number;
+  one_day_ago_view_count: number;
+  two_days_ago_view_count: number;
+  view_count_ratio: number;
+};
 
-// todo: top shrinking
-// date,
-// page_name,
-// net_bytes_changed
+export async function getTopViewsLostData(
+  date: string,
+  limit: number,
+): Promise<TopViewsLostData[]> {
+  const response = await fetch(`/topViewsLost/${date}/${limit}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
+}
+
+export type TopShrinkingData = {
+  date: string;
+  page_name: string;
+  net_bytes_changed: number;
+};
+
+export async function getTopShrinkingData(
+  date: string,
+  limit: number,
+): Promise<TopShrinkingData[]> {
+  const response = await fetch(`/topShrinking/${date}/${limit}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
+}

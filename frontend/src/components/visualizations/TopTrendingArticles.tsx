@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
-} from 'recharts';
+import { LineChart, Line, ResponsiveContainer, Legend } from 'recharts';
 import { getTopViewsGainedData, TopViewsGainedData } from '../../lib/api';
 
 const colors = [
@@ -33,7 +25,6 @@ const TopTrendingArticles = () => {
     getTopViewsGainedData('2024-09-07', 10)
       .then((articlesData) => {
         setArticles(articlesData);
-        // Updated typed days with index signature
         const days: { day: string; [key: string]: number | string }[] = [
           { day: 'Two Days Ago' },
           { day: 'One Day Ago' },
@@ -71,9 +62,6 @@ const TopTrendingArticles = () => {
           data={chartData}
           margin={{ top: 20, right: 30, bottom: 70, left: 60 }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="day" />
-          <YAxis />
           <Legend />
           {articles.map((article, index) => (
             <Line

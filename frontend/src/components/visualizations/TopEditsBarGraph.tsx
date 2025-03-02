@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  Tooltip,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
   ResponsiveContainer,
-  ZAxis,
 } from 'recharts';
 import { getTopEditsData, TopEditsData } from '../../lib/api';
 
@@ -16,16 +15,13 @@ const TopEditsBarGraph = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTopEditsData('2024-09-07', 15)
+    getTopEditsData('2024-09-07', 6)
       .then((data) => {
-        const processedData = data.map((item, index) => ({
+        const formattedData = data.map((item) => ({
           ...item,
           page_name: item.page_name.replace(/_/g, ' '),
-          x: index, // Use index for X-axis spacing
-          y: item.edit_count,
-          z: item.edit_count, // Use edit_count for bubble size
         }));
-        setData(processedData);
+        setData(formattedData);
       })
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
@@ -42,57 +38,45 @@ const TopEditsBarGraph = () => {
     );
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white p-4 shadow-lg rounded-lg border">
-          <p className="font-medium">{data.page_name}</p>
-          <p className="text-gray-600">{data.edit_count} edits</p>
-        </div>
-      );
-    }
-    return null;
-  };
+  const renderRadarData = (item: TopEditsData) => [
+    { metric: 'View Count', value: item.view_count },
+    { metric: 'Edit Count', value: item.edit_count },
+    { metric: 'Revert Count', value: item.revert_count },
+    { metric: 'Editor Count', value: item.editor_count },
+    { metric: 'Net Bytes Changed', value: item.net_bytes_changed },
+    { metric: 'Abs Bytes Changed', value: item.abs_bytes_changed },
+  ];
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Most Edited Articles
-      </h2>
-      <ResponsiveContainer width="100%" height={500}>
-        <ScatterChart margin={{ top: 20, right: 20, bottom: 70, left: 60 }}>
-          <XAxis
-            dataKey="x"
-            name="Article"
-            tickFormatter={(value) => {
-              const item = data[value];
-              return item ? item.page_name : '';
-            }}
-            angle={-45}
-            textAnchor="end"
-            height={100}
-            interval={0}
-          />
-          <YAxis
-            dataKey="y"
-            name="Edit Count"
-            label={{
-              value: 'Number of Edits',
-              angle: -90,
-              position: 'insideLeft',
-            }}
-          />
-          <ZAxis dataKey="z" range={[400, 2000]} name="Size" />
-          <Tooltip content={<CustomTooltip />} />
-          <Scatter
-            name="Articles"
-            data={data}
-            fill="#82ca9d"
-            fillOpacity={0.6}
-          />
-        </ScatterChart>
-      </ResponsiveContainer>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {data.map((item, idx) => (
+          <div key={idx} className="border p-4 rounded">
+            <h3 className="text-lg font-medium mb-2">{item.page_name}</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <RadarChart data={renderRadarData(item)}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="metric" />
+                <PolarRadiusAxis />
+                <Radar
+                  name={item.page_name}
+                  dataKey="value"
+                  stroke="#8884d8"
+                  fill="#8884d8"
+                  fillOpacity={0.6}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+            <div className="mt-2 text-sm">
+              {renderRadarData(item).map((metricItem, i) => (
+                <p key={i}>
+                  <strong>{metricItem.metric}:</strong> {metricItem.value}
+                </p>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

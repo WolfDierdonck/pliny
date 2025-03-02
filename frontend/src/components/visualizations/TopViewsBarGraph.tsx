@@ -39,7 +39,6 @@ const TopViewsBarGraph = () => {
       .catch((error) => console.error('Failed to get data', error));
   }, []);
 
-  // Use a muted colors palette
   const colors = [
     '#1f77b4',
     '#ff7f0e',
