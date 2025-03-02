@@ -9,12 +9,16 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { getTopViewsData, TopViewsData } from '../../lib/api';
+import LoadingPlaceholder from '../LoadingPlaceholder';
+import NoDataPlaceholder from '../NoDataPlaceholder';
 
 const TopViews = ({ date }: { date: string }) => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     getTopViewsData(date, 10)
       .then((data) => {
         setViewData(data);
@@ -34,8 +38,20 @@ const TopViews = ({ date }: { date: string }) => {
         }).reverse();
         setChartData(transformed);
       })
-      .catch((error) => console.error('Failed to get data', error));
+      .catch((error) => {
+        console.error('Failed to get data', error);
+        setViewData([]); // reset to default
+        setChartData([]); // reset to default
+      })
+      .finally(() => setIsLoading(false));
   }, [date]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
+  if (!viewData?.length) {
+    return <NoDataPlaceholder />;
+  }
 
   const colors = [
     '#1f77b4',

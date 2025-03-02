@@ -14,12 +14,15 @@ import {
   TopViewsGainedData,
   TopViewsLostData,
 } from '../../lib/api';
+import LoadingPlaceholder from '../LoadingPlaceholder';
+import NoDataPlaceholder from '../NoDataPlaceholder';
 
 // Replace the single colors array with separate arrays for gains and losses
 const gainColors = ['#2ca02c', '#1f77b4', '#ff7f0e', '#17becf'];
 const lossColors = ['#d62728', '#9467bd', '#8c564b', '#e377c2'];
 
 const TopTrendingArticles = ({ date }: { date: string }) => {
+  // Initialize array states to []
   const [gainedArticles, setGainedArticles] = useState<TopViewsGainedData[]>(
     [],
   );
@@ -56,19 +59,20 @@ const TopTrendingArticles = ({ date }: { date: string }) => {
         });
         setChartData(days);
       })
-      .catch((error) => console.error('Failed to get data', error))
+      .catch((error) => {
+        console.error('Failed to get data', error);
+        setGainedArticles([]); // reset to default
+        setLostArticles([]); // reset to default
+        setChartData([]); // reset to default
+      })
       .finally(() => setIsLoading(false));
   }, [date]);
 
   if (isLoading) {
-    return (
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded w-full"></div>
-        </div>
-      </div>
-    );
+    return <LoadingPlaceholder />;
+  }
+  if (!gainedArticles?.length || !lostArticles?.length) {
+    return <NoDataPlaceholder />;
   }
 
   return (

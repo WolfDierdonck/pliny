@@ -8,6 +8,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { getTopEditsData, TopEditsData } from '../../lib/api';
+import LoadingPlaceholder from '../LoadingPlaceholder';
+import NoDataPlaceholder from '../NoDataPlaceholder';
 
 const TopEdits = ({ date }: { date: string }) => {
   const [data, setData] = useState<TopEditsData[]>([]);
@@ -23,19 +25,18 @@ const TopEdits = ({ date }: { date: string }) => {
         }));
         setData(formattedData);
       })
-      .catch((error) => console.error('Failed to get data', error))
+      .catch((error) => {
+        console.error('Failed to get data', error);
+        setData([]); // reset to default
+      })
       .finally(() => setIsLoading(false));
   }, [date]);
 
   if (isLoading) {
-    return (
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded w-full"></div>
-        </div>
-      </div>
-    );
+    return <LoadingPlaceholder />;
+  }
+  if (!data?.length) {
+    return <NoDataPlaceholder />;
   }
 
   const renderRadarData = (item: TopEditsData) => [

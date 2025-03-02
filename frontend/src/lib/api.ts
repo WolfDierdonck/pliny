@@ -22,7 +22,8 @@ export async function getTopViewsData(
 ): Promise<TopViewsData[]> {
   const response = await fetch(`/topViews/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopViewsData');
+    return []; // return fallback empty array
   }
   return await response.json();
 }
@@ -46,7 +47,8 @@ export async function getTopVandalismData(
 ): Promise<TopVandalismData[]> {
   const response = await fetch(`/topVandalism/${end_date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopVandalismData');
+    return [];
   }
   return await response.json();
 }
@@ -69,7 +71,8 @@ export async function getTopGrowingData(
 ): Promise<TopGrowingData[]> {
   const response = await fetch(`/topGrowing/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopGrowingData');
+    return [];
   }
   return await response.json();
 }
@@ -92,7 +95,8 @@ export async function getTopEditorsData(
 ): Promise<TopEditorsData[]> {
   const response = await fetch(`/topEditors/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopEditorsData');
+    return [];
   }
   return await response.json();
 }
@@ -115,7 +119,8 @@ export async function getTopEditsData(
 ): Promise<TopEditsData[]> {
   const response = await fetch(`/topEdits/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopEditsData');
+    return [];
   }
   return await response.json();
 }
@@ -134,7 +139,8 @@ export async function getTopViewsGainedData(
 ): Promise<TopViewsGainedData[]> {
   const response = await fetch(`/topViewsGained/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopViewsGainedData');
+    return [];
   }
   return await response.json();
 }
@@ -149,14 +155,15 @@ export type WikipediaStatsData = {
 
 export async function getTotalMetadata(
   date: string,
-): Promise<WikipediaStatsData> {
+): Promise<WikipediaStatsData | null> {
   const response = await fetch(`/totalMetadata/${date}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTotalMetadata');
+    return null;
   }
   const data = await response.json();
   // Return the first element of the array
-  return data[0];
+  return data ? data[0] : null;
 }
 
 export type TopViewsLostData = {
@@ -174,7 +181,8 @@ export async function getTopViewsLostData(
 ): Promise<TopViewsLostData[]> {
   const response = await fetch(`/topViewsLost/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopViewsLostData');
+    return [];
   }
   return await response.json();
 }
@@ -191,7 +199,8 @@ export async function getTopShrinkingData(
 ): Promise<TopShrinkingData[]> {
   const response = await fetch(`/topShrinking/${date}/${limit}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    console.error('Network response was not ok in getTopShrinkingData');
+    return [];
   }
   return await response.json();
 }

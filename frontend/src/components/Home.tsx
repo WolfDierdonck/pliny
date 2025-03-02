@@ -9,6 +9,7 @@ import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
 
 const Home = () => {
+  const [typingDate, setTypingDate] = useState('2024-09-07');
   const [date, setDate] = useState('2024-09-07');
   return (
     <div className="home-container">
@@ -16,8 +17,14 @@ const Home = () => {
         <h1 className="home-title">Pliny</h1>
         <input
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          value={typingDate}
+          onChange={(e) => {
+            setTypingDate(e.target.value);
+            // its a real date
+            if (e.target.value && !isNaN(new Date(e.target.value).getTime())) {
+              setDate(e.target.value);
+            }
+          }}
         />
         <p className="home-description">
           Wikipedia is largest and most comprehensive source of information in

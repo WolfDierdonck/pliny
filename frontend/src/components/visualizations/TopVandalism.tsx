@@ -10,11 +10,15 @@ import {
   Legend,
 } from 'recharts';
 import { getTopVandalismData, TopVandalismData } from '../../lib/api';
+import LoadingPlaceholder from '../LoadingPlaceholder';
+import NoDataPlaceholder from '../NoDataPlaceholder';
 
 const TopVandalism = ({ date }: { date: string }) => {
   const [vandalizedData, setVandalizedData] = useState<TopVandalismData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     getTopVandalismData(date, 10)
       .then((data) => {
         const formattedData = data
@@ -27,8 +31,19 @@ const TopVandalism = ({ date }: { date: string }) => {
           .sort((a, b) => b.revert_count - a.revert_count);
         setVandalizedData(formattedData);
       })
-      .catch((error) => console.error('Failed to get data', error));
+      .catch((error) => {
+        console.error('Failed to get data', error);
+        setVandalizedData([]); // reset to default
+      })
+      .finally(() => setIsLoading(false));
   }, [date]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
+  if (!vandalizedData?.length) {
+    return <NoDataPlaceholder />;
+  }
 
   return (
     <ResponsiveContainer width="100%" height={500} style={{ padding: 20 }}>

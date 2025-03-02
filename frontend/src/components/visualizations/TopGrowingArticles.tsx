@@ -5,14 +5,15 @@ import {
   getTopShrinkingData,
   TopShrinkingData,
 } from '../../lib/api';
+import LoadingPlaceholder from '../LoadingPlaceholder';
+import NoDataPlaceholder from '../NoDataPlaceholder';
 
 const TopGrowingArticles = ({ date }: { date: string }) => {
   const [topGrowingData, setTopGrowingData] = useState<TopGrowingData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const [topShrinkingData, setTopShrinkingData] = useState<TopShrinkingData[]>(
     [],
   );
+  const [isLoading, setIsLoading] = useState(true);
   const [isShrinkingLoading, setIsShrinkingLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +22,10 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
       .then((data) => {
         setTopGrowingData(data);
       })
-      .catch((error) => console.error('Failed to get growing data', error))
+      .catch((error) => {
+        console.error('Failed to get growing data', error);
+        setTopGrowingData([]); // reset to default
+      })
       .finally(() => setIsLoading(false));
 
     setIsShrinkingLoading(true);
@@ -29,7 +33,10 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
       .then((data) => {
         setTopShrinkingData(data);
       })
-      .catch((error) => console.error('Failed to get shrinking data', error))
+      .catch((error) => {
+        console.error('Failed to get shrinking data', error);
+        setTopShrinkingData([]); // reset to default
+      })
       .finally(() => setIsShrinkingLoading(false));
   }, [date]);
 
@@ -44,18 +51,10 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded w-full"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingPlaceholder />;
+  }
+  if (!topGrowingData?.length || !topShrinkingData?.length) {
+    return <NoDataPlaceholder />;
   }
 
   return (
@@ -93,14 +92,7 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
           Top Shrinking Articles
         </h2>
         {isShrinkingLoading ? (
-          <div className="animate-pulse space-y-4">
-            <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-4 bg-gray-200 rounded w-full"></div>
-              ))}
-            </div>
-          </div>
+          <LoadingPlaceholder />
         ) : (
           <div className="space-y-3">
             {topShrinkingData
