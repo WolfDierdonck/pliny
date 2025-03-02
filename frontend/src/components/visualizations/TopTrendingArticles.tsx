@@ -6,7 +6,7 @@ import {
   Legend,
   CartesianGrid,
   YAxis,
-  XAxis, // new import
+  XAxis,
 } from 'recharts';
 import {
   getTopViewsGainedData,
@@ -19,7 +19,7 @@ import {
 const gainColors = ['#2ca02c', '#1f77b4', '#ff7f0e', '#17becf'];
 const lossColors = ['#d62728', '#9467bd', '#8c564b', '#e377c2'];
 
-const TopTrendingArticles = () => {
+const TopTrendingArticles = ({ date }: { date: string }) => {
   const [gainedArticles, setGainedArticles] = useState<TopViewsGainedData[]>(
     [],
   );
@@ -29,10 +29,7 @@ const TopTrendingArticles = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([
-      getTopViewsGainedData('2024-09-07', 5),
-      getTopViewsLostData('2024-09-07', 5),
-    ])
+    Promise.all([getTopViewsGainedData(date, 5), getTopViewsLostData(date, 5)])
       .then(([gainedData, lostData]) => {
         setGainedArticles(gainedData);
         setLostArticles(lostData);
@@ -61,7 +58,7 @@ const TopTrendingArticles = () => {
       })
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [date]);
 
   if (isLoading) {
     return (

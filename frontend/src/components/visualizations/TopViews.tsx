@@ -10,12 +10,12 @@ import {
 } from 'recharts';
 import { getTopViewsData, TopViewsData } from '../../lib/api';
 
-const TopViews = () => {
+const TopViews = ({ date }: { date: string }) => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
-    getTopViewsData('2024-09-07', 10)
+    getTopViewsData(date, 10)
       .then((data) => {
         setViewData(data);
         const transformed = Array.from({ length: 7 }, (_, dayOffset) => {
@@ -35,7 +35,7 @@ const TopViews = () => {
         setChartData(transformed);
       })
       .catch((error) => console.error('Failed to get data', error));
-  }, []);
+  }, [date]);
 
   const colors = [
     '#1f77b4',

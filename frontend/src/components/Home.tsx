@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../styles/Home.css';
 import TopViews from './visualizations/TopViews';
 import TopVandalism from './visualizations/TopVandalism';
@@ -9,10 +9,16 @@ import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
 
 const Home = () => {
+  const [date, setDate] = useState('2024-09-07');
   return (
     <div className="home-container">
       <header className="home-header">
         <h1 className="home-title">Pliny</h1>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
         <p className="home-description">
           Wikipedia is largest and most comprehensive source of information in
           the world. Unlike the encyclopedias of the past, Wikipedia is a living
@@ -29,7 +35,7 @@ const Home = () => {
               contributions. Here are today's statistics across all articles.
             </p>
           </aside>
-          <WikipediaStats />
+          <WikipediaStats date={date} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -38,7 +44,7 @@ const Home = () => {
               viewed pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopViews />
+          <TopViews date={date} />
         </section>
 
         <section className="home-section">
@@ -48,7 +54,7 @@ const Home = () => {
               most edited pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEdits />
+          <TopEdits date={date} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -58,7 +64,7 @@ const Home = () => {
               others.
             </p>
           </aside>
-          <TopVandalism />
+          <TopVandalism date={date} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -68,7 +74,7 @@ const Home = () => {
               grew the most are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopGrowingArticles />
+          <TopGrowingArticles date={date} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -78,7 +84,7 @@ const Home = () => {
               editors are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEditors />
+          <TopEditors date={date} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -88,7 +94,7 @@ const Home = () => {
               last week.
             </p>
           </aside>
-          <TopTrendingArticles />
+          <TopTrendingArticles date={date} />
         </section>
       </main>
       <footer className="home-footer">

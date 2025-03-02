@@ -6,7 +6,7 @@ import {
   TopShrinkingData,
 } from '../../lib/api';
 
-const TopGrowingArticles = () => {
+const TopGrowingArticles = ({ date }: { date: string }) => {
   const [topGrowingData, setTopGrowingData] = useState<TopGrowingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,7 +17,7 @@ const TopGrowingArticles = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTopGrowingData('2024-09-07', 10)
+    getTopGrowingData(date, 10)
       .then((data) => {
         setTopGrowingData(data);
       })
@@ -25,13 +25,13 @@ const TopGrowingArticles = () => {
       .finally(() => setIsLoading(false));
 
     setIsShrinkingLoading(true);
-    getTopShrinkingData('2024-09-07', 10)
+    getTopShrinkingData(date, 10)
       .then((data) => {
         setTopShrinkingData(data);
       })
       .catch((error) => console.error('Failed to get shrinking data', error))
       .finally(() => setIsShrinkingLoading(false));
-  }, []);
+  }, [date]);
 
   const formatBytes = (bytes: number) => {
     if (Math.abs(bytes) > 1000000) {

@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { getTotalMetadata, WikipediaStatsData } from '../../lib/api';
 
-const WikipediaStats = () => {
+const WikipediaStats = ({ date }: { date: string }) => {
   const [stats, setStats] = useState<WikipediaStatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTotalMetadata('2024-09-07')
+    getTotalMetadata(date)
       .then((statsData) => setStats(statsData))
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [date]);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {

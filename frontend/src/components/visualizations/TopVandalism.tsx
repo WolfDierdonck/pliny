@@ -11,11 +11,11 @@ import {
 } from 'recharts';
 import { getTopVandalismData, TopVandalismData } from '../../lib/api';
 
-const TopVandalism = () => {
+const TopVandalism = ({ date }: { date: string }) => {
   const [vandalizedData, setVandalizedData] = useState<TopVandalismData[]>([]);
 
   useEffect(() => {
-    getTopVandalismData('2024-09-07', 10)
+    getTopVandalismData(date, 10)
       .then((data) => {
         const formattedData = data
           .map((item) => ({
@@ -28,7 +28,7 @@ const TopVandalism = () => {
         setVandalizedData(formattedData);
       })
       .catch((error) => console.error('Failed to get data', error));
-  }, []);
+  }, [date]);
 
   return (
     <ResponsiveContainer width="100%" height={500} style={{ padding: 20 }}>

@@ -9,13 +9,13 @@ import {
 } from 'recharts';
 import { getTopEditorsData, TopEditorsData } from '../../lib/api';
 
-const TopEditors = () => {
+const TopEditors = ({ date }: { date: string }) => {
   const [data, setData] = useState<TopEditorsData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopEditorsData('2024-09-07', 15)
+    getTopEditorsData(date, 15)
       .then((data) => {
         const processedData = data.map((item) => ({
           ...item,
@@ -26,7 +26,7 @@ const TopEditors = () => {
       })
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [date]);
 
   if (isLoading) {
     return (
