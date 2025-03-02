@@ -17,10 +17,10 @@ const TopGrowingArticles = () => {
 
   const formatBytes = (bytes: number) => {
     if (Math.abs(bytes) > 1000000) {
-      return `${(bytes / 1000000).toFixed(1)}M`;
+      return `${(bytes / 1000000).toFixed(1)} MB`;
     }
     if (Math.abs(bytes) > 1000) {
-      return `${(bytes / 1000).toFixed(1)}K`;
+      return `${(bytes / 1000).toFixed(1)} KB`;
     }
     return bytes;
   };
@@ -52,17 +52,17 @@ const TopGrowingArticles = () => {
             className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
           >
             <span className="text-gray-700 font-medium truncate flex-1">
-              {data.page_name}
+              {data.page_name.replace(/_/g, ' ')}
             </span>
             <span
               className={`px-3 py-1 rounded-full text-sm ${
-                data.net_bytes_changed > 0
+                data.abs_bytes_changed > 0
                   ? 'bg-green-100 text-green-800'
                   : 'bg-red-100 text-red-800'
               }`}
             >
-              {data.net_bytes_changed > 0 ? '+' : ''}
-              {formatBytes(data.net_bytes_changed)}
+              {data.abs_bytes_changed > 0 ? '+' : ''}
+              {formatBytes(data.abs_bytes_changed)}
             </span>
           </div>
         ))}

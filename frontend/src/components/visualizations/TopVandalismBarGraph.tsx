@@ -11,26 +11,21 @@ import {
 } from 'recharts';
 import { getTopVandalismData, TopVandalismData } from '../../lib/api';
 
-type TopVandalizedWithPercentKept = TopVandalismData & { percent_kept: number };
-
 const TopVandalismBarGraph = () => {
-  const [vandalizedData, setVandalizedData] = useState<
-    TopVandalizedWithPercentKept[]
-  >([]);
+  const [vandalizedData, setVandalizedData] = useState<TopVandalismData[]>([]);
 
   useEffect(() => {
     getTopVandalismData('2024-09-07', 10)
       .then((data) => {
-        const vandalizedDataWithPercentKept = data
-          // .sort(() => 0.5 - Math.random())
-          // .slice(0, 10)
-          .map((data) => ({
-            ...data,
-            page_name: data.page_name.replace(/_/g, ' '),
-            percent_reverted: (data.revert_count / data.edit_count) * 100,
-            percent_kept: 100 - (data.revert_count / data.edit_count) * 100,
-          }));
-        setVandalizedData(vandalizedDataWithPercentKept);
+        const formattedData = data
+          .map((item) => ({
+            ...item,
+            page_name: item.page_name.replace(/_/g, ' '),
+            abs_bytes_not_reverted:
+              item.abs_bytes_changed - item.abs_bytes_reverted,
+          }))
+          .sort((a, b) => b.revert_count - a.revert_count);
+        setVandalizedData(formattedData);
       })
       .catch((error) => console.error('Failed to get data', error));
   }, []);
@@ -43,11 +38,18 @@ const TopVandalismBarGraph = () => {
         <YAxis />
         <Tooltip />
         <Legend />
-        {/* <Bar dataKey="view_count" stackId="a" fill="#8884d8" /> */}
-        <Bar dataKey="revert_count" stackId="a" fill="#82ca9d" />
-        {/* <Bar dataKey="bytes_reverted" stackId="a" fill="#ffc658" /> */}
-        {/* <Bar dataKey="percent_reverted" stackId="a" fill="#ff82ab" /> */}
-        {/* <Bar dataKey="percent_kept" stackId="a" fill="#ffc658" /> */}
+        <Bar
+          dataKey="abs_bytes_not_reverted"
+          stackId="a"
+          fill="#00A86B"
+          name="Non Vandalized Changes (bytes)"
+        />
+        <Bar
+          dataKey="abs_bytes_reverted"
+          stackId="a"
+          fill="#FF6F61"
+          name="Vandalized Changes (bytes)"
+        />
       </BarChart>
     </ResponsiveContainer>
   );

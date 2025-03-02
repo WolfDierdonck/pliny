@@ -5,7 +5,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
@@ -70,7 +69,6 @@ const TopViewsBarGraph = () => {
         <XAxis dataKey="day" />
         <YAxis />
         <Tooltip />
-        <Legend />
         {viewData.map((article, idx) => (
           <Line
             key={article.page_name}

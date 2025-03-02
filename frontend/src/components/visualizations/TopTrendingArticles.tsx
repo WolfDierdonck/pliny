@@ -1,32 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
-  Tooltip,
   ResponsiveContainer,
   CartesianGrid,
   Legend,
 } from 'recharts';
 import { getTopViewsGainedData, TopViewsGainedData } from '../../lib/api';
 
-type TopTrendingArticles = TopViewsGainedData & { growth_percentage: string };
+const colors = [
+  '#ff7c43',
+  '#8884d8',
+  '#82ca9d',
+  '#ffc658',
+  '#8dd1e1',
+  '#d0ed57',
+  '#a4de6c',
+  '#d88884',
+  '#c4a3d6',
+  '#ffbb28',
+];
 
 const TopTrendingArticles = () => {
-  const [data, setData] = useState<TopTrendingArticles[]>([]);
+  const [articles, setArticles] = useState<TopViewsGainedData[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
     getTopViewsGainedData('2024-09-07', 10)
-      .then((data) => {
-        const processedData = data.map((item) => ({
-          ...item,
-          page_name: item.page_name.replace(/_/g, ' '),
-          growth_percentage: ((item.view_count_ratio - 1) * 100).toFixed(1),
-        }));
-        setData(processedData);
+      .then((articlesData) => {
+        setArticles(articlesData);
+        // Updated typed days with index signature
+        const days: { day: string; [key: string]: number | string }[] = [
+          { day: 'Two Days Ago' },
+          { day: 'One Day Ago' },
+          { day: 'Current' },
+        ];
+        articlesData.forEach((article) => {
+          days[0][article.page_name] = article.two_days_ago_view_count;
+          days[1][article.page_name] = article.one_day_ago_view_count;
+          days[2][article.page_name] = article.current_view_count;
+        });
+        setChartData(days);
       })
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
@@ -43,71 +61,33 @@ const TopTrendingArticles = () => {
     );
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white p-4 shadow-lg rounded-lg border">
-          <p className="font-medium">{data.page_name}</p>
-          <p className="text-gray-600">
-            Previous: {data.previous_view_count.toLocaleString()} views
-          </p>
-          <p className="text-gray-600">
-            Current: {data.current_view_count.toLocaleString()} views
-          </p>
-          <p className="text-green-600">Growth: +{data.growth_percentage}%</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
         Trending Articles
       </h2>
       <ResponsiveContainer width="100%" height={500}>
-        <BarChart
-          data={data}
+        <LineChart
+          data={chartData}
           margin={{ top: 20, right: 30, bottom: 70, left: 60 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="page_name"
-            angle={-45}
-            textAnchor="end"
-            height={100}
-            interval={0}
-          />
+          <XAxis dataKey="day" />
           <YAxis />
-          <Tooltip content={<CustomTooltip />} />
           <Legend />
-          <Bar
-            dataKey="previous_view_count"
-            fill="#94a3b8"
-            name="Previous Views"
-          />
-          <Bar
-            dataKey="current_view_count"
-            fill="#ff7c43"
-            name="Current Views"
-          />
-        </BarChart>
+          {articles.map((article, index) => (
+            <Line
+              key={article.page_name}
+              type="monotone"
+              dataKey={article.page_name}
+              name={article.page_name.replace(/_/g, ' ')}
+              stroke={colors[index % colors.length]}
+              strokeWidth={2}
+              dot={{ r: 3 }}
+            />
+          ))}
+        </LineChart>
       </ResponsiveContainer>
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {data.map((item) => (
-          <div
-            key={item.page_name}
-            className="p-3 bg-gray-50 rounded-lg text-sm"
-          >
-            <div className="font-medium truncate" title={item.page_name}>
-              {item.page_name}
-            </div>
-            <div className="text-green-600">+{item.growth_percentage}%</div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
