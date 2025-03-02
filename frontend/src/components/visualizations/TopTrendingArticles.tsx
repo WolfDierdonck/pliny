@@ -1,39 +1,61 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, ResponsiveContainer, Legend } from 'recharts';
-import { getTopViewsGainedData, TopViewsGainedData } from '../../lib/api';
+import {
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  Legend,
+  CartesianGrid,
+  YAxis,
+  XAxis, // new import
+} from 'recharts';
+import {
+  getTopViewsGainedData,
+  getTopViewsLostData,
+  TopViewsGainedData,
+  TopViewsLostData,
+} from '../../lib/api';
 
-const colors = [
-  '#ff7c43',
-  '#8884d8',
-  '#82ca9d',
-  '#ffc658',
-  '#8dd1e1',
-  '#d0ed57',
-  '#a4de6c',
-  '#d88884',
-  '#c4a3d6',
-  '#ffbb28',
-];
+// Replace the single colors array with separate arrays for gains and losses
+const gainColors = ['#2ca02c', '#1f77b4', '#ff7f0e', '#17becf'];
+const lossColors = ['#d62728', '#9467bd', '#8c564b', '#e377c2'];
 
 const TopTrendingArticles = () => {
-  const [articles, setArticles] = useState<TopViewsGainedData[]>([]);
+  const [gainedArticles, setGainedArticles] = useState<TopViewsGainedData[]>(
+    [],
+  );
+  const [lostArticles, setLostArticles] = useState<TopViewsLostData[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopViewsGainedData('2024-09-07', 10)
-      .then((articlesData) => {
-        setArticles(articlesData);
+    Promise.all([
+      getTopViewsGainedData('2024-09-07', 5),
+      getTopViewsLostData('2024-09-07', 5),
+    ])
+      .then(([gainedData, lostData]) => {
+        setGainedArticles(gainedData);
+        setLostArticles(lostData);
         const days: { day: string; [key: string]: number | string }[] = [
-          { day: 'Two Days Ago' },
-          { day: 'One Day Ago' },
-          { day: 'Current' },
+          { day: '2 Days Ago' },
+          { day: 'Yesterday' },
+          { day: 'Today' },
         ];
-        articlesData.forEach((article) => {
-          days[0][article.page_name] = article.two_days_ago_view_count;
-          days[1][article.page_name] = article.one_day_ago_view_count;
-          days[2][article.page_name] = article.current_view_count;
+        // For gained articles: baseline is yesterday (0)
+        gainedData.forEach((article) => {
+          days[1][article.page_name] = 0; // Yesterday baseline
+          days[2][article.page_name] =
+            article.current_view_count - article.one_day_ago_view_count;
+          days[0][article.page_name] =
+            article.two_days_ago_view_count - article.one_day_ago_view_count;
+        });
+        // For lost articles: baseline is yesterday (0) and differences are negated
+        lostData.forEach((article) => {
+          days[1][article.page_name] = 0; // Yesterday baseline
+          days[2][article.page_name] =
+            article.current_view_count - article.one_day_ago_view_count;
+          days[0][article.page_name] =
+            article.two_days_ago_view_count - article.one_day_ago_view_count;
         });
         setChartData(days);
       })
@@ -55,23 +77,32 @@ const TopTrendingArticles = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Trending Articles
+        Trending Articles (Gained & Lost Views)
       </h2>
       <ResponsiveContainer width="100%" height={500}>
-        <LineChart
-          data={chartData}
-          margin={{ top: 20, right: 30, bottom: 70, left: 60 }}
-        >
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="day" />
+          <YAxis />
           <Legend />
-          {articles.map((article, index) => (
+          {gainedArticles.map((article, index) => (
             <Line
               key={article.page_name}
               type="monotone"
               dataKey={article.page_name}
               name={article.page_name.replace(/_/g, ' ')}
-              stroke={colors[index % colors.length]}
-              strokeWidth={2}
-              dot={{ r: 3 }}
+              stroke={gainColors[index % gainColors.length]} // use gainColors here
+              dot={false}
+            />
+          ))}
+          {lostArticles.map((article, index) => (
+            <Line
+              key={article.page_name}
+              type="monotone"
+              dataKey={article.page_name}
+              name={article.page_name.replace(/_/g, ' ')}
+              stroke={lossColors[index % lossColors.length]} // use lossColors here
+              dot={false}
             />
           ))}
         </LineChart>

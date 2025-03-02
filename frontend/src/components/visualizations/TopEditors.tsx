@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ScatterChart,
-  Scatter,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  ZAxis,
 } from 'recharts';
 import { getTopEditorsData, TopEditorsData } from '../../lib/api';
 
@@ -18,12 +17,10 @@ const TopEditors = () => {
     setIsLoading(true);
     getTopEditorsData('2024-09-07', 15)
       .then((data) => {
-        const processedData = data.map((item, index) => ({
+        const processedData = data.map((item) => ({
           ...item,
           page_name: item.page_name.replace(/_/g, ' '),
-          x: index, // Use index for X-axis spacing
-          y: item.editor_count,
-          z: item.editor_count, // Use editor_count for bubble size
+          // Use page_name for x-axis and editor_count for y-axis
         }));
         setData(processedData);
       })
@@ -61,37 +58,27 @@ const TopEditors = () => {
         Articles by Unique Editors
       </h2>
       <ResponsiveContainer width="100%" height={500}>
-        <ScatterChart margin={{ top: 20, right: 20, bottom: 70, left: 60 }}>
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 20, bottom: 70, left: 60 }}
+        >
           <XAxis
-            dataKey="x"
-            name="Article"
-            tickFormatter={(value) => {
-              const item = data[value];
-              return item ? item.page_name : '';
-            }}
+            dataKey="page_name"
             angle={-45}
             textAnchor="end"
             height={100}
             interval={0}
           />
           <YAxis
-            dataKey="y"
-            name="Unique Editors"
             label={{
               value: 'Number of Unique Editors',
               angle: -90,
               position: 'insideLeft',
             }}
           />
-          <ZAxis dataKey="z" range={[400, 2000]} name="Size" />
           <Tooltip content={<CustomTooltip />} />
-          <Scatter
-            name="Articles"
-            data={data}
-            fill="#8884d8"
-            fillOpacity={0.6}
-          />
-        </ScatterChart>
+          <Bar dataKey="editor_count" fill="#8884d8" fillOpacity={0.6} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );

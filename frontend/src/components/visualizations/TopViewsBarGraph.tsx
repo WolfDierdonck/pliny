@@ -74,7 +74,6 @@ const TopViewsBarGraph = () => {
             type="monotone"
             dataKey={article.page_name}
             stroke={colors[idx % colors.length]}
-            strokeWidth={2}
             dot={<CustomDot />}
           />
         ))}
