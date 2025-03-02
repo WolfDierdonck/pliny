@@ -1,10 +1,10 @@
 import React from 'react';
 import '../styles/Home.css';
-import TopViewsBarGraph from './visualizations/TopViewsBarGraph';
-import TopVandalismBarGraph from './visualizations/TopVandalismBarGraph';
+import TopViews from './visualizations/TopViews';
+import TopVandalism from './visualizations/TopVandalism';
 import TopGrowingArticles from './visualizations/TopGrowingArticles';
 import TopEditors from './visualizations/TopEditors';
-import TopEditsBarGraph from './visualizations/TopEditsBarGraph';
+import TopEdits from './visualizations/TopEdits';
 import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
 
@@ -38,7 +38,7 @@ const Home = () => {
               viewed pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopViewsBarGraph />
+          <TopViews />
         </section>
 
         <section className="home-section">
@@ -48,7 +48,7 @@ const Home = () => {
               most edited pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEditsBarGraph />
+          <TopEdits />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -58,7 +58,7 @@ const Home = () => {
               others.
             </p>
           </aside>
-          <TopVandalismBarGraph />
+          <TopVandalism />
         </section>
         <section className="home-section">
           <aside className="home-aside">

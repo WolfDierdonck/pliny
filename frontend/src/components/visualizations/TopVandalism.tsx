@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 import { getTopVandalismData, TopVandalismData } from '../../lib/api';
 
-const TopVandalismBarGraph = () => {
+const TopVandalism = () => {
   const [vandalizedData, setVandalizedData] = useState<TopVandalismData[]>([]);
 
   useEffect(() => {
@@ -55,4 +55,4 @@ const TopVandalismBarGraph = () => {
   );
 };
 
-export default TopVandalismBarGraph;
+export default TopVandalism;

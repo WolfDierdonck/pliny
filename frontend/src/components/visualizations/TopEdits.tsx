@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { getTopEditsData, TopEditsData } from '../../lib/api';
 
-const TopEditsBarGraph = () => {
+const TopEdits = () => {
   const [data, setData] = useState<TopEditsData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -81,4 +81,4 @@ const TopEditsBarGraph = () => {
   );
 };
 
-export default TopEditsBarGraph;
+export default TopEdits;

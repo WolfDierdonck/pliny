@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { getTopViewsData, TopViewsData } from '../../lib/api';
 
-const TopViewsBarGraph = () => {
+const TopViews = () => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
 
@@ -18,8 +18,6 @@ const TopViewsBarGraph = () => {
     getTopViewsData('2024-09-07', 10)
       .then((data) => {
         setViewData(data);
-        // Transform data: For each day (0-6) compute the corresponding date,
-        // then create an object with day and view counts per article.
         const transformed = Array.from({ length: 7 }, (_, dayOffset) => {
           const dateObj = new Date();
           dateObj.setDate(dateObj.getDate() - dayOffset);
@@ -52,7 +50,6 @@ const TopViewsBarGraph = () => {
     '#17becf',
   ];
 
-  // Define a custom dot component that renders only on the last day.
   const CustomDot = (props: any) => {
     const { cx, cy, stroke, index } = props;
     if (chartData.length && index === chartData.length - 1) {
@@ -82,4 +79,4 @@ const TopViewsBarGraph = () => {
   );
 };
 
-export default TopViewsBarGraph;
+export default TopViews;
