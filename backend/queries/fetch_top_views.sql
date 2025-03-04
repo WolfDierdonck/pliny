@@ -17,5 +17,5 @@ SELECT
 FROM wikipedia_data.top_views_final_table
 WHERE
     date = {{date}}
-ORDER BY view_count DESC
+ORDER BY view_count_0 DESC
 LIMIT {{limit}}
