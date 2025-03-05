@@ -7,30 +7,27 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { getTopEditorsData, TopEditorsData } from '../../lib/api';
+import { TopEditorsData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
 
-const TopEditors = ({ date }: { date: string }) => {
+const TopEditors = ({ backendData }: { backendData: BackendData }) => {
   const [data, setData] = useState<TopEditorsData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopEditorsData(date, 15)
+    backendData.topEditors
       .then((data) => {
-        const processedData = data.map((item) => ({
-          ...item,
-          page_name: item.page_name.replace(/_/g, ' '),
-        }));
-        setData(processedData);
+        setData(data);
       })
       .catch((error) => {
         console.error('Failed to get data', error);
         setData([]); // reset to default
       })
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;

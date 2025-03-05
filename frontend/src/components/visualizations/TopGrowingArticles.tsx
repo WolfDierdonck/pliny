@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import {
-  getTopGrowingData,
-  TopGrowingData,
-  getTopShrinkingData,
-  TopShrinkingData,
-} from '../../lib/api';
+import { TopGrowingData, TopShrinkingData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
 
-const TopGrowingArticles = ({ date }: { date: string }) => {
+const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
   const [topGrowingData, setTopGrowingData] = useState<TopGrowingData[]>([]);
   const [topShrinkingData, setTopShrinkingData] = useState<TopShrinkingData[]>(
     [],
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isGrowingLoading, setIsGrowingLoading] = useState(true);
   const [isShrinkingLoading, setIsShrinkingLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    getTopGrowingData(date, 10)
+    setIsGrowingLoading(true);
+    backendData.topGrowing
       .then((data) => {
         setTopGrowingData(data);
       })
@@ -26,10 +22,10 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
         console.error('Failed to get growing data', error);
         setTopGrowingData([]); // reset to default
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsGrowingLoading(false));
 
     setIsShrinkingLoading(true);
-    getTopShrinkingData(date, 10)
+    backendData.topShrinking
       .then((data) => {
         setTopShrinkingData(data);
       })
@@ -38,7 +34,7 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
         setTopShrinkingData([]); // reset to default
       })
       .finally(() => setIsShrinkingLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   const formatBytes = (bytes: number) => {
     if (Math.abs(bytes) > 1000000) {
@@ -50,7 +46,7 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
     return bytes;
   };
 
-  if (isLoading) {
+  if (isGrowingLoading) {
     return <LoadingPlaceholder />;
   }
   if (!topGrowingData?.length || !topShrinkingData?.length) {
@@ -70,7 +66,7 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
               className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
             >
               <span className="text-gray-700 font-medium truncate flex-1">
-                {data.page_name.replace(/_/g, ' ')}
+                {data.page_name}
               </span>
               <span
                 className={`px-3 py-1 rounded-full text-sm ${
@@ -104,7 +100,7 @@ const TopGrowingArticles = ({ date }: { date: string }) => {
                   className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
                 >
                   <span className="text-gray-700 font-medium truncate flex-1">
-                    {data.page_name.replace(/_/g, ' ')}
+                    {data.page_name}
                   </span>
                   <span
                     className={`px-3 py-1 rounded-full text-sm ${

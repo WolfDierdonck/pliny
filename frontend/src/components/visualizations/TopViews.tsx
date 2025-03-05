@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getTopViewsData, TopViewsData } from '../../lib/api';
+import { TopViewsData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
 
@@ -22,19 +22,20 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '../ui/shadcn/chart';
+import { BackendData } from '../Home';
 
-const TopViews = ({ date }: { date: string }) => {
+const TopViews = ({ backendData }: { backendData: BackendData }) => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopViewsData(date, 10)
+    backendData.topViews
       .then((data) => {
         setViewData(data);
         const transformed = Array.from({ length: 7 }, (_, dayOffset) => {
-          const dateObj = new Date(date);
+          const dateObj = new Date(backendData.date);
           dateObj.setDate(dateObj.getDate() - dayOffset);
           const formattedDate = dateObj.toISOString().split('T')[0];
           const dayData: { day: string; [key: string]: number | string } = {
@@ -55,7 +56,7 @@ const TopViews = ({ date }: { date: string }) => {
         setChartData([]); // reset to default
       })
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -92,7 +93,7 @@ const TopViews = ({ date }: { date: string }) => {
       idx,
     ) => {
       acc[article.page_name] = {
-        label: article.page_name.replace(/_/g, ' '),
+        label: article.page_name,
         color: colors[idx % colors.length],
       };
       return acc;
