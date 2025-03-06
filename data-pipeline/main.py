@@ -44,9 +44,9 @@ def parse_args() -> argparse.Namespace:
     ingest_group.add_argument(
         "--ingest-edit-source",
         type=str,
-        choices=["dump", "api"],
-        default="dump",
-        help="Source for edit data (default: dump)",
+        choices=["dump_monthly", "dump_daily", "api"],
+        default="dump_monthly",
+        help="Source for edit data (default: dump_monthly)",
     )
     ingest_group.add_argument(
         "--ingest-batch-size",
