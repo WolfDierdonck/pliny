@@ -158,17 +158,17 @@ class PageRevisionMonthlyDumpFile(PageRevisionDataSource):
 
 class PageRevisionDailyDumpFile(PageRevisionDataSource):
     class RevisionEntry:
-        def __init__(self):
+        def __init__(self) -> None:
             self.page_name = ""
             self.editor_name = ""
             self.comment = ""
             self.text_bytes = 0
             self.timestamp = ""
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f"Page: {self.page_name}, Editor: {self.editor_name}, Comment: {self.comment}, Text bytes: {self.text_bytes}, Timestamp: {self.timestamp}"
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return self.__str__()
 
     def __init__(self, logger: Logger, dump_manager: DumpManager) -> None:
@@ -181,8 +181,8 @@ class PageRevisionDailyDumpFile(PageRevisionDataSource):
 
     def _process_dump_file(
         self, file_iterator: TextIOWrapper, date: Date
-    ) -> dict[str, PageRevisionMetadata]:
-        result: dict[str, PageRevisionMetadata] = {}
+    ) -> dict[str, list[RevisionEntry]]:
+        result: dict[str, list[PageRevisionDailyDumpFile.RevisionEntry]] = {}
         while True:
             current_line = ""
             try:
@@ -276,48 +276,7 @@ class PageRevisionDailyDumpFile(PageRevisionDataSource):
                     )
                 ]
                 if revision_entries:
-                    edit_count = len(revision_entries)
-                    editor_count = len(
-                        set(
-                            revision_entry.editor_name
-                            for revision_entry in revision_entries
-                        )
-                    )
-                    revert_count = sum(
-                        "revert" in revision_entry.comment
-                        for revision_entry in revision_entries
-                    )
-
-                    byte_deltas = []
-                    for i in range(len(revision_entries) - 1):
-                        byte_deltas.append(
-                            revision_entries[i + 1].text_bytes
-                            - revision_entries[i].text_bytes
-                        )
-
-                    net_bytes_changed = sum(byte_deltas)
-                    abs_bytes_changed = sum(abs(delta) for delta in byte_deltas)
-
-                    revert_byte_deltas = []
-                    for i in range(len(revision_entries) - 1):
-                        if "revert" in revision_entries[i + 1].comment:
-                            revert_byte_deltas.append(
-                                revision_entries[i + 1].text_bytes
-                                - revision_entries[i].text_bytes
-                            )
-
-                    abs_bytes_reverted = sum(abs(delta) for delta in revert_byte_deltas)
-
-                    metadata = PageRevisionMetadata(
-                        edit_count=edit_count,
-                        editor_count=editor_count,
-                        revert_count=revert_count,
-                        net_bytes_changed=net_bytes_changed,
-                        abs_bytes_changed=abs_bytes_changed,
-                        abs_bytes_reverted=abs_bytes_reverted,
-                    )
-
-                    result[PAGE_TITLE] = metadata
+                    result[PAGE_TITLE] = revision_entries
 
         return result
 
@@ -344,25 +303,57 @@ class PageRevisionDailyDumpFile(PageRevisionDataSource):
         next_date_data = self._process_dump_file(next_file_iterator, date)
 
         # Now we need to merge the two dictionaries
-        final_data: dict[str, PageRevisionMetadata] = {}
-        for page, metadata in current_date_data.items():
-            final_data[page] = metadata
+        aggregated_data: dict[str, list[PageRevisionDailyDumpFile.RevisionEntry]] = {}
+        for page, entries in current_date_data.items():
+            aggregated_data[page] = entries
 
-        for page, metadata in next_date_data.items():
-            if page in final_data:
-                final_data[page] = PageRevisionMetadata(
-                    edit_count=final_data[page].edit_count + metadata.edit_count,
-                    editor_count=final_data[page].editor_count + metadata.editor_count,
-                    revert_count=final_data[page].revert_count + metadata.revert_count,
-                    net_bytes_changed=final_data[page].net_bytes_changed
-                    + metadata.net_bytes_changed,
-                    abs_bytes_changed=final_data[page].abs_bytes_changed
-                    + metadata.abs_bytes_changed,
-                    abs_bytes_reverted=final_data[page].abs_bytes_reverted
-                    + metadata.abs_bytes_reverted,
-                )
+        for page, entries in next_date_data.items():
+            if page in aggregated_data:
+                aggregated_data[page].extend(entries)
             else:
-                final_data[page] = metadata
+                aggregated_data[page] = entries
+
+        # Finally, we have to actually compute the stats from the revision entries
+        final_data: dict[str, PageRevisionMetadata] = {}
+        for page, revision_entries in aggregated_data.items():
+            edit_count = len(revision_entries)
+            editor_count = len(
+                set(revision_entry.editor_name for revision_entry in revision_entries)
+            )
+            revert_count = sum(
+                "revert" in revision_entry.comment
+                for revision_entry in revision_entries
+            )
+
+            byte_deltas = []
+            for i in range(len(revision_entries) - 1):
+                byte_deltas.append(
+                    revision_entries[i + 1].text_bytes - revision_entries[i].text_bytes
+                )
+
+            net_bytes_changed = sum(byte_deltas)
+            abs_bytes_changed = sum(abs(delta) for delta in byte_deltas)
+
+            revert_byte_deltas = []
+            for i in range(len(revision_entries) - 1):
+                if "revert" in revision_entries[i + 1].comment:
+                    revert_byte_deltas.append(
+                        revision_entries[i + 1].text_bytes
+                        - revision_entries[i].text_bytes
+                    )
+
+            abs_bytes_reverted = sum(abs(delta) for delta in revert_byte_deltas)
+
+            metadata = PageRevisionMetadata(
+                edit_count=edit_count,
+                editor_count=editor_count,
+                revert_count=revert_count,
+                net_bytes_changed=net_bytes_changed,
+                abs_bytes_changed=abs_bytes_changed,
+                abs_bytes_reverted=abs_bytes_reverted,
+            )
+
+            final_data[page] = metadata
 
         return final_data
 
