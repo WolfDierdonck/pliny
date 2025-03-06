@@ -9,7 +9,8 @@ from sql.wikipedia_data_accessor import WikipediaDataAccessor
 from ingestion.processor.intermediate_table_processor import IntermediateTableProcessor
 from ingestion.data_sources.page_revision_data_source import (
     PageRevisionAPI,
-    PageRevisionDumpFile,
+    PageRevisionDailyDumpFile,
+    PageRevisionMonthlyDumpFile,
 )
 from ingestion.data_sources.page_view_data_source import PageViewAPI, PageViewDumpFile
 from ingestion.data_sources.page_name_data_source import (
@@ -47,9 +48,13 @@ def ingest_dates(
     )
 
     edit_source = (
-        PageRevisionDumpFile(logger, dump_manager)
-        if edit_source_str == "dump"
-        else PageRevisionAPI()
+        PageRevisionMonthlyDumpFile(logger, dump_manager)
+        if edit_source_str == "dump_monthly"
+        else (
+            PageRevisionDailyDumpFile(logger, dump_manager)
+            if edit_source_str == "dump_daily"
+            else PageRevisionAPI()
+        )
     )
 
     processor = IntermediateTableProcessor(
@@ -93,13 +98,30 @@ def ingest_dates(
                 pages = []
             logger.info(f"Finished ingesting all pages for date {date}", Component.CORE)
             if delete_dump_files:
-                dump_manager.delete_page_view_dump(date)
-                logger.info(f"Deleted page view dump for date {date}", Component.CORE)
-
-                next_day = date.to_py_date() + timedelta(days=1)
-                if next_day.month != date.month:
-                    dump_manager.delete_page_revision_dump(date)
+                if view_source_str == "dump":
+                    dump_manager.delete_page_view_dump(date)
                     logger.info(
-                        f"Deleted page revision dump for date {date}", Component.CORE
+                        f"Deleted page view dump for date {date}", Component.CORE
+                    )
+
+                if edit_source_str == "dump_monthly":
+                    next_day = date.to_py_date() + timedelta(days=1)
+                    if next_day.month != date.month:
+                        dump_manager.delete_page_revision_monthly_dump(date)
+                        logger.info(
+                            f"Deleted monthly page revision dump for date {date}",
+                            Component.CORE,
+                        )
+                elif edit_source_str == "dump_daily":
+                    dump_manager.delete_page_revision_daily_dump(date)
+                    logger.info(
+                        f"Deleted daily page revision dump for date {date}",
+                        Component.CORE,
+                    )
+
+                    dump_manager.delete_page_revision_daily_dump(date.add_days(1))
+                    logger.info(
+                        f"Deleted daily page revision dump for date {date.add_days(1)}",
+                        Component.CORE,
                     )
             continue

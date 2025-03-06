@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
+from io import TextIOWrapper
 
 from common.dates import Date
 from common.page_revision_metadata import PageRevisionMetadata
@@ -37,7 +38,7 @@ class PageRevisionAPI(PageRevisionDataSource):
         return self.media_wiki_api.get_page_revision_metadata(page, date)
 
 
-class PageRevisionDumpFile(PageRevisionDataSource):
+class PageRevisionMonthlyDumpFile(PageRevisionDataSource):
     # while the PageRevisionDataSource promises random access to page/date -> metadata
     # due to the nature of the workflow and the dumpfiles
     # we will assume that dates are processed in order and that we can load the dump file into memory
@@ -71,7 +72,7 @@ class PageRevisionDumpFile(PageRevisionDataSource):
         # (the first 2024-10 is the dump date, the second date is the data date)
         month = Date(date.year, date.month, 1)
 
-        filename = self.dump_manager.get_page_revision_dump_filename(month)
+        filename = self.dump_manager.get_page_revision_monthly_dump_filename(month)
 
         aggregated_data: dict[Date, dict[str, list]] = {}
         # read the file and parse as stream
@@ -149,5 +150,229 @@ class PageRevisionDumpFile(PageRevisionDataSource):
 
         future: Future[PageRevisionMetadata] = Future()
         res = date_data.get(page)
-        future.set_result(PageRevisionMetadata(0, 0, 0, 0, 0, 0) if res is None else res)
+        future.set_result(
+            PageRevisionMetadata(0, 0, 0, 0, 0, 0) if res is None else res
+        )
+        return future
+
+
+class PageRevisionDailyDumpFile(PageRevisionDataSource):
+    class RevisionEntry:
+        def __init__(self) -> None:
+            self.page_name = ""
+            self.editor_name = ""
+            self.comment = ""
+            self.text_bytes = 0
+            self.timestamp = ""
+
+        def __str__(self) -> str:
+            return f"Page: {self.page_name}, Editor: {self.editor_name}, Comment: {self.comment}, Text bytes: {self.text_bytes}, Timestamp: {self.timestamp}"
+
+        def __repr__(self) -> str:
+            return self.__str__()
+
+    def __init__(self, logger: Logger, dump_manager: DumpManager) -> None:
+        # maps month/year to a dump file's table
+        # dump file table maps (page, date) to revision metadata
+        self.logger = logger
+        self.dump_manager = dump_manager
+        self.dump_files: dict[Date, dict[str, PageRevisionMetadata]] = {}
+        super().__init__()
+
+    def _process_dump_file(
+        self, file_iterator: TextIOWrapper, date: Date
+    ) -> dict[str, list[RevisionEntry]]:
+        result: dict[str, list[PageRevisionDailyDumpFile.RevisionEntry]] = {}
+        while True:
+            current_line = ""
+            try:
+                current_line = next(file_iterator)
+            except StopIteration:
+                break
+
+            if current_line.startswith("  <page>"):
+                PAGE_TITLE = ""
+                revision_entries: list[PageRevisionDailyDumpFile.RevisionEntry] = []
+                while True:
+                    inside_page_line = next(file_iterator)
+                    if inside_page_line.startswith("  </page>"):
+                        break
+
+                    if inside_page_line.startswith("    <title>"):
+                        PAGE_TITLE = (
+                            inside_page_line.replace("<title>", "")
+                            .replace("</title>", "")
+                            .strip()
+                            .replace(" ", "_")
+                        )
+
+                    if inside_page_line.startswith("    <revision>"):
+                        revision_entry = PageRevisionDailyDumpFile.RevisionEntry()
+                        revision_entry.page_name = PAGE_TITLE
+                        while True:
+                            inside_revision_line = next(file_iterator)
+                            if inside_revision_line.startswith("    </revision>"):
+                                break
+
+                            if inside_revision_line.startswith("      <contributor>"):
+                                while True:
+                                    inside_contributor_line = next(file_iterator)
+                                    if inside_contributor_line.startswith(
+                                        "      </contributor>"
+                                    ):
+                                        break
+
+                                    if inside_contributor_line.startswith(
+                                        "        <username>"
+                                    ):
+                                        revision_entry.editor_name = (
+                                            inside_contributor_line.replace(
+                                                "<username>", ""
+                                            )
+                                            .replace("</username>", "")
+                                            .strip()
+                                        )
+
+                                    if inside_contributor_line.startswith(
+                                        "        <ip>"
+                                    ):
+                                        revision_entry.editor_name = (
+                                            inside_contributor_line.replace("<ip>", "")
+                                            .replace("</ip>", "")
+                                            .strip()
+                                        )
+
+                            if inside_revision_line.startswith("      <comment>"):
+                                revision_entry.comment = (
+                                    inside_revision_line.replace("<comment>", "")
+                                    .replace("</comment>", "")
+                                    .strip()
+                                    .lower()
+                                )
+
+                            if inside_revision_line.startswith("      <text"):
+                                revision_entry.text_bytes = int(
+                                    inside_revision_line.split('bytes="')[1].split('"')[
+                                        0
+                                    ]
+                                )
+
+                            if inside_revision_line.startswith("      <timestamp>"):
+                                revision_entry.timestamp = (
+                                    inside_revision_line.replace("<timestamp>", "")
+                                    .replace("</timestamp>", "")
+                                    .strip()
+                                )
+
+                        revision_entries.append(revision_entry)
+
+                # Now process the page data
+                # We want to filter the revisions to only include those that are from the date
+                revision_entries = [
+                    revision_entry
+                    for revision_entry in revision_entries
+                    if revision_entry.timestamp.startswith(
+                        f"{date.year}-{date.month:02}-{date.day:02}"
+                    )
+                ]
+                if revision_entries:
+                    result[PAGE_TITLE] = revision_entries
+
+        return result
+
+    def load_dump_file(self, date: Date) -> dict[str, PageRevisionMetadata]:
+        # To load the data for a date (Jan 24th), we actually need two dump files
+        # This is because the dump file for the 24th contains noon 23rd to noon 24th data
+        # So we need to load the 24th and the 25th dump files
+        next_date = date.add_days(1)
+        filename = self.dump_manager.get_page_revision_daily_dump_filename(date)
+        next_filename = self.dump_manager.get_page_revision_daily_dump_filename(
+            next_date
+        )
+
+        self.logger.info(
+            f"Parsing revision dump for date: {date}", Component.DATASOURCE
+        )
+        file_iterator = open(filename, "r", encoding="utf-8")
+        current_date_data = self._process_dump_file(file_iterator, date)
+
+        self.logger.info(
+            f"Parsing revision dump for date: {next_date}", Component.DATASOURCE
+        )
+        next_file_iterator = open(next_filename, "r", encoding="utf-8")
+        next_date_data = self._process_dump_file(next_file_iterator, date)
+
+        # Now we need to merge the two dictionaries
+        aggregated_data: dict[str, list[PageRevisionDailyDumpFile.RevisionEntry]] = {}
+        for page, entries in current_date_data.items():
+            aggregated_data[page] = entries
+
+        for page, entries in next_date_data.items():
+            if page in aggregated_data:
+                aggregated_data[page].extend(entries)
+            else:
+                aggregated_data[page] = entries
+
+        # Finally, we have to actually compute the stats from the revision entries
+        final_data: dict[str, PageRevisionMetadata] = {}
+        for page, revision_entries in aggregated_data.items():
+            edit_count = len(revision_entries)
+            editor_count = len(
+                set(revision_entry.editor_name for revision_entry in revision_entries)
+            )
+            revert_count = sum(
+                "revert" in revision_entry.comment
+                for revision_entry in revision_entries
+            )
+
+            byte_deltas = []
+            for i in range(len(revision_entries) - 1):
+                byte_deltas.append(
+                    revision_entries[i + 1].text_bytes - revision_entries[i].text_bytes
+                )
+
+            net_bytes_changed = sum(byte_deltas)
+            abs_bytes_changed = sum(abs(delta) for delta in byte_deltas)
+
+            revert_byte_deltas = []
+            for i in range(len(revision_entries) - 1):
+                if "revert" in revision_entries[i + 1].comment:
+                    revert_byte_deltas.append(
+                        revision_entries[i + 1].text_bytes
+                        - revision_entries[i].text_bytes
+                    )
+
+            abs_bytes_reverted = sum(abs(delta) for delta in revert_byte_deltas)
+
+            metadata = PageRevisionMetadata(
+                edit_count=edit_count,
+                editor_count=editor_count,
+                revert_count=revert_count,
+                net_bytes_changed=net_bytes_changed,
+                abs_bytes_changed=abs_bytes_changed,
+                abs_bytes_reverted=abs_bytes_reverted,
+            )
+
+            final_data[page] = metadata
+
+        return final_data
+
+    def get_page_revision_metadata(
+        self, page: str, date: Date
+    ) -> Future[PageRevisionMetadata]:
+        # first, load the correct dump file into memory
+        dump_file = self.dump_files.get(date)
+        if dump_file is None:
+            # clear old dump files, for memory
+            self.dump_files = {}
+            dump_file = self.load_dump_file(date)
+            self.dump_files[date] = dump_file
+        # then, get the metadata for the page/date
+        # return a future that is already done
+
+        future: Future[PageRevisionMetadata] = Future()
+        res = dump_file.get(page)
+        future.set_result(
+            PageRevisionMetadata(0, 0, 0, 0, 0, 0) if res is None else res
+        )
         return future

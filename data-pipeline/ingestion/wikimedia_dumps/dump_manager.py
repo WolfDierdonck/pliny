@@ -78,7 +78,7 @@ class DumpManager:
             self.dumps_downloaded[date] = self.download_page_view_dump(date)
         return self.dumps_downloaded[date].result()
 
-    def get_page_revision_dump_filename(self, date: Date) -> str:
+    def get_page_revision_monthly_dump_filename(self, date: Date) -> str:
         # check if file exists
 
         # get the current month
@@ -114,10 +114,40 @@ class DumpManager:
         os.system(f"bzip2 -d dumps/{intermediate_file_name}")
         return final_file_path
 
+    def get_page_revision_daily_dump_filename(self, date: Date) -> str:
+        # Example link:
+        # https://dumps.wikimedia.org/other/incr/enwiki/20250305/enwiki-20250305-stubs-meta-hist-incr.xml.gz
+
+        date_str = f"{date.year}{date.month:02}{date.day:02}"
+
+        final_file_name = f"enwiki-{date_str}-stubs-meta-hist-incr.xml"
+        final_file_path = f"dumps/{final_file_name}"
+
+        if os.path.exists(final_file_path):
+            return final_file_path
+
+        self.logger.info(
+            f"Downloading page revision dump for date {date}", Component.DATASOURCE
+        )
+        intermediate_file_name = final_file_name + ".gz"
+
+        url = f"https://dumps.wikimedia.org/other/incr/enwiki/{date_str}/{intermediate_file_name}"
+        self._download_with_progress_bar(url, f"dumps/{intermediate_file_name}")
+
+        self.logger.info(
+            f"Decompressing page revision dump for date {date}", Component.DATASOURCE
+        )
+        os.system(f"gunzip dumps/{intermediate_file_name}")
+        return final_file_path
+
     def delete_page_view_dump(self, date: Date) -> None:
         filename = self.get_page_view_dump_filename(date)
         os.remove(filename)
 
-    def delete_page_revision_dump(self, date: Date) -> None:
-        filename = self.get_page_revision_dump_filename(date)
+    def delete_page_revision_monthly_dump(self, date: Date) -> None:
+        filename = self.get_page_revision_monthly_dump_filename(date)
+        os.remove(filename)
+
+    def delete_page_revision_daily_dump(self, date: Date) -> None:
+        filename = self.get_page_revision_daily_dump_filename(date)
         os.remove(filename)

@@ -25,9 +25,8 @@ WITH grouped AS (
   FROM
     grouped
   WHERE
-    revert_count > 3 and
+    revert_count > 0 and
     view_count > 100 and 
-    revert_count/edit_count > 0.7 and
     abs_bytes_reverted/revert_count > 50
   ORDER BY
     revert_count DESC

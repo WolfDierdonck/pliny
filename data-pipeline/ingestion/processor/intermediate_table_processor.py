@@ -17,6 +17,15 @@ BAD_PAGE_NAMES = set(
         "Portal:Current_events",
         "Administrator_intervention_against_vandalism",
         "Main_Page/Errors",
+        "Wikipedia:Teahouse",
+        "Wikipedia_talk:Teahouse",
+        "Wikipedia_talk:WikiProject_Spam",
+        "Wikipedia:Sandbox",
+        "Wikipedia:Administrator_intervention_against_vandalism",
+        "Wikipedia:Administrator_intervention_against_vandalism/TB2",
+        "Wikipedia:Requests_for_page_protection/Increase",
+        "Wikipedia:Administrators'_noticeboard/Incidents",
+        "Template:Infobox_election/doc",
     ]
 )
 
@@ -79,6 +88,9 @@ class IntermediateTableProcessor:
                 page_name in BAD_PAGE_NAMES
                 or intermediate_table_row.view_count is None
                 or intermediate_table_row.view_count < 10
+                or page_name.startswith("Wikipedia:")
+                or page_name.startswith("Wikipedia_talk:")
+                or page_name.startswith("Help:")
             ):
                 continue
 
