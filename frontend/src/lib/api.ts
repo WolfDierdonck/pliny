@@ -2,6 +2,30 @@ function processPageName(page_name: string): string {
   return page_name.replace(/_/g, ' ');
 }
 
+async function getResponseJson<T>(response: Response): Promise<T[]> {
+  if (!response.ok) {
+    console.error('Network response was not ok in getResponseJson');
+    return Promise.resolve([]);
+  }
+
+  let data: T[] = [];
+  const responseText = await response.text();
+  try {
+    // Try to parse the response as JSON
+    data = JSON.parse(responseText);
+  } catch (error) {
+    // Sometimes, the backend randomly returns two JSON identical objects concatenated
+    // We can try to parse the response as JSON again, but this time, we will split the response in half
+    const firstHalf = responseText.split('][')[0] + ']';
+    data = JSON.parse(firstHalf);
+  }
+
+  if (!data) {
+    return [];
+  }
+  return data;
+}
+
 export type TopEditorsData = {
   date: string;
   page_name: string;
@@ -19,12 +43,9 @@ export async function getTopEditorsData(
   limit: number,
 ): Promise<TopEditorsData[]> {
   const response = await fetch(`/topEditors/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopEditorsData');
-    return [];
-  }
 
-  const data: TopEditorsData[] = await response.json();
+  const data: TopEditorsData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -48,12 +69,9 @@ export async function getTopEditsData(
   limit: number,
 ): Promise<TopEditsData[]> {
   const response = await fetch(`/topEdits/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopEditsData');
-    return [];
-  }
 
-  const data: TopEditsData[] = await response.json();
+  const data: TopEditsData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -77,12 +95,9 @@ export async function getTopGrowingData(
   limit: number,
 ): Promise<TopGrowingData[]> {
   const response = await fetch(`/topGrowing/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopGrowingData');
-    return [];
-  }
 
-  const data: TopGrowingData[] = await response.json();
+  const data: TopGrowingData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -100,12 +115,9 @@ export async function getTopShrinkingData(
   limit: number,
 ): Promise<TopShrinkingData[]> {
   const response = await fetch(`/topShrinking/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopShrinkingData');
-    return [];
-  }
 
-  const data: TopShrinkingData[] = await response.json();
+  const data: TopShrinkingData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -130,12 +142,9 @@ export async function getTopVandalismData(
   limit: number,
 ): Promise<TopVandalismData[]> {
   const response = await fetch(`/topVandalism/${end_date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopVandalismData');
-    return [];
-  }
 
-  const data: TopVandalismData[] = await response.json();
+  const data: TopVandalismData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -155,12 +164,9 @@ export async function getTopViewsGainedData(
   limit: number,
 ): Promise<TopViewsGainedData[]> {
   const response = await fetch(`/topViewsGained/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopViewsGainedData');
-    return [];
-  }
 
-  const data: TopViewsGainedData[] = await response.json();
+  const data: TopViewsGainedData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -181,12 +187,9 @@ export async function getTopViewsLostData(
   limit: number,
 ): Promise<TopViewsLostData[]> {
   const response = await fetch(`/topViewsLost/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopViewsLostData');
-    return [];
-  }
 
-  const data: TopViewsLostData[] = await response.json();
+  const data: TopViewsLostData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -216,12 +219,9 @@ export async function getTopViewsData(
   limit: number,
 ): Promise<TopViewsData[]> {
   const response = await fetch(`/topViews/${date}/${limit}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTopViewsData');
-    return []; // return fallback empty array
-  }
 
-  const data: TopViewsData[] = await response.json();
+  const data: TopViewsData[] = await getResponseJson(response);
+
   data.forEach((item) => {
     item.page_name = processPageName(item.page_name);
   });
@@ -240,11 +240,9 @@ export async function getTotalMetadata(
   date: string,
 ): Promise<WikipediaStatsData | null> {
   const response = await fetch(`/totalMetadata/${date}`);
-  if (!response.ok) {
-    console.error('Network response was not ok in getTotalMetadata');
-    return null;
-  }
-  const data = await response.json();
+
+  const data: WikipediaStatsData[] = await getResponseJson(response);
+
   // Return the first element of the array
   return data ? data[0] : null;
 }

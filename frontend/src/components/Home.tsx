@@ -64,7 +64,9 @@ const Home = () => {
   );
 
   useEffect(() => {
-    setBackendData(getBackendData(date, 10));
+    if (backendData.date !== date) {
+      setBackendData(getBackendData(date, 10));
+    }
   }, [date]);
 
   return (
