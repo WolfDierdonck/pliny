@@ -1,3 +1,5 @@
+const API_URL = process.env.REACT_APP_API_URL || '';
+
 function processPageName(page_name: string): string {
   return page_name.replace(/_/g, ' ');
 }
@@ -42,7 +44,7 @@ export async function getTopEditorsData(
   date: string,
   limit: number,
 ): Promise<TopEditorsData[]> {
-  const response = await fetch(`/topEditors/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topEditors/${date}/${limit}`);
 
   const data: TopEditorsData[] = await getResponseJson(response);
 
@@ -68,7 +70,7 @@ export async function getTopEditsData(
   date: string,
   limit: number,
 ): Promise<TopEditsData[]> {
-  const response = await fetch(`/topEdits/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topEdits/${date}/${limit}`);
 
   const data: TopEditsData[] = await getResponseJson(response);
 
@@ -94,7 +96,7 @@ export async function getTopGrowingData(
   date: string,
   limit: number,
 ): Promise<TopGrowingData[]> {
-  const response = await fetch(`/topGrowing/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topGrowing/${date}/${limit}`);
 
   const data: TopGrowingData[] = await getResponseJson(response);
 
@@ -114,7 +116,7 @@ export async function getTopShrinkingData(
   date: string,
   limit: number,
 ): Promise<TopShrinkingData[]> {
-  const response = await fetch(`/topShrinking/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topShrinking/${date}/${limit}`);
 
   const data: TopShrinkingData[] = await getResponseJson(response);
 
@@ -141,7 +143,7 @@ export async function getTopVandalismData(
   end_date: string,
   limit: number,
 ): Promise<TopVandalismData[]> {
-  const response = await fetch(`/topVandalism/${end_date}/${limit}`);
+  const response = await fetch(`${API_URL}/topVandalism/${end_date}/${limit}`);
 
   const data: TopVandalismData[] = await getResponseJson(response);
 
@@ -163,7 +165,7 @@ export async function getTopViewsGainedData(
   date: string,
   limit: number,
 ): Promise<TopViewsGainedData[]> {
-  const response = await fetch(`/topViewsGained/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topViewsGained/${date}/${limit}`);
 
   const data: TopViewsGainedData[] = await getResponseJson(response);
 
@@ -186,7 +188,7 @@ export async function getTopViewsLostData(
   date: string,
   limit: number,
 ): Promise<TopViewsLostData[]> {
-  const response = await fetch(`/topViewsLost/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topViewsLost/${date}/${limit}`);
 
   const data: TopViewsLostData[] = await getResponseJson(response);
 
@@ -218,7 +220,7 @@ export async function getTopViewsData(
   date: string,
   limit: number,
 ): Promise<TopViewsData[]> {
-  const response = await fetch(`/topViews/${date}/${limit}`);
+  const response = await fetch(`${API_URL}/topViews/${date}/${limit}`);
 
   const data: TopViewsData[] = await getResponseJson(response);
 
@@ -239,7 +241,7 @@ export type WikipediaStatsData = {
 export async function getTotalMetadata(
   date: string,
 ): Promise<WikipediaStatsData | null> {
-  const response = await fetch(`/totalMetadata/${date}`);
+  const response = await fetch(`${API_URL}/totalMetadata/${date}`);
 
   const data: WikipediaStatsData[] = await getResponseJson(response);
 
