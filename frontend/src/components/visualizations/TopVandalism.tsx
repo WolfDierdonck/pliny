@@ -9,22 +9,23 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { getTopVandalismData, TopVandalismData } from '../../lib/api';
+import { TopVandalismData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
 
-const TopVandalism = ({ date }: { date: string }) => {
+const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
   const [vandalizedData, setVandalizedData] = useState<TopVandalismData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopVandalismData(date, 10)
+    backendData.topVandalism
       .then((data) => {
         const formattedData = data
           .map((item) => ({
             ...item,
-            page_name: item.page_name.replace(/_/g, ' '),
+            page_name: item.page_name,
             abs_bytes_not_reverted:
               item.abs_bytes_changed - item.abs_bytes_reverted,
           }))
@@ -36,7 +37,7 @@ const TopVandalism = ({ date }: { date: string }) => {
         setVandalizedData([]); // reset to default
       })
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;

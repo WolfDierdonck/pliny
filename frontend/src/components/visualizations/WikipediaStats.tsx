@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { getTotalMetadata, WikipediaStatsData } from '../../lib/api';
+import { WikipediaStatsData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
 
-const WikipediaStats = ({ date }: { date: string }) => {
+const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
   const [stats, setStats] = useState<WikipediaStatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTotalMetadata(date)
+    backendData.wikipediaStats
       .then((statsData) => setStats(statsData))
       .catch((error) => console.error('Failed to get data', error))
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
