@@ -57,8 +57,14 @@ const getBackendData = (date: string, limit: number): BackendData => {
 };
 
 const Home = () => {
-  const [typingDate, setTypingDate] = useState('2024-09-07');
-  const [date, setDate] = useState('2024-09-07');
+  const now = new Date();
+  const two_days_ago = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 2),
+  );
+  const two_days_ago_str = two_days_ago.toISOString().split('T')[0];
+
+  const [typingDate, setTypingDate] = useState(two_days_ago_str);
+  const [date, setDate] = useState(two_days_ago_str);
   const [backendData, setBackendData] = useState<BackendData>(
     getBackendData(date, 10),
   );

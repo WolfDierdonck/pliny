@@ -29,6 +29,7 @@ func main() {
 	router.GET("/topViewsLost/:date/:limit", cache.CachePage(store, time.Hour, getTopViewsLost))
 	router.GET("/topViews/:date/:limit", cache.CachePage(store, time.Hour, getTopViews))
 	router.GET("/totalMetadata/:date", cache.CachePage(store, time.Hour, getTotalMetadata))
+	router.GET("/availableDates", cache.CachePage(store, time.Hour, getAvailableDates))
 	router.Run("localhost:8080")
 }
 
@@ -169,4 +170,13 @@ func getTotalMetadata(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, metadata)
+}
+
+func getAvailableDates(c *gin.Context) {
+	dates, err := fetchAvailableDatesFromBigQuery()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, dates)
 }

@@ -110,6 +110,10 @@ type TotalMetadataData struct {
 	TotalNetBytesChanged int        `bigquery:"total_net_bytes_changed" json:"total_net_bytes_changed"`
 }
 
+type AvailableDate struct {
+	Date civil.Date `bigquery:"date" json:"date"`
+}
+
 type JSONFloat float64
 
 func (j JSONFloat) MarshalJSON() ([]byte, error) {
