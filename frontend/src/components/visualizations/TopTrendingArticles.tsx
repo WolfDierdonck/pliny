@@ -8,20 +8,16 @@ import {
   YAxis,
   XAxis,
 } from 'recharts';
-import {
-  getTopViewsGainedData,
-  getTopViewsLostData,
-  TopViewsGainedData,
-  TopViewsLostData,
-} from '../../lib/api';
+import { TopViewsGainedData, TopViewsLostData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
 
 // Replace the single colors array with separate arrays for gains and losses
 const gainColors = ['#2ca02c', '#1f77b4', '#ff7f0e', '#17becf'];
 const lossColors = ['#d62728', '#9467bd', '#8c564b', '#e377c2'];
 
-const TopTrendingArticles = ({ date }: { date: string }) => {
+const TopTrendingArticles = ({ backendData }: { backendData: BackendData }) => {
   // Initialize array states to []
   const [gainedArticles, setGainedArticles] = useState<TopViewsGainedData[]>(
     [],
@@ -32,7 +28,7 @@ const TopTrendingArticles = ({ date }: { date: string }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([getTopViewsGainedData(date, 5), getTopViewsLostData(date, 5)])
+    Promise.all([backendData.topViewsGained, backendData.topViewsLost])
       .then(([gainedData, lostData]) => {
         setGainedArticles(gainedData);
         setLostArticles(lostData);
@@ -66,7 +62,7 @@ const TopTrendingArticles = ({ date }: { date: string }) => {
         setChartData([]); // reset to default
       })
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -91,7 +87,7 @@ const TopTrendingArticles = ({ date }: { date: string }) => {
               key={article.page_name}
               type="monotone"
               dataKey={article.page_name}
-              name={article.page_name.replace(/_/g, ' ')}
+              name={article.page_name}
               stroke={gainColors[index % gainColors.length]} // use gainColors here
               dot={false}
             />
@@ -101,7 +97,7 @@ const TopTrendingArticles = ({ date }: { date: string }) => {
               key={article.page_name}
               type="monotone"
               dataKey={article.page_name}
-              name={article.page_name.replace(/_/g, ' ')}
+              name={article.page_name}
               stroke={lossColors[index % lossColors.length]} // use lossColors here
               dot={false}
             />

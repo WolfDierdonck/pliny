@@ -7,30 +7,27 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from 'recharts';
-import { getTopEditsData, TopEditsData } from '../../lib/api';
+import { TopEditsData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
 
-const TopEdits = ({ date }: { date: string }) => {
+const TopEdits = ({ backendData }: { backendData: BackendData }) => {
   const [data, setData] = useState<TopEditsData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopEditsData(date, 6)
+    backendData.topEdits
       .then((data) => {
-        const formattedData = data.map((item) => ({
-          ...item,
-          page_name: item.page_name.replace(/_/g, ' '),
-        }));
-        setData(formattedData);
+        setData(data);
       })
       .catch((error) => {
         console.error('Failed to get data', error);
         setData([]); // reset to default
       })
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;

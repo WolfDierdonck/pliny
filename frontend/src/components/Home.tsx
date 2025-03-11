@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/Home.css';
 import TopViews from './visualizations/TopViews';
 import TopVandalism from './visualizations/TopVandalism';
@@ -7,10 +7,74 @@ import TopEditors from './visualizations/TopEditors';
 import TopEdits from './visualizations/TopEdits';
 import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
+import {
+  getTopEditorsData,
+  getTopEditsData,
+  getTopGrowingData,
+  getTopShrinkingData,
+  getTopVandalismData,
+  getTopViewsData,
+  getTopViewsGainedData,
+  getTopViewsLostData,
+  getTotalMetadata,
+  TopEditorsData,
+  TopEditsData,
+  TopGrowingData,
+  TopShrinkingData,
+  TopVandalismData,
+  TopViewsData,
+  TopViewsGainedData,
+  TopViewsLostData,
+  WikipediaStatsData,
+} from '../lib/api';
+
+export type BackendData = {
+  date: string;
+  topEditors: Promise<TopEditorsData[]>;
+  topEdits: Promise<TopEditsData[]>;
+  topGrowing: Promise<TopGrowingData[]>;
+  topShrinking: Promise<TopShrinkingData[]>;
+  topVandalism: Promise<TopVandalismData[]>;
+  topViewsGained: Promise<TopViewsGainedData[]>;
+  topViewsLost: Promise<TopViewsLostData[]>;
+  topViews: Promise<TopViewsData[]>;
+  wikipediaStats: Promise<WikipediaStatsData | null>;
+};
+
+const getBackendData = (date: string, limit: number): BackendData => {
+  return {
+    date: date,
+    topEditors: getTopEditorsData(date, limit),
+    topEdits: getTopEditsData(date, limit),
+    topGrowing: getTopGrowingData(date, limit),
+    topShrinking: getTopShrinkingData(date, limit),
+    topVandalism: getTopVandalismData(date, limit),
+    topViewsGained: getTopViewsGainedData(date, limit),
+    topViewsLost: getTopViewsLostData(date, limit),
+    topViews: getTopViewsData(date, limit),
+    wikipediaStats: getTotalMetadata(date),
+  };
+};
 
 const Home = () => {
-  const [typingDate, setTypingDate] = useState('2024-09-07');
-  const [date, setDate] = useState('2024-09-07');
+  const now = new Date();
+  const two_days_ago = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 2),
+  );
+  const two_days_ago_str = two_days_ago.toISOString().split('T')[0];
+
+  const [typingDate, setTypingDate] = useState(two_days_ago_str);
+  const [date, setDate] = useState(two_days_ago_str);
+  const [backendData, setBackendData] = useState<BackendData>(
+    getBackendData(date, 10),
+  );
+
+  useEffect(() => {
+    if (backendData.date !== date) {
+      setBackendData(getBackendData(date, 10));
+    }
+  }, [date]);
+
   return (
     <div className="home-container">
       <header className="home-header">
@@ -42,7 +106,7 @@ const Home = () => {
               contributions. Here are today's statistics across all articles.
             </p>
           </aside>
-          <WikipediaStats date={date} />
+          <WikipediaStats backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -51,7 +115,7 @@ const Home = () => {
               viewed pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopViews date={date} />
+          <TopViews backendData={backendData} />
         </section>
 
         <section className="home-section">
@@ -61,7 +125,7 @@ const Home = () => {
               most edited pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEdits date={date} />
+          <TopEdits backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -71,7 +135,7 @@ const Home = () => {
               others.
             </p>
           </aside>
-          <TopVandalism date={date} />
+          <TopVandalism backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -81,7 +145,7 @@ const Home = () => {
               grew the most are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopGrowingArticles date={date} />
+          <TopGrowingArticles backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -91,7 +155,7 @@ const Home = () => {
               editors are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEditors date={date} />
+          <TopEditors backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -101,7 +165,7 @@ const Home = () => {
               last week.
             </p>
           </aside>
-          <TopTrendingArticles date={date} />
+          <TopTrendingArticles backendData={backendData} />
         </section>
       </main>
       <footer className="home-footer">
