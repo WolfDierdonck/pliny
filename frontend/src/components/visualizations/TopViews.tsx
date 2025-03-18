@@ -5,14 +5,12 @@ import NoDataPlaceholder from '../NoDataPlaceholder';
 
 ('use client');
 
-import { TrendingUp } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '../ui/shadcn/card';
@@ -28,11 +26,13 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [highlighted, setHighlighted] = useState<string | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
     backendData.topViews
       .then((data) => {
+        data = data.slice(0, 6);
         setViewData(data);
         const transformed = Array.from({ length: 7 }, (_, dayOffset) => {
           const dateObj = new Date(backendData.date);
@@ -66,25 +66,27 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
   }
 
   const colors = [
-    '#1f77b4',
-    '#ff7f0e',
-    '#2ca02c',
-    '#d62728',
-    '#9467bd',
-    '#8c564b',
-    '#e377c2',
-    '#7f7f7f',
-    '#bcbd22',
-    '#17becf',
+    '#FF6347',
+    '#FFA07A',
+    '#FF7F50',
+    '#CD5C5C',
+    '#B22222',
+    '#800000',
+    '#8B4513',
+    '#A52A2A',
+    '#E9967A',
+    '#FA8072',
   ];
 
-  const CustomDot = (props: any) => {
-    const { cx, cy, stroke, index } = props;
-    if (chartData.length && index === chartData.length - 1) {
-      return <circle cx={cx} cy={cy} r={5} stroke={stroke} fill={stroke} />;
-    }
-    return null;
-  };
+  // const CustomDot = (props: any) => {
+  //   const { cx, cy, stroke, index } = props;
+  //   if (chartData.length && index === chartData.length - 1) {
+  //     return <circle cx={cx} cy={cy} r={5} stroke={stroke} fill={stroke} />;
+  //   }
+  //   return null;
+  // };
+
+  const dateObj = new Date(backendData.date);
 
   const chartConfig: ChartConfig = viewData.reduce(
     (
@@ -104,9 +106,10 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
+        <CardTitle>Articles with the most views</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Showing the past 7 day view history for the top viewed articles on{' '}
+          {dateObj.toDateString()}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -138,18 +141,22 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
                 type="monotone"
                 dataKey={article.page_name}
                 stroke={colors[idx % colors.length]}
-                // dot={<CustomDot />}
-                // type="natural"
                 fill={chartConfig[article.page_name].color}
-                fillOpacity={0.5}
-                strokeOpacity={0.5}
+                strokeOpacity={0.7}
+                fillOpacity={highlighted === article.page_name ? 1 : 0.6}
+                // stroke={colors[idx % colors.length]}
+                onClick={() =>
+                  setHighlighted((prev) =>
+                    prev === article.page_name ? null : article.page_name,
+                  )
+                }
                 //stackId="a"
               />
             ))}
           </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
+      {/* <CardFooter>
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
@@ -160,7 +167,7 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
             </div>
           </div>
         </div>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 };

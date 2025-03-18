@@ -4,6 +4,15 @@ import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
 import { BackendData } from '../Home';
 
+import {
+  Card,
+  CardContent,
+  // CardDescription,
+  // CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/shadcn/card';
+
 const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
   const [stats, setStats] = useState<WikipediaStatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,52 +63,53 @@ const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
       label: 'Total Views',
       value: stats.total_view_count,
       icon: '👁️',
-      color: 'bg-blue-50 text-blue-700',
+      color: 'text-orange-700',
       format: formatNumber,
     },
     {
       label: 'Total Edits',
       value: stats.total_edit_count,
       icon: '✏️',
-      color: 'bg-green-50 text-green-700',
+      color: 'text-red-700',
       format: formatNumber,
     },
     {
       label: 'Unique Editors',
       value: stats.total_editor_count,
       icon: '👥',
-      color: 'bg-purple-50 text-purple-700',
+      color: 'text-amber-600',
       format: formatNumber,
     },
     {
       label: 'Reverted Edits',
       value: stats.total_revert_count,
       icon: '↩️',
-      color: 'bg-red-50 text-red-700',
+      color: 'text-red-900/80',
       format: formatNumber,
     },
     {
       label: 'Net Growth',
       value: stats.total_net_bytes_changed,
       icon: '📈',
-      color: 'bg-indigo-50 text-indigo-700',
+      color: 'text-rose-700',
       format: formatBytes,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 p-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20 p-6 justify-center items-center">
       {statsConfig.map((stat) => (
-        <div
+        <Card
           key={stat.label}
-          className={`${stat.color} rounded-lg shadow-sm p-6 transition-transform hover:scale-105`}
+          className={`transition-transform hover:scale-105 bg-stone-200/30 ${stat.color}`} //${stat.color} rounded-lg shadow-sm p-6 transition-transform
         >
-          <div className="flex items-center mb-2">
-            <span className="text-2xl mr-2">{stat.icon}</span>
-            <h3 className="text-lg font-medium">{stat.label}</h3>
-          </div>
-          <div className="text-3xl font-bold">{stat.format(stat.value)}</div>
-        </div>
+          <CardHeader className="flex items-center">
+            <CardTitle>{stat.label}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex justify-center items-center">
+            <div className="text-3xl font-bold">{stat.format(stat.value)}</div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

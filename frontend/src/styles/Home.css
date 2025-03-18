@@ -1,14 +1,33 @@
+body {
+  filter: contrast(1.2);
+  background-color: #eeb08c43;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><filter id='noise'><feTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='1' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23noise)' opacity='0.3'/></svg>");
+  background-blend-mode: multiply;
+  opacity: 0.85;
+}
+
 .home-container {
   font-family: 'Inter', sans-serif;
   color: #333;
-  max-width: 800px;
+  max-width: 100%; 
   margin: 0 auto;
-  padding: 20px;
+  padding-left: 20%;
+  padding-right: 20%;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
 }
 
 .home-header {
-  text-align: center;
-  margin-bottom: 40px;
+  text-align: right;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  padding: 10px;
+  z-index: 1000; /* Ensure the header is above other content */
 }
 
 .home-title {
@@ -19,23 +38,26 @@
 .home-description {
   font-size: 1.2em;
   line-height: 1.6;
+  text-align: center;
 }
 
 .home-main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 20;
 }
 
 .home-section {
-  margin-bottom: 20px;
+  margin-bottom: 10%;
+  scroll-snap-align: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .home-aside {
-  background-color: #f9f9f9;
   padding: 15px;
-  border-left: 5px solid #ccc;
-  font-style: italic;
 }
 
 .home-footer {
@@ -44,3 +66,4 @@
   font-size: 0.9em;
   color: #777;
 }
+

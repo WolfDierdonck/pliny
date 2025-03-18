@@ -1,14 +1,23 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/shadcn/card';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '../ui/shadcn/chart';
+
 import { TopVandalismData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
@@ -46,28 +55,97 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
     return <NoDataPlaceholder />;
   }
 
+  const chartConfig: ChartConfig = {
+    abs_bytes_reverted: {
+      label: 'Volume of vandalised changes (bytes)',
+      color: '#882525',
+    },
+    abs_bytes_not_reverted: {
+      label: 'Volume of non-vandalised changes (bytes)',
+      color: '#E17564',
+    },
+    revert_count: {
+      label: 'Number of reverts',
+      color: '#000',
+    },
+    label: {
+      color: '#fff',
+    },
+  } satisfies ChartConfig;
+
   return (
-    <ResponsiveContainer width="100%" height={500} style={{ padding: 20 }}>
-      <BarChart data={vandalizedData}>
-        <CartesianGrid />
-        <XAxis dataKey="page_name" angle={-45} textAnchor="end" height={100} />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar
-          dataKey="abs_bytes_not_reverted"
-          stackId="a"
-          fill="#00A86B"
-          name="Non Vandalized Changes (bytes)"
-        />
-        <Bar
-          dataKey="abs_bytes_reverted"
-          stackId="a"
-          fill="#FF6F61"
-          name="Vandalized Changes (bytes)"
-        />
-      </BarChart>
-    </ResponsiveContainer>
+    <Card>
+      <CardHeader>
+        <CardTitle>Bar Chart - Stacked + Legend</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <BarChart
+            // accessibilityLayer
+            data={vandalizedData}
+            layout="vertical"
+            // margin={{
+            //   right: 16,
+            //   left: 16,
+            // }}
+          >
+            <CartesianGrid horizontal={false} />
+            <YAxis
+              dataKey="page_name"
+              type="category"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              width={200}
+              // tickFormatter={(value) => value.slice(0, 3)}
+              // hide
+            />
+            <XAxis
+              type="number"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              // tickFormatter={(value) => value.slice(0, 3)}
+              hide
+            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <Legend
+              content={<ChartLegendContent />}
+              align="center"
+              layout="vertical"
+            />
+            <Bar
+              dataKey="abs_bytes_reverted"
+              stackId="a"
+              fill="#882525"
+              radius={[4, 4, 4, 4]}
+            >
+              {/* <LabelList
+                dataKey="revert_count"
+                position="left"
+                offset={30}
+                fill="#000"
+                fontSize={12}
+              /> */}
+            </Bar>
+            <Bar
+              dataKey="abs_bytes_not_reverted"
+              stackId="a"
+              fill="#E17564"
+              radius={[4, 4, 4, 4]}
+            />
+            {/* <Bar
+              dataKey="revert_count"
+              stackId="a"
+              fill="000"
+              radius={[4, 4, 4, 4]}
+              hide={true}
+            /> */}
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 };
 

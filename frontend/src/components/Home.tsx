@@ -78,7 +78,6 @@ const Home = () => {
   return (
     <div className="home-container">
       <header className="home-header">
-        <h1 className="home-title">Pliny</h1>
         <input
           type="date"
           value={typingDate}
@@ -90,16 +89,30 @@ const Home = () => {
             }
           }}
         />
-        <p className="home-description">
-          Wikipedia is largest and most comprehensive source of information in
-          the world. Unlike the encyclopedias of the past, Wikipedia is a living
-          document that is constantly updated by volunteers from around the
-          world. This project explores the real-time patterns and trends in this
-          knowledge.
-        </p>
       </header>
       <main className="home-main">
+        {/* <section className="home-section">
+          <img
+            src={`${process.env.PUBLIC_URL}/assets/pliny.png`}
+            alt="Pliny logo"
+            style={{ width: '50%', mixBlendMode: 'multiply' }}
+          />
+          <p className="home-description">
+            Wikipedia is largest and most comprehensive source of information in
+            the world. Unlike the encyclopedias of the past, Wikipedia is a
+            living document that is constantly updated by volunteers from around
+            the world. This project explores the real-time patterns and trends
+            in this knowledge.
+          </p>
+        </section> */}
         <section className="home-section">
+          <p className="home-description">
+            Wikipedia is largest and most comprehensive source of information in
+            the world. Unlike the encyclopedias of the past, Wikipedia is a
+            living document that is constantly updated by volunteers from around
+            the world. This project explores the real-time patterns and trends
+            in this knowledge.
+          </p>
           <aside className="home-aside">
             <p>
               Every day, Wikipedia grows through millions of views, edits, and

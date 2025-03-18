@@ -3,6 +3,13 @@ import { TopGrowingData, TopShrinkingData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
 import { BackendData } from '../Home';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/shadcn/card';
 
 const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
   const [topGrowingData, setTopGrowingData] = useState<TopGrowingData[]>([]);
@@ -55,68 +62,78 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
-      <div className="w-full md:w-1/2 p-6 bg-white rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Top Growing Articles
-        </h2>
-        <div className="space-y-3">
-          {topGrowingData.map((data) => (
-            <div
-              key={data.page_name}
-              className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
-            >
-              <span className="text-gray-700 font-medium truncate flex-1">
-                {data.page_name}
-              </span>
-              <span
-                className={`px-3 py-1 rounded-full text-sm ${
-                  data.abs_bytes_changed > 0
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}
-              >
-                {data.abs_bytes_changed > 0 ? '+' : ''}
-                {formatBytes(data.abs_bytes_changed)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="w-full md:w-1/2 p-6 bg-white rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Top Shrinking Articles
-        </h2>
-        {isShrinkingLoading ? (
-          <LoadingPlaceholder />
-        ) : (
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Growing Articles</CardTitle>
+          <CardDescription>
+            Articles with the most bytes added in the last 24 hours
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-3">
-            {topShrinkingData
-              .slice() // copy so as not to mutate state
-              .reverse()
-              .map((data) => (
-                <div
-                  key={data.page_name}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
+            {topGrowingData.map((data) => (
+              <div
+                key={data.page_name}
+                className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                <span className="text-gray-700 font-medium px-3 flex-1">
+                  {data.page_name}
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    data.abs_bytes_changed > 0
+                      ? 'bg-lime-800/30 text-lime-800'
+                      : 'bg-red-800/30 text-red-800'
+                  }`}
                 >
-                  <span className="text-gray-700 font-medium truncate flex-1">
-                    {data.page_name}
-                  </span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      data.net_bytes_changed < 0
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}
-                  >
-                    {data.net_bytes_changed < 0 ? '' : '+'}
-                    {formatBytes(data.net_bytes_changed)}
-                  </span>
-                </div>
-              ))}
+                  {data.abs_bytes_changed > 0 ? '+' : ''}
+                  {formatBytes(data.abs_bytes_changed)}
+                </span>
+              </div>
+            ))}
           </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Shrinking Articles</CardTitle>
+          <CardDescription>
+            Articles with the most bytes removed in the last 24 hours
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isShrinkingLoading ? (
+            <LoadingPlaceholder />
+          ) : (
+            <div className="space-y-3">
+              {topShrinkingData
+                .slice() // copy so as not to mutate state
+                .reverse()
+                .map((data) => (
+                  <div
+                    key={data.page_name}
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
+                  >
+                    <span className="text-gray-700 font-medium px-3 flex-1">
+                      {data.page_name}
+                    </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        data.net_bytes_changed > 0
+                          ? 'bg-lime-800/30 text-lime-800'
+                          : 'bg-red-800/30 text-red-800'
+                      }`}
+                    >
+                      {data.net_bytes_changed < 0 ? '' : '+'}
+                      {formatBytes(data.net_bytes_changed)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
