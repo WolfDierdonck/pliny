@@ -5,6 +5,14 @@ import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
 
 import { cn } from '../../../lib/utils';
+import {
+  NameType,
+  Payload,
+  ValueType,
+} from 'recharts/types/component/DefaultTooltipContent';
+
+// eslint-disable-next-line no-unused-vars
+type ValueFormatter = (_: Payload<ValueType, NameType>) => string;
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;
@@ -112,6 +120,8 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: 'line' | 'dot' | 'dashed';
       nameKey?: string;
       labelKey?: string;
+      // function that takes in the value and returns a formatted string, typing broken
+      valueFn?: ValueFormatter;
     }
 >(
   (
@@ -129,6 +139,7 @@ const ChartTooltipContent = React.forwardRef<
       color,
       nameKey,
       labelKey,
+      valueFn = (item) => (item.value ? item.value.toLocaleString() : ''),
     },
     ref,
   ) => {
@@ -159,7 +170,7 @@ const ChartTooltipContent = React.forwardRef<
         return null;
       }
 
-      return <div className={cn('font-medium', labelClassName)}>{value}</div>;
+      return <div className={cn('font-bold', labelClassName)}>{value}</div>;
     }, [
       label,
       labelFormatter,
@@ -180,14 +191,14 @@ const ChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'grid min-w-[8rem] items-start gap-1.5 rounded-lg bg-background px-2.5 py-1.5 text-xs shadow-xl',
+          'grid min-w-[24rem] items-start gap-1.5 bg-background px-2.5 py-1.5 text-xs shadow-xl',
           className,
         )}
         style={{
-          borderRadius: '8px', // Example: change border radius
           backgroundColor: '#ffffff', // Example: change background color
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.21)', // Example: add drop shadow
           color: '#000', // Example: change text color
+          padding: '1rem', // Example: add padding
         }}
       >
         {!nestLabel ? tooltipLabel : null}
@@ -215,7 +226,7 @@ const ChartTooltipContent = React.forwardRef<
                       !hideIndicator && (
                         <div
                           className={cn(
-                            'shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]',
+                            'shrink-0 border-[--color-border] bg-[--color-bg]',
                             {
                               'h-2.5 w-2.5': indicator === 'dot',
                               'w-1': indicator === 'line',
@@ -247,7 +258,7 @@ const ChartTooltipContent = React.forwardRef<
                       </div>
                       {item.value && (
                         <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
+                          {valueFn(item)}
                         </span>
                       )}
                     </div>

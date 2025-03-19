@@ -22,6 +22,7 @@ import { TopVandalismData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
 import { BackendData } from '../Home';
+import { formatDateUTC } from '../../lib/utils';
 
 const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
   const [vandalizedData, setVandalizedData] = useState<TopVandalismData[]>([]);
@@ -73,11 +74,17 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
     },
   } satisfies ChartConfig;
 
+  const dataDate = new Date(backendData.date);
+  const threeDaysAgo = new Date(dataDate);
+  threeDaysAgo.setDate(dataDate.getDate() - 3);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Stacked + Legend</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Most Vandalized Articles</CardTitle>
+        <CardDescription>
+          {formatDateUTC(threeDaysAgo)} - {formatDateUTC(dataDate)}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

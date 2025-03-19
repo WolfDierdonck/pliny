@@ -21,6 +21,7 @@ import {
   ChartTooltipContent,
 } from '../ui/shadcn/chart';
 import { BackendData } from '../Home';
+import { formatDateUTC } from '../../lib/utils';
 
 const TopViews = ({ backendData }: { backendData: BackendData }) => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
@@ -87,6 +88,8 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
   // };
 
   const dateObj = new Date(backendData.date);
+  const sevenDaysAgo = new Date(dateObj);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
   const chartConfig: ChartConfig = viewData.reduce(
     (
@@ -106,10 +109,9 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Articles with the most views</CardTitle>
+        <CardTitle>Most Viewed Articles</CardTitle>
         <CardDescription>
-          Showing the past 7 day view history for the top viewed articles on{' '}
-          {dateObj.toDateString()}
+          {formatDateUTC(sevenDaysAgo)} - {formatDateUTC(dateObj)}
         </CardDescription>
       </CardHeader>
       <CardContent>
