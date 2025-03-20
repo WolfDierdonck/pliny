@@ -67,7 +67,7 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
     },
     revert_count: {
       label: 'Number of reverts',
-      color: '#000',
+      color: '#B53A3F',
     },
     label: {
       color: '#fff',
@@ -142,13 +142,13 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
               fill="#E17564"
               radius={[4, 4, 4, 4]}
             />
-            {/* <Bar
+            <Bar
               dataKey="revert_count"
               stackId="a"
-              fill="000"
+              fill="#B53A3F"
               radius={[4, 4, 4, 4]}
-              hide={true}
-            /> */}
+              // hide={true}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
