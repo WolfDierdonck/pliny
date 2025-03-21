@@ -5,12 +5,13 @@ import NoDataPlaceholder from '../NoDataPlaceholder';
 
 ('use client');
 
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, LabelList, XAxis } from 'recharts';
 
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '../ui/shadcn/card';
@@ -68,7 +69,7 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
 
   const colors = [
     '#FF6347',
-    '#FFA07A',
+    '#E76637',
     '#FF7F50',
     '#CD5C5C',
     '#B22222',
@@ -136,6 +137,7 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
               cursor={false}
               content={<ChartTooltipContent />}
               defaultIndex={1}
+              offset={100}
             />
             {viewData.map((article, idx) => (
               <Area
@@ -144,32 +146,33 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
                 dataKey={article.page_name}
                 stroke={colors[idx % colors.length]}
                 fill={chartConfig[article.page_name].color}
-                strokeOpacity={0.7}
-                fillOpacity={highlighted === article.page_name ? 1 : 0.6}
-                // stroke={colors[idx % colors.length]}
-                onClick={() =>
-                  setHighlighted((prev) =>
-                    prev === article.page_name ? null : article.page_name,
-                  )
-                }
-                //stackId="a"
-              />
+                strokeOpacity={0}
+                fillOpacity={highlighted === article.page_name ? 1 : 0.5}
+                // onClick={() =>
+                //   setHighlighted((prev) =>
+                //     prev === article.page_name ? null : article.page_name,
+                //   )
+                // }
+                onMouseEnter={() => setHighlighted(article.page_name)}
+                onMouseLeave={() => setHighlighted(null)}
+                // stackId="a"
+              >
+                <LabelList
+                  dataKey={article.page_name}
+                  position="top"
+                  offset={8}
+                  fill="#000"
+                  fillOpacity={highlighted === article.page_name ? 1 : 0}
+                  fontSize={12}
+                />
+              </Area>
             ))}
           </AreaChart>
         </ChartContainer>
       </CardContent>
-      {/* <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
-          </div>
-        </div>
-      </CardFooter> */}
+      <CardFooter className="flex justify-center items-center">
+        <p className="text-center text-xl font-semibold p-3">{highlighted}</p>
+      </CardFooter>
     </Card>
   );
 };

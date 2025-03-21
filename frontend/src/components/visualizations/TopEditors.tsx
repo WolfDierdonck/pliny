@@ -105,7 +105,7 @@ const TopEditors = ({ backendData }: { backendData: BackendData }) => {
               hide
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Bar dataKey="editor_count" fill="#D17463" radius={[4, 4, 4, 4]}>
+            <Bar dataKey="editor_count" fill="#D17463" radius={[2, 2, 2, 2]}>
               <LabelList
                 dataKey="editor_count"
                 position="right"

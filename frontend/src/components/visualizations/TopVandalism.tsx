@@ -123,10 +123,17 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
               layout="vertical"
             />
             <Bar
+              dataKey="revert_count"
+              stackId="a"
+              fill="#B53A3F"
+              radius={[1, 1, 1, 1]}
+              // hide={true}
+            />
+            <Bar
               dataKey="abs_bytes_reverted"
               stackId="a"
               fill="#882525"
-              radius={[4, 4, 4, 4]}
+              radius={[2, 2, 2, 2]}
             >
               {/* <LabelList
                 dataKey="revert_count"
@@ -140,14 +147,7 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
               dataKey="abs_bytes_not_reverted"
               stackId="a"
               fill="#E17564"
-              radius={[4, 4, 4, 4]}
-            />
-            <Bar
-              dataKey="revert_count"
-              stackId="a"
-              fill="#B53A3F"
-              radius={[4, 4, 4, 4]}
-              // hide={true}
+              radius={[2, 2, 2, 2]}
             />
           </BarChart>
         </ChartContainer>

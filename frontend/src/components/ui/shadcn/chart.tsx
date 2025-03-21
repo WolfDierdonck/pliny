@@ -191,10 +191,11 @@ const ChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'grid min-w-[24rem] items-start gap-1.5 bg-background px-2.5 py-1.5 text-xs shadow-xl',
+          'grid min-w-[16rem] items-start gap-2 bg-background px-2.5 py-1.5 text-xs shadow-xl ',
           className,
         )}
         style={{
+          borderRadius: '3px',
           backgroundColor: '#ffffff', // Example: change background color
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.21)', // Example: add drop shadow
           color: '#000', // Example: change text color
@@ -246,11 +247,11 @@ const ChartTooltipContent = React.forwardRef<
                     )}
                     <div
                       className={cn(
-                        'flex flex-1 justify-between leading-none',
+                        'flex flex-1 justify-between leading-none gap-1.5',
                         nestLabel ? 'items-end' : 'items-center',
                       )}
                     >
-                      <div className="grid gap-1.5">
+                      <div className="grid gap-2">
                         {nestLabel ? tooltipLabel : null}
                         <span className="text-muted-foreground">
                           {itemConfig?.label || item.name}

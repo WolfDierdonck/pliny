@@ -75,13 +75,6 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
     editor_count: top6Data.length - getRank(item, 'editor_count'),
     net_bytes_changed: top6Data.length - getRank(item, 'net_bytes_changed'),
     abs_bytes_changed: top6Data.length - getRank(item, 'abs_bytes_changed'),
-    // store the original values for the radar chart
-    original_view_count: item.view_count,
-    original_edit_count: item.edit_count,
-    original_revert_count: item.revert_count,
-    original_editor_count: item.editor_count,
-    original_net_bytes_changed: item.net_bytes_changed,
-    original_abs_bytes_changed: item.abs_bytes_changed,
   }));
 
   const radarData = [
@@ -134,7 +127,7 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
     '#A52A2A',
     '#CD5C5C',
     '#CD5C5B',
-    '#E9967A',
+    '#E17564',
     '#FA8072',
   ];
 
@@ -166,7 +159,7 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="px-0 grid grid-cols-3 gap-4">
+        <div className="px-0 grid grid-cols-3 gap-10">
           {top6Data.map((item, idx) => (
             <ChartContainer
               config={chartConfig}
@@ -174,6 +167,22 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
               className="w-full aspect-square"
             >
               <RadarChart data={radarData}>
+                <PolarAngleAxis dataKey="metric" />
+                <PolarGrid className="fill-red-500 opacity-10" />
+                <Radar
+                  name={item.page_name}
+                  dataKey={item.page_name}
+                  fill={colors[idx % colors.length]}
+                  stroke={colors[idx % colors.length]}
+                />
+                <Legend
+                  align="center"
+                  iconSize={0}
+                  wrapperStyle={{
+                    fontSize: '14px', // Adjust the font size
+                    fontWeight: 'bold', // Make the text bold
+                  }}
+                />
                 <ChartTooltip
                   cursor={false}
                   content={
@@ -194,15 +203,6 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
                     />
                   }
                 />
-                <PolarAngleAxis dataKey="metric" />
-                <PolarGrid className="fill-red-500 opacity-10" />
-                <Radar
-                  name={item.page_name}
-                  dataKey={item.page_name}
-                  fill={colors[idx % colors.length]}
-                  stroke={colors[idx % colors.length]}
-                />
-                <Legend align="center" iconSize={0} />
               </RadarChart>
             </ChartContainer>
           ))}

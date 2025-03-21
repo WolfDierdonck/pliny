@@ -95,14 +95,22 @@ const Home = () => {
               setDate(e.target.value);
             }
           }}
+          className="bg-[#ffebe3] text-black accent-[#ed856bb3] p-3 shadow-md rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ed856b] focus:border-[#ed856b]"
         />
       </header>
       <main className="home-main">
-        {/* <section className="home-section">
+        <section className="home-section">
           <img
             src={`${process.env.PUBLIC_URL}/assets/pliny.png`}
             alt="Pliny logo"
-            style={{ width: '50%', mixBlendMode: 'multiply' }}
+            className="home-logo banner"
+            // style={{
+            //   display: 'block',
+            //   margin: '0',
+            //   marginBottom: '-6rem',
+            //   marginTop: '-20rem',
+            //   scale: '0.75',
+            // }}
           />
           <p className="home-description">
             Wikipedia is largest and most comprehensive source of information in
@@ -111,15 +119,15 @@ const Home = () => {
             the world. This project explores the real-time patterns and trends
             in this knowledge.
           </p>
-        </section> */}
+        </section>
         <section className="home-section">
-          <p className="home-description">
+          {/* <p className="home-description">
             Wikipedia is largest and most comprehensive source of information in
             the world. Unlike the encyclopedias of the past, Wikipedia is a
             living document that is constantly updated by volunteers from around
             the world. This project explores the real-time patterns and trends
             in this knowledge.
-          </p>
+          </p> */}
           <aside className="home-aside">
             <p>
               Every day, Wikipedia grows through millions of views, edits, and
