@@ -15,5 +15,5 @@ FROM
 WHERE
     date = {{date}}
 ORDER BY
-    percent_reverted DESC
+    revert_count DESC
 LIMIT {{limit}}

@@ -1,14 +1,54 @@
+body {
+  position: relative;
+  background-color: hsl(21, 100%, 93%);
+  background-blend-mode: multiply;
+  /* filter: contrast(1.2); */
+  margin: 0;
+  opacity: 1;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-blend-mode: multiply;
+  background-image: url('/public/assets/bg3.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4; /* Adjust this value to control the background image opacity */
+  z-index: -1; /* Ensure it stays behind the content */
+  /* filter: contrast(0.4) brightness(1.3) ;
+  //tile image */
+
+
+  
+}
+
 .home-container {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Inter', sans-serif;
   color: #333;
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding-left: 20%;
+  padding-right: 20%;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
 }
 
 .home-header {
-  text-align: center;
-  margin-bottom: 40px;
+  text-align: right;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  padding: 10px;
+  z-index: 1000; /* Ensure the header is above other content */
 }
 
 .home-title {
@@ -19,23 +59,26 @@
 .home-description {
   font-size: 1.2em;
   line-height: 1.6;
+  text-align: center;
 }
 
 .home-main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 20;
 }
 
 .home-section {
-  margin-bottom: 20px;
+  margin-bottom: 10%;
+  scroll-snap-align: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .home-aside {
-  background-color: #f9f9f9;
   padding: 15px;
-  border-left: 5px solid #ccc;
-  font-style: italic;
 }
 
 .home-footer {
@@ -43,4 +86,13 @@
   margin-top: 40px;
   font-size: 0.9em;
   color: #777;
+}
+
+.banner {
+  display: block;
+  margin: 0;
+  margin-bottom: -6rem;
+  margin-top: -20rem;
+  scale: 0.75;
+  mix-blend-mode: multiply;
 }
