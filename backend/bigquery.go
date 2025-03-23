@@ -125,6 +125,16 @@ func (bqc *BigQueryClient) getTotalMetadataQuery(date string) (*string, error) {
 	return &query, nil
 }
 
+func (bqc *BigQueryClient) getAvailableDatesQuery() (*string, error) {
+	if !bqc.limiter.Allow() {
+		return nil, fmt.Errorf("rate limit exceeded")
+	}
+
+	query := bqc.queries["fetch_available_dates.sql"]
+
+	return &query, nil
+}
+
 var bqClient BigQueryClient
 
 func initBigQueryClient() error {
@@ -388,5 +398,30 @@ func fetchTotalMetadataFromBigQuery(date string) ([]TotalMetadataData, error) {
 	if err != nil {
 		return nil, err
 	}
+	return rows, nil
+}
+
+func fetchAvailableDatesFromBigQuery() ([]AvailableDate, error) {
+	ctx := context.Background()
+
+	if bqClient.client == nil {
+		return nil, fmt.Errorf("BigQuery client is not initialized")
+	}
+
+	query, err := bqClient.getAvailableDatesQuery()
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := bqClient.client.Query(*query).Read(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("client.Query: %v", err)
+	}
+
+	rows, err := FetchRows[AvailableDate](it)
+	if err != nil {
+		return nil, err
+	}
+
 	return rows, nil
 }

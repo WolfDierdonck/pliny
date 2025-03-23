@@ -1,36 +1,42 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import {
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-} from 'recharts';
-import { getTopEditsData, TopEditsData } from '../../lib/api';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/shadcn/card';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '../ui/shadcn/chart';
+
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend } from 'recharts';
+import { TopEditsData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
+import { BackendData } from '../Home';
+import { formatDateUTC } from '../../lib/utils';
 
-const TopEdits = ({ date }: { date: string }) => {
+const TopEdits = ({ backendData }: { backendData: BackendData }) => {
   const [data, setData] = useState<TopEditsData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    getTopEditsData(date, 6)
+    backendData.topEdits
       .then((data) => {
-        const formattedData = data.map((item) => ({
-          ...item,
-          page_name: item.page_name.replace(/_/g, ' '),
-        }));
-        setData(formattedData);
+        setData(data);
       })
       .catch((error) => {
         console.error('Failed to get data', error);
         setData([]); // reset to default
       })
       .finally(() => setIsLoading(false));
-  }, [date]);
+  }, [backendData]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -39,46 +45,172 @@ const TopEdits = ({ date }: { date: string }) => {
     return <NoDataPlaceholder />;
   }
 
-  const renderRadarData = (item: TopEditsData) => [
-    { metric: 'View Count', value: item.view_count },
-    { metric: 'Edit Count', value: item.edit_count },
-    { metric: 'Revert Count', value: item.revert_count },
-    { metric: 'Editor Count', value: item.editor_count },
-    { metric: 'Net Bytes Changed', value: item.net_bytes_changed },
-    { metric: 'Abs Bytes Changed', value: item.abs_bytes_changed },
+  // Get the top 5 most edited articles
+  const top6Data = data.sort((a, b) => b.edit_count - a.edit_count).slice(0, 6);
+
+  // For each article, get the rank of the statistic among the top 5
+  const getRank = (item: TopEditsData, key: keyof TopEditsData) =>
+    top6Data.filter((i) => i[key] > item[key]).length + 1;
+
+  const getRawdataFromRank = (rank: number, key: keyof TopEditsData) =>
+    top6Data
+      .filter((item) => getRank(item, key) === rank)
+      .map((item) => item[key]);
+
+  const metricToProperty: { [key: string]: keyof TopEditsData } = {
+    'Bytes Changed': 'abs_bytes_changed',
+    Edits: 'edit_count',
+    Views: 'view_count',
+    'Bytes Grown': 'net_bytes_changed',
+    Reverts: 'revert_count',
+    Editors: 'editor_count',
+  };
+
+  const normalizedData = top6Data.map((item) => ({
+    page_name: item.page_name,
+    // get the rank of the statistic among the top 5
+    view_count: top6Data.length - getRank(item, 'view_count'),
+    edit_count: top6Data.length - getRank(item, 'edit_count'),
+    revert_count: top6Data.length - getRank(item, 'revert_count'),
+    editor_count: top6Data.length - getRank(item, 'editor_count'),
+    net_bytes_changed: top6Data.length - getRank(item, 'net_bytes_changed'),
+    abs_bytes_changed: top6Data.length - getRank(item, 'abs_bytes_changed'),
+  }));
+
+  const radarData = [
+    {
+      metric: 'Bytes Changed',
+      ...normalizedData.reduce(
+        (acc, item) => ({ ...acc, [item.page_name]: item.abs_bytes_changed }),
+        {},
+      ),
+    },
+    {
+      metric: 'Edits',
+      ...normalizedData.reduce(
+        (acc, item) => ({ ...acc, [item.page_name]: item.edit_count }),
+        {},
+      ),
+    },
+    {
+      metric: 'Views',
+      ...normalizedData.reduce(
+        (acc, item) => ({ ...acc, [item.page_name]: item.view_count }),
+        {},
+      ),
+    },
+    {
+      metric: 'Bytes Grown',
+      ...normalizedData.reduce(
+        (acc, item) => ({ ...acc, [item.page_name]: item.net_bytes_changed }),
+        {},
+      ),
+    },
+    {
+      metric: 'Reverts',
+      ...normalizedData.reduce(
+        (acc, item) => ({ ...acc, [item.page_name]: item.revert_count }),
+        {},
+      ),
+    },
+    {
+      metric: 'Editors',
+      ...normalizedData.reduce(
+        (acc, item) => ({ ...acc, [item.page_name]: item.editor_count }),
+        {},
+      ),
+    },
   ];
 
+  const colors = [
+    '#B22222',
+    '#A52A2A',
+    '#CD5C5C',
+    '#CD5C5B',
+    '#E17564',
+    '#FA8072',
+  ];
+
+  const chartConfig: ChartConfig = top6Data.reduce(
+    (
+      acc: { [key: string]: { label: string; color: string } },
+      article,
+      idx,
+    ) => {
+      acc[article.page_name] = {
+        label: article.page_name,
+        color: idx === 0 ? '#ff7300' : colors[idx % colors.length],
+      };
+      return acc;
+    },
+    {} as { [key: string]: { label: string; color: string } },
+  );
+
+  const dataDate = new Date(backendData.date);
+  const threeDaysAgo = new Date(dataDate);
+  threeDaysAgo.setDate(dataDate.getDate() - 3);
+
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data.map((item, idx) => (
-          <div key={idx} className="border p-4 rounded">
-            <h3 className="text-lg font-medium mb-2">{item.page_name}</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <RadarChart data={renderRadarData(item)}>
-                <PolarGrid />
+    <Card>
+      <CardHeader>
+        <CardTitle>Top Edited Pages</CardTitle>
+        <CardDescription>
+          {formatDateUTC(threeDaysAgo)} - {formatDateUTC(dataDate)}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="px-0 grid grid-cols-3 gap-10">
+          {top6Data.map((item, idx) => (
+            <ChartContainer
+              config={chartConfig}
+              key={item.page_name}
+              className="w-full aspect-square"
+            >
+              <RadarChart data={radarData}>
                 <PolarAngleAxis dataKey="metric" />
-                <PolarRadiusAxis />
+                <PolarGrid className="fill-red-500 opacity-10" />
                 <Radar
                   name={item.page_name}
-                  dataKey="value"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.6}
+                  dataKey={item.page_name}
+                  fill={colors[idx % colors.length]}
+                  stroke={colors[idx % colors.length]}
+                  fillOpacity={0.85}
+                  strokeOpacity={0}
+                />
+                <Legend
+                  align="center"
+                  iconSize={0}
+                  wrapperStyle={{
+                    fontSize: '14px', // Adjust the font size
+                    fontWeight: 'bold', // Make the text bold
+                  }}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      valueFn={(item) => {
+                        console.log(
+                          item,
+                          getRawdataFromRank(
+                            item.value as number,
+                            metricToProperty[item.payload.metric],
+                          ).toLocaleString(),
+                        );
+                        return getRawdataFromRank(
+                          item.value as number,
+                          metricToProperty[item.payload.metric],
+                        ).toLocaleString();
+                      }}
+                    />
+                  }
                 />
               </RadarChart>
-            </ResponsiveContainer>
-            <div className="mt-2 text-sm">
-              {renderRadarData(item).map((metricItem, i) => (
-                <p key={i}>
-                  <strong>{metricItem.metric}:</strong> {metricItem.value}
-                </p>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+            </ChartContainer>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

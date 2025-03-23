@@ -1,20 +1,91 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/Home.css';
 import TopViews from './visualizations/TopViews';
 import TopVandalism from './visualizations/TopVandalism';
 import TopGrowingArticles from './visualizations/TopGrowingArticles';
 import TopEditors from './visualizations/TopEditors';
 import TopEdits from './visualizations/TopEdits';
-import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
+import TopDeltaGained from './visualizations/TopDeltaGained';
+import TopDeltaLost from './visualizations/TopDeltaLost';
+import {
+  getTopEditorsData,
+  getTopEditsData,
+  getTopGrowingData,
+  getTopShrinkingData,
+  getTopVandalismData,
+  getTopViewsData,
+  getTopViewsGainedData,
+  getTopViewsLostData,
+  getTotalMetadata,
+  TopEditorsData,
+  TopEditsData,
+  TopGrowingData,
+  TopShrinkingData,
+  TopVandalismData,
+  TopViewsData,
+  TopViewsGainedData,
+  TopViewsLostData,
+  WikipediaStatsData,
+} from '../lib/api';
+
+export type BackendData = {
+  date: string;
+  topEditors: Promise<TopEditorsData[]>;
+  topEdits: Promise<TopEditsData[]>;
+  topGrowing: Promise<TopGrowingData[]>;
+  topShrinking: Promise<TopShrinkingData[]>;
+  topVandalism: Promise<TopVandalismData[]>;
+  topViewsGained: Promise<TopViewsGainedData[]>;
+  topViewsLost: Promise<TopViewsLostData[]>;
+  topViews: Promise<TopViewsData[]>;
+  wikipediaStats: Promise<WikipediaStatsData | null>;
+};
+
+const getBackendData = (date: string, limit: number): BackendData => {
+  return {
+    date: date,
+    topEditors: getTopEditorsData(date, limit),
+    topEdits: getTopEditsData(date, limit),
+    topGrowing: getTopGrowingData(date, limit),
+    topShrinking: getTopShrinkingData(date, limit),
+    topVandalism: getTopVandalismData(date, limit),
+    topViewsGained: getTopViewsGainedData(date, limit),
+    topViewsLost: getTopViewsLostData(date, limit),
+    topViews: getTopViewsData(date, limit),
+    wikipediaStats: getTotalMetadata(date),
+  };
+};
 
 const Home = () => {
-  const [typingDate, setTypingDate] = useState('2024-09-07');
-  const [date, setDate] = useState('2024-09-07');
+  const now = new Date();
+  const two_days_ago = new Date(now);
+  two_days_ago.setDate(now.getDate() - 2);
+  const latest_available_date_str = two_days_ago
+    .toLocaleDateString('en-CA', {
+      timeZone: 'America/New_York',
+    })
+    .split('/')
+    .reverse()
+    .join('-');
+
+  console.log(latest_available_date_str);
+
+  const [typingDate, setTypingDate] = useState(latest_available_date_str);
+  const [date, setDate] = useState(latest_available_date_str);
+  const [backendData, setBackendData] = useState<BackendData>(
+    getBackendData(date, 10),
+  );
+
+  useEffect(() => {
+    if (backendData.date !== date) {
+      setBackendData(getBackendData(date, 10));
+    }
+  }, [date]);
+
   return (
     <div className="home-container">
       <header className="home-header">
-        <h1 className="home-title">Pliny</h1>
         <input
           type="date"
           value={typingDate}
@@ -25,24 +96,46 @@ const Home = () => {
               setDate(e.target.value);
             }
           }}
+          className="bg-[#ffebe3] text-black accent-[#ed856bb3] p-3 shadow-md rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ed856b] focus:border-[#ed856b]"
         />
-        <p className="home-description">
-          Wikipedia is largest and most comprehensive source of information in
-          the world. Unlike the encyclopedias of the past, Wikipedia is a living
-          document that is constantly updated by volunteers from around the
-          world. This project explores the real-time patterns and trends in this
-          knowledge.
-        </p>
       </header>
       <main className="home-main">
         <section className="home-section">
+          <img
+            src={`${process.env.PUBLIC_URL}/assets/pliny.png`}
+            alt="Pliny logo"
+            className="home-logo banner"
+            // style={{
+            //   display: 'block',
+            //   margin: '0',
+            //   marginBottom: '-6rem',
+            //   marginTop: '-20rem',
+            //   scale: '0.75',
+            // }}
+          />
+          <p className="home-description">
+            Wikipedia is largest and most comprehensive source of information in
+            the world. Unlike the encyclopedias of the past, Wikipedia is a
+            living document that is constantly updated by volunteers from around
+            the world. This project explores the real-time patterns and trends
+            in this knowledge.
+          </p>
+        </section>
+        <section className="home-section">
+          {/* <p className="home-description">
+            Wikipedia is largest and most comprehensive source of information in
+            the world. Unlike the encyclopedias of the past, Wikipedia is a
+            living document that is constantly updated by volunteers from around
+            the world. This project explores the real-time patterns and trends
+            in this knowledge.
+          </p> */}
           <aside className="home-aside">
             <p>
               Every day, Wikipedia grows through millions of views, edits, and
               contributions. Here are today's statistics across all articles.
             </p>
           </aside>
-          <WikipediaStats date={date} />
+          <WikipediaStats backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -51,7 +144,7 @@ const Home = () => {
               viewed pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopViews date={date} />
+          <TopViews backendData={backendData} />
         </section>
 
         <section className="home-section">
@@ -61,7 +154,7 @@ const Home = () => {
               most edited pages are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEdits date={date} />
+          <TopEdits backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -71,7 +164,7 @@ const Home = () => {
               others.
             </p>
           </aside>
-          <TopVandalism date={date} />
+          <TopVandalism backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -81,7 +174,7 @@ const Home = () => {
               grew the most are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopGrowingArticles date={date} />
+          <TopGrowingArticles backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -91,7 +184,7 @@ const Home = () => {
               editors are about XXXX, XXXX, and XXXX.
             </p>
           </aside>
-          <TopEditors date={date} />
+          <TopEditors backendData={backendData} />
         </section>
         <section className="home-section">
           <aside className="home-aside">
@@ -101,7 +194,17 @@ const Home = () => {
               last week.
             </p>
           </aside>
-          <TopTrendingArticles date={date} />
+          <TopDeltaGained backendData={backendData} />
+        </section>
+        <section className="home-section">
+          <aside className="home-aside">
+            <p>
+              Some articles suddenly gain significant attention. Here are the
+              articles that have seen the biggest increase in views compared to
+              last week.
+            </p>
+          </aside>
+          <TopDeltaLost backendData={backendData} />
         </section>
       </main>
       <footer className="home-footer">
