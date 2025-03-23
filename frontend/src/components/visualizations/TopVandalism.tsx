@@ -133,6 +133,7 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
               dataKey="abs_bytes_reverted"
               stackId="a"
               fill="#882525"
+              fillOpacity={0.85}
               radius={[2, 2, 2, 2]}
             >
               {/* <LabelList
@@ -147,6 +148,7 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
               dataKey="abs_bytes_not_reverted"
               stackId="a"
               fill="#E17564"
+              fillOpacity={0.85}
               radius={[2, 2, 2, 2]}
             />
           </BarChart>

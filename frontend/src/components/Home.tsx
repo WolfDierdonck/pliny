@@ -5,8 +5,9 @@ import TopVandalism from './visualizations/TopVandalism';
 import TopGrowingArticles from './visualizations/TopGrowingArticles';
 import TopEditors from './visualizations/TopEditors';
 import TopEdits from './visualizations/TopEdits';
-import TopTrendingArticles from './visualizations/TopTrendingArticles';
+// import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
+import TopDeltaGainedArticles from './visualizations/TopDeltaGained';
 import {
   getTopEditorsData,
   getTopEditsData,
@@ -193,7 +194,7 @@ const Home = () => {
               last week.
             </p>
           </aside>
-          <TopTrendingArticles backendData={backendData} />
+          <TopDeltaGainedArticles backendData={backendData} />
         </section>
       </main>
       <footer className="home-footer">

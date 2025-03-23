@@ -121,8 +121,10 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
-              right: 12,
+              left: 40,
+              right: 40,
+              top: 20,
+              bottom: 20,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -147,7 +149,7 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
                 stroke={colors[idx % colors.length]}
                 fill={chartConfig[article.page_name].color}
                 strokeOpacity={0}
-                fillOpacity={highlighted === article.page_name ? 1 : 0.5}
+                fillOpacity={highlighted === article.page_name ? 0.85 : 0.5}
                 // onClick={() =>
                 //   setHighlighted((prev) =>
                 //     prev === article.page_name ? null : article.page_name,
@@ -155,6 +157,7 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
                 // }
                 onMouseEnter={() => setHighlighted(article.page_name)}
                 onMouseLeave={() => setHighlighted(null)}
+                connectNulls={true}
                 // stackId="a"
               >
                 <LabelList

@@ -174,6 +174,8 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
                   dataKey={item.page_name}
                   fill={colors[idx % colors.length]}
                   stroke={colors[idx % colors.length]}
+                  fillOpacity={0.85}
+                  strokeOpacity={0}
                 />
                 <Legend
                   align="center"

@@ -15,5 +15,5 @@ FROM
 WHERE
     date = {{date}}
 ORDER BY
-    revert_count DESC
+    (abs_bytes_reverted*revert_count)  DESC
 LIMIT {{limit}}
