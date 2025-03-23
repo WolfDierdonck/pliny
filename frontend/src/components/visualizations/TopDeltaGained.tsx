@@ -39,22 +39,19 @@ const colors = [
   '#FA8072',
 ];
 
-const TopDeltaGainedArticles = ({
-  backendData,
-}: {
-  backendData: BackendData;
-}) => {
+const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
   const [gainedArticles, setGainedArticles] = useState<TopViewsGainedData[]>(
     [],
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [highlighted, setHighlighted] = useState<string | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([backendData.topViewsGained, backendData.topViewsLost])
-      .then(([gainedData]) => {
+    backendData.topViewsGained
+      .then((gainedData) => {
         setGainedArticles(gainedData.slice(0, 5));
         const days: { day: string; [key: string]: number | string }[] = [
           { day: '2 Days Ago' },
@@ -165,4 +162,4 @@ const TopDeltaGainedArticles = ({
   );
 };
 
-export default TopDeltaGainedArticles;
+export default TopDeltaGained;

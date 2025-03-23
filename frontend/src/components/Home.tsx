@@ -5,9 +5,9 @@ import TopVandalism from './visualizations/TopVandalism';
 import TopGrowingArticles from './visualizations/TopGrowingArticles';
 import TopEditors from './visualizations/TopEditors';
 import TopEdits from './visualizations/TopEdits';
-// import TopTrendingArticles from './visualizations/TopTrendingArticles';
 import WikipediaStats from './visualizations/WikipediaStats';
-import TopDeltaGainedArticles from './visualizations/TopDeltaGained';
+import TopDeltaGained from './visualizations/TopDeltaGained';
+import TopDeltaLost from './visualizations/TopDeltaLost';
 import {
   getTopEditorsData,
   getTopEditsData,
@@ -194,7 +194,17 @@ const Home = () => {
               last week.
             </p>
           </aside>
-          <TopDeltaGainedArticles backendData={backendData} />
+          <TopDeltaGained backendData={backendData} />
+        </section>
+        <section className="home-section">
+          <aside className="home-aside">
+            <p>
+              Some articles suddenly gain significant attention. Here are the
+              articles that have seen the biggest increase in views compared to
+              last week.
+            </p>
+          </aside>
+          <TopDeltaLost backendData={backendData} />
         </section>
       </main>
       <footer className="home-footer">

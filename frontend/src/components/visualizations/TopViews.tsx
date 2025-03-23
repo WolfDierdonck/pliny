@@ -26,6 +26,7 @@ import { formatDateUTC } from '../../lib/utils';
 
 const TopViews = ({ backendData }: { backendData: BackendData }) => {
   const [viewData, setViewData] = useState<TopViewsData[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [highlighted, setHighlighted] = useState<string | null>(null);
@@ -44,6 +45,7 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
             day: formattedDate,
           };
           data.forEach((article) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             dayData[article.page_name] = (article as any)[
               `view_count_${dayOffset}`
             ];

@@ -23,6 +23,7 @@ const TopTrendingArticles = ({ backendData }: { backendData: BackendData }) => {
     [],
   );
   const [lostArticles, setLostArticles] = useState<TopViewsLostData[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
