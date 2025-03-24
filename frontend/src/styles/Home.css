@@ -56,6 +56,14 @@ body::before {
   margin-bottom: 10px;
 }
 
+.home-splash-text {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  font-weight: 500;
+  text-align: center;
+}
+
 .home-description {
   font-size: 1.2em;
   line-height: 1.6;
@@ -79,6 +87,12 @@ body::before {
 
 .home-aside {
   padding: 15px;
+  background-color: #fce4ec; /* Soft pastel pink */
+  border-left: 4px solid #fc4680; /* Deep pink accent */
+  font-family: Arial, sans-serif;
+  border-radius: 8px; /* Slightly rounded corners */
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  width: fit-content;
 }
 
 .home-footer {

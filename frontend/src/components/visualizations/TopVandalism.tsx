@@ -75,15 +75,15 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
   } satisfies ChartConfig;
 
   const dataDate = new Date(backendData.date);
-  const threeDaysAgo = new Date(dataDate);
-  threeDaysAgo.setDate(dataDate.getDate() - 3);
+  const twoDaysAgo = new Date(dataDate);
+  twoDaysAgo.setDate(dataDate.getDate() - 2);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Most Vandalized Articles</CardTitle>
         <CardDescription>
-          {formatDateUTC(threeDaysAgo)} - {formatDateUTC(dataDate)}
+          {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -50,7 +50,6 @@ const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
 
     return isNegative ? `-${formatted}` : `+${formatted}`;
   };
-  console.log('isLoading', isLoading, 'stats', stats);
   if (isLoading) {
     return <LoadingPlaceholder />;
   }
@@ -97,16 +96,16 @@ const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20 p-6 justify-center items-center">
+    <div className="flex gap-x-20 gap-y-10 p-6 justify-center items-center align-center flex-wrap">
       {statsConfig.map((stat) => (
         <Card
           key={stat.label}
-          className={`transition-transform hover:scale-105 bg-stone-200/30 ${stat.color}`} //${stat.color} rounded-lg shadow-sm p-6 transition-transform
+          className={`transition-transform hover:scale-105 bg-stone-100/70 ${stat.color}`} //${stat.color} rounded-lg shadow-sm p-6 transition-transform
         >
           <CardHeader className="flex items-center">
             <CardTitle>{stat.label}</CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center items-center">
+          <CardContent className="flex justify-center items-center px-16">
             <div className="text-3xl font-bold">{stat.format(stat.value)}</div>
           </CardContent>
         </Card>

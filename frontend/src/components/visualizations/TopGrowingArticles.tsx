@@ -23,7 +23,11 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
     setIsGrowingLoading(true);
     backendData.topGrowing
       .then((data) => {
-        setTopGrowingData(data);
+        setTopGrowingData(
+          data
+            .slice(0, 8)
+            .sort((a, b) => b.abs_bytes_changed - a.abs_bytes_changed),
+        );
       })
       .catch((error) => {
         console.error('Failed to get growing data', error);
@@ -34,7 +38,11 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
     setIsShrinkingLoading(true);
     backendData.topShrinking
       .then((data) => {
-        setTopShrinkingData(data);
+        setTopShrinkingData(
+          data
+            .slice(0, 8)
+            .sort((a, b) => b.net_bytes_changed - a.net_bytes_changed),
+        );
       })
       .catch((error) => {
         console.error('Failed to get shrinking data', error);
@@ -66,7 +74,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
         <CardHeader>
           <CardTitle>Top Growing Articles</CardTitle>
           <CardDescription>
-            Articles with the most bytes added in the last 24 hours
+            Articles with the most bytes added in the last three days.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -99,7 +107,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
         <CardHeader>
           <CardTitle>Top Shrinking Articles</CardTitle>
           <CardDescription>
-            Articles with the most bytes removed in the last 24 hours
+            Articles with the most bytes removed in the last three days.
           </CardDescription>
         </CardHeader>
         <CardContent>

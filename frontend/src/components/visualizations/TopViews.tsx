@@ -176,7 +176,9 @@ const TopViews = ({ backendData }: { backendData: BackendData }) => {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex justify-center items-center">
-        <p className="text-center text-xl font-semibold p-3">{highlighted}</p>
+        <p className="text-center text-xl font-semibold p-3">
+          {highlighted || 'No Page Selected'}
+        </p>
       </CardFooter>
     </Card>
   );
