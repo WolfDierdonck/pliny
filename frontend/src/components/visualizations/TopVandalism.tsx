@@ -32,14 +32,12 @@ const TopVandalism = ({ backendData }: { backendData: BackendData }) => {
     setIsLoading(true);
     backendData.topVandalism
       .then((data) => {
-        const formattedData = data
-          .map((item) => ({
-            ...item,
-            page_name: item.page_name,
-            abs_bytes_not_reverted:
-              item.abs_bytes_changed - item.abs_bytes_reverted,
-          }))
-          .sort((a, b) => b.revert_count - a.revert_count);
+        const formattedData = data.map((item) => ({
+          ...item,
+          page_name: item.page_name,
+          abs_bytes_not_reverted:
+            item.abs_bytes_changed - item.abs_bytes_reverted,
+        }));
         setVandalizedData(formattedData);
       })
       .catch((error) => {

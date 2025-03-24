@@ -114,13 +114,13 @@ const Home = () => {
         </section>
         <section className="home-section">
           <p className="home-description">
-            Wikipedia is largest and most comprehensive source of information in
-            the world. Unlike the encyclopedias of the past, Wikipedia is a
-            living document that is constantly updated by volunteers from around
-            the world. This project explores the real-time patterns and trends
-            in this knowledge. To get a sense of sense of the scale of these
-            numbers, here are today's statistics across all articles (and scroll
-            for more!):
+            Wikipedia is the largest and most comprehensive source of
+            information in the world. Unlike the encyclopedias of the past,
+            Wikipedia is a living document that is constantly updated by
+            volunteers from around the world. This project explores the
+            real-time patterns and trends in this knowledge. To get a sense of
+            sense of the scale of these numbers, here are today's statistics
+            across all articles (and scroll for more!):
           </p>
           <WikipediaStats backendData={backendData} />
         </section>

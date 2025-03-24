@@ -25,7 +25,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
       .then((data) => {
         setTopGrowingData(
           data
-            .slice(0, 8)
+            .slice(0, 7)
             .sort((a, b) => b.abs_bytes_changed - a.abs_bytes_changed),
         );
       })
@@ -40,7 +40,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
       .then((data) => {
         setTopShrinkingData(
           data
-            .slice(0, 8)
+            .slice(0, 7)
             .sort((a, b) => b.net_bytes_changed - a.net_bytes_changed),
         );
       })
@@ -70,7 +70,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
-      <Card>
+      <Card className="flex-1">
         <CardHeader>
           <CardTitle>Top Growing Articles</CardTitle>
           <CardDescription>
@@ -84,7 +84,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
                 key={data.page_name}
                 className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
               >
-                <span className="text-gray-700 font-medium px-3 flex-1">
+                <span className="text-gray-700 font-medium px-3 flex-1 min-h-12 flex items-center">
                   {data.page_name}
                 </span>
                 <span
@@ -103,7 +103,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="flex-1">
         <CardHeader>
           <CardTitle>Top Shrinking Articles</CardTitle>
           <CardDescription>
@@ -123,7 +123,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
                     key={data.page_name}
                     className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-md transition-colors"
                   >
-                    <span className="text-gray-700 font-medium px-3 flex-1">
+                    <span className="text-gray-700 font-medium px-3 flex-1 min-h-12 flex items-center">
                       {data.page_name}
                     </span>
                     <span

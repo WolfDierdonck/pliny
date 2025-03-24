@@ -96,11 +96,11 @@ const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
   ];
 
   return (
-    <div className="flex gap-x-20 gap-y-10 p-6 justify-center items-center align-center flex-wrap">
+    <div className="flex gap-x-20 gap-y-10 p-6 justify-center items-center align-center flex-wrap py-10">
       {statsConfig.map((stat) => (
         <Card
           key={stat.label}
-          className={`transition-transform hover:scale-105 bg-stone-100/70 ${stat.color}`} //${stat.color} rounded-lg shadow-sm p-6 transition-transform
+          className={`transition-transform hover:scale-105 bg-stone-100/40 ${stat.color} shadow-md`} //${stat.color} rounded-lg shadow-sm p-6 transition-transform
         >
           <CardHeader className="flex items-center">
             <CardTitle>{stat.label}</CardTitle>
