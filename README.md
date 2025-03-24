@@ -1,32 +1,35 @@
 # Pliny
 
-Visualizing how human knowledge changes over time by analyzing trends in the Wikipedia content library.
+Visualizing how human knowledge changes over time by analyzing trends in Wikipedia metadata.
+
+You can view a variety of visualizations showing off various trends at [pliny.wiki](https://pliny.wiki). This is an example of one of the trends:
+<img width="933" alt="Screenshot 2025-03-24 at 5 24 54 PM" src="https://github.com/user-attachments/assets/e972bde8-de44-4193-a890-bf894917371c" />
+
+## Overview
 
 As part of this project, there are three main components all in this repo:
 
-1. The data pipeline. This queries the WikiMedia APIs and processes it for the visualizations
+1. The data pipeline. This queries the WikiMedia APIs or data dumps and processes it for the visualizations
 2. The backend. This queries the processed data and returns it to the frontend.
 3. The frontend. This visualizes the data.
 
 ## Developing
 
-First, you need to create a .env file. You can just copy the .env_template file, and replace the placeholders with the actual values. Note that you will also need to add any JSON files containing secrets to a new `secrets` directory. Additionally, you should also install the git hooks under the git_hooks directory. To do this, just run `cp git_hooks/* .git/hooks` from the root project directory.
+During development, this project used a private BigQuery account to store all the data. If you want to upload to your own BigQuery project, you'll need to add the credentials to your local repo and create a .env file. Besides that, no additional setup should be needed.
 
 ### Data Pipeline (Python)
 
 All of the code for this component is inside the `data-pipeline` folder.
 
-Make sure you have both the `pylint` and `mypy type checker` extensions installed and turned on (both official from Microsoft). When you don't have any unused variables/untyped variables, it should automatically give a warning/error. It will automatically check for any linting errors before making a commit.
+You will need to create a Python venv, use at least version `3.11` to do this. Then, install all the requirements from `requirements.txt`
 
-You will also need to create a Python venv, use at least version `3.11` to do this (can be done from the vscode command pallete).
-
-Finally, you can run the program with `python3 ./data-pipeline/main.py` from the root project directory. Note that this takes in arguments to specify what to process. You can learn about all the arguments by using `--help`
+Finally, you can run the program with `python3 ./data-pipeline/main.py` from the root project directory. Note that this takes in arguments to specify what to process. You can learn about all the arguments by using `--help`. Additional details about all the various data sources available are in the `data-pipeline/README.md`.
 
 ### Backend (Go)
 
 All of the code for this component is in the `backend` folder.
 
-Make sure you have Go installed, the version used to develop this is `1.23.3`. Also make sure you have the Go extension in VSCode installed for linting/etc.
+Make sure you have Go installed, the version used to develop this is `1.23.3`. 
 
 You'll need to install the Go dependencies with `go get .` inside the `backend` folder. Then, you can run the backend using `go run *.go` and it'll run on localhost:8080.
 
@@ -34,8 +37,4 @@ You'll need to install the Go dependencies with `go get .` inside the `backend` 
 
 All of the code for this component is inside the `frontend` folder.
 
-Make sure you have both the `ESLint` and `Prettier` extensions installed and enabled. These will detect any linting/formatting issues and give errors for them. It's a good idea to also have prettier auto-format on save.
-
-Then, you'll need to install all the dependencies using `npm i` inside the `frontend` folder. Note this should be done every time you pull new changes and a new package is added.
-
-Finally, you can run the webapp using `npm start` and it'll run on localhost:3000.
+You'll need to install all the dependencies using `npm i` inside the `frontend` folder. Then, you can run the webapp using `npm start` and it'll run on localhost:3000.
