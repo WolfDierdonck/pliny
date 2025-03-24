@@ -24,6 +24,7 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from '../ui/shadcn/chart';
+import { formatDateUTC } from '../../lib/utils';
 
 const TopEditors = ({ backendData }: { backendData: BackendData }) => {
   const [data, setData] = useState<TopEditorsData[]>([]);
@@ -49,19 +50,6 @@ const TopEditors = ({ backendData }: { backendData: BackendData }) => {
     return <NoDataPlaceholder />;
   }
 
-  // const CustomTooltip = ({ active, payload }: any) => {
-  //   if (active && payload && payload.length) {
-  //     const data = payload[0].payload;
-  //     return (
-  //       <div className="bg-white p-4 shadow-lg rounded-lg border">
-  //         <p className="font-medium">{data.page_name}</p>
-  //         <p className="text-gray-600">{data.editor_count} unique editors</p>
-  //       </div>
-  //     );
-  //   }
-  //   return null;
-  // };
-
   const chartConfig: ChartConfig = {
     editor_count: {
       label: 'Unique Editors',
@@ -69,11 +57,17 @@ const TopEditors = ({ backendData }: { backendData: BackendData }) => {
     },
   } satisfies ChartConfig;
 
+  const dataDate = new Date(backendData.date);
+  const twoDaysAgo = new Date(dataDate);
+  twoDaysAgo.setDate(dataDate.getDate() - 2);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Stacked + Legend</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Top pages by unique editors</CardTitle>
+        <CardDescription>
+          {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

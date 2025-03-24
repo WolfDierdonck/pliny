@@ -14,7 +14,14 @@ import {
   ChartTooltipContent,
 } from '../ui/shadcn/chart';
 
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend } from 'recharts';
+import {
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  Legend,
+  PolarRadiusAxis,
+} from 'recharts';
 import { TopEditsData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
@@ -45,30 +52,28 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
     return <NoDataPlaceholder />;
   }
 
-  // Get the top 5 most edited articles
+  // Get the top 6 most edited articles
   const top6Data = data.sort((a, b) => b.edit_count - a.edit_count).slice(0, 6);
 
-  // For each article, get the rank of the statistic among the top 5
+  // For each article, get the rank of the statistic among the top 6
   const getRank = (item: TopEditsData, key: keyof TopEditsData) =>
-    top6Data.filter((i) => i[key] > item[key]).length + 1;
+    top6Data.filter((i) => i[key] > item[key]).length;
 
-  const getRawdataFromRank = (rank: number, key: keyof TopEditsData) =>
-    top6Data
-      .filter((item) => getRank(item, key) === rank)
-      .map((item) => item[key]);
+  const getRawdataFromName = (page_name: string, key: keyof TopEditsData) =>
+    top6Data.filter((item) => item.page_name === page_name)[0][key];
 
   const metricToProperty: { [key: string]: keyof TopEditsData } = {
-    'Bytes Changed': 'abs_bytes_changed',
+    Change: 'abs_bytes_changed',
     Edits: 'edit_count',
     Views: 'view_count',
-    'Bytes Grown': 'net_bytes_changed',
+    Growth: 'net_bytes_changed',
     Reverts: 'revert_count',
     Editors: 'editor_count',
   };
 
   const normalizedData = top6Data.map((item) => ({
     page_name: item.page_name,
-    // get the rank of the statistic among the top 5
+    // get the rank of the statistic among the top 6
     view_count: top6Data.length - getRank(item, 'view_count'),
     edit_count: top6Data.length - getRank(item, 'edit_count'),
     revert_count: top6Data.length - getRank(item, 'revert_count'),
@@ -77,50 +82,7 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
     abs_bytes_changed: top6Data.length - getRank(item, 'abs_bytes_changed'),
   }));
 
-  const radarData = [
-    {
-      metric: 'Bytes Changed',
-      ...normalizedData.reduce(
-        (acc, item) => ({ ...acc, [item.page_name]: item.abs_bytes_changed }),
-        {},
-      ),
-    },
-    {
-      metric: 'Edits',
-      ...normalizedData.reduce(
-        (acc, item) => ({ ...acc, [item.page_name]: item.edit_count }),
-        {},
-      ),
-    },
-    {
-      metric: 'Views',
-      ...normalizedData.reduce(
-        (acc, item) => ({ ...acc, [item.page_name]: item.view_count }),
-        {},
-      ),
-    },
-    {
-      metric: 'Bytes Grown',
-      ...normalizedData.reduce(
-        (acc, item) => ({ ...acc, [item.page_name]: item.net_bytes_changed }),
-        {},
-      ),
-    },
-    {
-      metric: 'Reverts',
-      ...normalizedData.reduce(
-        (acc, item) => ({ ...acc, [item.page_name]: item.revert_count }),
-        {},
-      ),
-    },
-    {
-      metric: 'Editors',
-      ...normalizedData.reduce(
-        (acc, item) => ({ ...acc, [item.page_name]: item.editor_count }),
-        {},
-      ),
-    },
-  ];
+  console.log(normalizedData);
 
   const colors = [
     '#B22222',
@@ -147,31 +109,47 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
   );
 
   const dataDate = new Date(backendData.date);
-  const threeDaysAgo = new Date(dataDate);
-  threeDaysAgo.setDate(dataDate.getDate() - 3);
+  const twoDaysAgo = new Date(dataDate);
+  twoDaysAgo.setDate(dataDate.getDate() - 2);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Top Edited Pages</CardTitle>
         <CardDescription>
-          {formatDateUTC(threeDaysAgo)} - {formatDateUTC(dataDate)}
+          {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="px-0 grid grid-cols-3 gap-10">
-          {top6Data.map((item, idx) => (
+          {normalizedData.map((item, idx) => (
             <ChartContainer
               config={chartConfig}
               key={item.page_name}
               className="w-full aspect-square"
             >
-              <RadarChart data={radarData}>
-                <PolarAngleAxis dataKey="metric" />
+              <RadarChart
+                data={[
+                  { metric: 'Views', val: item.view_count },
+                  { metric: 'Edits', val: item.edit_count },
+                  { metric: 'Reverts', val: item.revert_count },
+                  { metric: 'Editors', val: item.editor_count },
+                  { metric: 'Growth', val: item.net_bytes_changed },
+                  { metric: 'Change', val: item.abs_bytes_changed },
+                ]}
+              >
+                <PolarAngleAxis dataKey="metric" hide={true} axisLine={false} />
+                <PolarRadiusAxis
+                  domain={[0, 6]}
+                  tickCount={7}
+                  hide={true}
+                  axisLine={false}
+                  tick={false}
+                />
                 <PolarGrid className="fill-red-500 opacity-10" />
                 <Radar
                   name={item.page_name}
-                  dataKey={item.page_name}
+                  dataKey="val"
                   fill={colors[idx % colors.length]}
                   stroke={colors[idx % colors.length]}
                   fillOpacity={0.85}
@@ -183,23 +161,17 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
                   wrapperStyle={{
                     fontSize: '14px', // Adjust the font size
                     fontWeight: 'bold', // Make the text bold
+                    paddingTop: '20px', // Add top padding
                   }}
                 />
                 <ChartTooltip
                   cursor={false}
                   content={
                     <ChartTooltipContent
-                      valueFn={(item) => {
-                        console.log(
-                          item,
-                          getRawdataFromRank(
-                            item.value as number,
-                            metricToProperty[item.payload.metric],
-                          ).toLocaleString(),
-                        );
-                        return getRawdataFromRank(
-                          item.value as number,
-                          metricToProperty[item.payload.metric],
+                      valueFn={(tooltipItem) => {
+                        return getRawdataFromName(
+                          item.page_name,
+                          metricToProperty[tooltipItem.payload.metric],
                         ).toLocaleString();
                       }}
                     />

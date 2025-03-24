@@ -10,6 +10,7 @@ import {
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -24,9 +25,10 @@ import { TopViewsGainedData } from '../../lib/api';
 import LoadingPlaceholder from '../LoadingPlaceholder';
 import NoDataPlaceholder from '../NoDataPlaceholder';
 import { BackendData } from '../Home';
+import { formatDateUTC } from '../../lib/utils';
 
 // Replace the single colors array with separate arrays for gains and losses
-const colors = [
+export const colors = [
   '#FF6347',
   '#E76637',
   '#FF7F50',
@@ -52,7 +54,11 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
     setIsLoading(true);
     backendData.topViewsGained
       .then((gainedData) => {
-        setGainedArticles(gainedData.slice(0, 5));
+        setGainedArticles(
+          gainedData
+            .slice(0, 5)
+            .sort((a, b) => b.current_view_count - a.current_view_count),
+        );
         const days: { day: string; [key: string]: number | string }[] = [
           { day: '2 Days Ago' },
           { day: 'Yesterday' },
@@ -95,10 +101,17 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
     {},
   );
 
+  const dataDate = new Date(backendData.date);
+  const twoDaysAgo = new Date(dataDate);
+  twoDaysAgo.setDate(dataDate.getDate() - 2);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Trending Articles (Gained Views)</CardTitle>
+        <CardDescription>
+          {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
