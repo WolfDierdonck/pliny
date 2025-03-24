@@ -8,6 +8,7 @@ import TopEdits from './visualizations/TopEdits';
 import WikipediaStats from './visualizations/WikipediaStats';
 import TopDeltaGained from './visualizations/TopDeltaGained';
 import TopDeltaLost from './visualizations/TopDeltaLost';
+import ScrollIndicator from './ScrollIndicator';
 import {
   getTopEditorsData,
   getTopEditsData,
@@ -100,31 +101,24 @@ const Home = () => {
         />
       </header>
       <main className="home-main">
-        <section className="home-section">
+        <section className="home-section relative">
           <img
             src={`${process.env.PUBLIC_URL}/assets/pliny.png`}
             alt="Pliny logo"
             className="home-logo banner"
           />
-          <p className="home-splash-text">
-            Welcome to Pliny! Here you can explore the patterns and trends in
-            Wikipedia metadata. Customize the date you're looking at in the top
-            left and scroll to get started.
-          </p>
+          <ScrollIndicator showText={true} />
         </section>
-        <section className="home-section">
-          <p className="home-description">
+        <section className="home-section relative">
+          <p>
             Wikipedia is the largest and most comprehensive source of
-            information in the world. Unlike the encyclopedias of the past,
-            Wikipedia is a living document that is constantly updated by
-            volunteers from around the world. This project explores the
-            real-time patterns and trends in this knowledge. To get a sense of
-            sense of the scale of these numbers, here are today's statistics
-            across all articles (and scroll for more!):
+            information in the world. It's a living document that is constantly
+            updated by volunteers from around the world.
           </p>
           <WikipediaStats backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Each day, millions of pages are viewed by over 50 million people.
@@ -133,9 +127,10 @@ const Home = () => {
             </p>
           </aside>
           <TopViews backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
 
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Knowledge is constantly changing on Wikipedia. Thousands of
@@ -146,8 +141,9 @@ const Home = () => {
             </p>
           </aside>
           <TopEdits backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               On top of just the number of edits, pages also vary wildly in the
@@ -157,8 +153,9 @@ const Home = () => {
             </p>
           </aside>
           <TopEditors backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               As anyone can contribute to Wikipedia, it's under a constant storm
@@ -168,8 +165,9 @@ const Home = () => {
             </p>
           </aside>
           <TopVandalism backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Some pages may not be edited frequently, but have a lot of content
@@ -179,9 +177,10 @@ const Home = () => {
             </p>
           </aside>
           <TopGrowingArticles backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
 
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Some articles suddenly gain significant attention. Here are the
@@ -190,8 +189,9 @@ const Home = () => {
             </p>
           </aside>
           <TopDeltaGained backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Additionally, some articles suddenly lose significant attention.
@@ -202,9 +202,6 @@ const Home = () => {
           <TopDeltaLost backendData={backendData} />
         </section>
       </main>
-      <footer className="home-footer">
-        <p>&copy; 2024 Pliny. All rights reserved.</p>
-      </footer>
     </div>
   );
 };
