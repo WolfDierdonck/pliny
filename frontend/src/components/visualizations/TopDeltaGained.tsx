@@ -50,6 +50,12 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [highlighted, setHighlighted] = useState<string | null>(null);
 
+  const dataDate = new Date(backendData.date);
+  const oneDayAgo = new Date(dataDate);
+  oneDayAgo.setDate(dataDate.getDate() - 1);
+  const twoDaysAgo = new Date(dataDate);
+  twoDaysAgo.setDate(dataDate.getDate() - 2);
+
   useEffect(() => {
     setIsLoading(true);
     backendData.topViewsGained
@@ -60,9 +66,9 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
             .sort((a, b) => b.current_view_count - a.current_view_count),
         );
         const days: { day: string; [key: string]: number | string }[] = [
-          { day: '2 Days Ago' },
-          { day: 'Yesterday' },
-          { day: 'Today' },
+          { day: formatDateUTC(twoDaysAgo) },
+          { day: formatDateUTC(oneDayAgo) },
+          { day: formatDateUTC(dataDate) },
         ];
         gainedData.forEach((article) => {
           days[2][article.page_name] = article.current_view_count; // Yesterday baseline
@@ -100,10 +106,6 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
     },
     {},
   );
-
-  const dataDate = new Date(backendData.date);
-  const twoDaysAgo = new Date(dataDate);
-  twoDaysAgo.setDate(dataDate.getDate() - 2);
 
   return (
     <Card>
