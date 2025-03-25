@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import '../styles/Home.css';
 import TopViews from './visualizations/TopViews';
 import TopVandalism from './visualizations/TopVandalism';
@@ -8,6 +8,8 @@ import TopEdits from './visualizations/TopEdits';
 import WikipediaStats from './visualizations/WikipediaStats';
 import TopDeltaGained from './visualizations/TopDeltaGained';
 import TopDeltaLost from './visualizations/TopDeltaLost';
+import ScrollIndicator from './ScrollIndicator';
+import ScrollToTop from './ScrollToTop';
 import {
   getTopEditorsData,
   getTopEditsData,
@@ -28,6 +30,7 @@ import {
   TopViewsLostData,
   WikipediaStatsData,
 } from '../lib/api';
+import { formatDateUTC } from '../lib/utils';
 
 export type BackendData = {
   date: string;
@@ -58,6 +61,7 @@ const getBackendData = (date: string, limit: number): BackendData => {
 };
 
 const Home = () => {
+  const topRef = useRef<HTMLDivElement>(null);
   const now = new Date();
   const two_days_ago = new Date(now);
   two_days_ago.setDate(now.getDate() - 2);
@@ -81,6 +85,10 @@ const Home = () => {
     }
   }, [date]);
 
+  const dataDate = new Date(backendData.date);
+  const twoDaysAgo = new Date(backendData.date);
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
   return (
     <div className="home-container">
       <header className="home-header">
@@ -100,111 +108,128 @@ const Home = () => {
         />
       </header>
       <main className="home-main">
-        <section className="home-section">
+        <section className="home-section no-gap relative" ref={topRef}>
           <img
             src={`${process.env.PUBLIC_URL}/assets/pliny.png`}
             alt="Pliny logo"
             className="home-logo banner"
           />
-          <p className="home-splash-text">
-            Welcome to Pliny! Here you can explore the patterns and trends in
-            Wikipedia metadata. Customize the date you're looking at in the top
-            left and scroll to get started.
-          </p>
+          <h1 className="text-center">
+            Exploring & analyzing Wikipedia metadata
+          </h1>
+          <ScrollIndicator showText={true} />
         </section>
-        <section className="home-section">
-          <p className="home-description">
-            Wikipedia is the largest and most comprehensive source of
-            information in the world. Unlike the encyclopedias of the past,
-            Wikipedia is a living document that is constantly updated by
-            volunteers from around the world. This project explores the
-            real-time patterns and trends in this knowledge. To get a sense of
-            sense of the scale of these numbers, here are today's statistics
-            across all articles (and scroll for more!):
+
+        <section className="home-section relative">
+          <p>
+            Wikipedia is the world's largest encyclopedia and operates at
+            incredible scale. As a living document constantly updated by
+            volunteers around the world, on {formatDateUTC(dataDate)}, Wikipedia
+            amassed:
           </p>
           <WikipediaStats backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
-              Each day, millions of pages are viewed by over 50 million people.
-              These are the most viewed pages for the day, and how they've
-              evolved over the past week.
+              Wikipedia is one of the most trafficked websites on the internet.
+              Its millions of articles don't share this traffic equally - these
+              are the most viewed articles on {formatDateUTC(dataDate)} and
+              their evolution over the past week.
             </p>
           </aside>
           <TopViews backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
 
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Knowledge is constantly changing on Wikipedia. Thousands of
-              articles are edited every day, however each article is changed for
-              different reasons. Some articles are entirely new, others are
-              expanded upon, and some are vandalized. Here are the top edited
-              articles for the last three days, and why each one was changed.
+              articles are edited every day, each for different reasons.
+              Articles are created, expanded, vandalized and deprecated. Here
+              are the top edited articles on {formatDateUTC(twoDaysAgo)} -{' '}
+              {formatDateUTC(dataDate)}.
             </p>
           </aside>
           <TopEdits backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
-              On top of just the number of edits, pages also vary wildly in the
-              number of editors. Some pages are edited by a single person, while
-              others are edited by many. These are the articles that have seen
-              the most unique editors in the last three days.
+              Beyond the number of edits, pages also vary wildly in the number
+              of editors. These are the articles that have seen the most unique
+              editors on {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}
+              .
             </p>
           </aside>
           <TopEditors backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               As anyone can contribute to Wikipedia, it's under a constant storm
               of vandalism. Some pages, however, are more susceptible than
-              others. These are the most vandalized articles for the last three
-              days.
+              others. These are the most vandalized articles on{' '}
+              {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}.
             </p>
           </aside>
           <TopVandalism backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
               Some pages may not be edited frequently, but have a lot of content
-              added each time. These are the articles that have seen the most
-              growth in the last three days. Each byte of text is roughly one
-              character, so a change of 1KB is roughly 200 words!
+              changed each time. These are the articles that have seen the most
+              changes on {formatDateUTC(twoDaysAgo)} - {formatDateUTC(dataDate)}
+              . Each byte of text is roughly one character, so a change of 1 KB
+              is roughly 200 words!
             </p>
           </aside>
           <TopGrowingArticles backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
 
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
-              Some articles suddenly gain significant attention. Here are the
-              articles that have seen the biggest increase in views compared to
-              the previous day.
+              Articles experience large fluctuations in viewership, sometimes in
+              response to world events and sometimes for reasons unknown. These
+              articles are the ones that gained the most views on{' '}
+              {formatDateUTC(dataDate)}.
             </p>
           </aside>
           <TopDeltaGained backendData={backendData} />
+          <ScrollIndicator showText={false} />
         </section>
-        <section className="home-section">
+        <section className="home-section relative">
           <aside className="home-aside">
             <p>
-              Additionally, some articles suddenly lose significant attention.
-              Here are the articles that have seen the biggest decrease in views
-              compared to the previous day.
+              Similarly, just as attention for an article can suddenly explode,
+              it can also suddenly disappear. Here are the articles that have
+              lost the most views on {formatDateUTC(dataDate)}.
             </p>
           </aside>
           <TopDeltaLost backendData={backendData} />
+          <ScrollIndicator showText={false} />
+        </section>
+
+        {/* Updated Date Selection Section */}
+        <section className="home-section relative">
+          <h1>Wikipedia is constantly evolving.</h1>
+          <p>
+            Use the date picker in the top right corner to explore how articles,
+            edits, and viewership changed throughout time on any section of
+            Pliny. Discover trending topics, editing patterns, and content
+            growth from different time periods.
+          </p>
+          <ScrollToTop targetRef={topRef} />
         </section>
       </main>
-      <footer className="home-footer">
-        <p>&copy; 2024 Pliny. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

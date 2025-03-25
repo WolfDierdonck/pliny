@@ -63,10 +63,10 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
     top6Data.filter((item) => item.page_name === page_name)[0][key];
 
   const metricToProperty: { [key: string]: keyof TopEditsData } = {
-    Change: 'abs_bytes_changed',
+    'Change (Bytes)': 'abs_bytes_changed',
     Edits: 'edit_count',
     Views: 'view_count',
-    Growth: 'net_bytes_changed',
+    'Growth (Bytes)': 'net_bytes_changed',
     Reverts: 'revert_count',
     Editors: 'editor_count',
   };
@@ -130,12 +130,12 @@ const TopEdits = ({ backendData }: { backendData: BackendData }) => {
             >
               <RadarChart
                 data={[
+                  { metric: 'Growth (Bytes)', val: item.net_bytes_changed },
                   { metric: 'Views', val: item.view_count },
-                  { metric: 'Edits', val: item.edit_count },
-                  { metric: 'Reverts', val: item.revert_count },
                   { metric: 'Editors', val: item.editor_count },
-                  { metric: 'Growth', val: item.net_bytes_changed },
-                  { metric: 'Change', val: item.abs_bytes_changed },
+                  { metric: 'Change (Bytes)', val: item.abs_bytes_changed },
+                  { metric: 'Reverts', val: item.revert_count },
+                  { metric: 'Edits', val: item.edit_count },
                 ]}
               >
                 <PolarAngleAxis dataKey="metric" hide={true} axisLine={false} />

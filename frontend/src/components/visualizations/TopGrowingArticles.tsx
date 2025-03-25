@@ -68,14 +68,16 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
     return <NoDataPlaceholder />;
   }
 
+  const dataDate = new Date(backendData.date);
+  const twoDaysAgo = new Date(dataDate);
+  twoDaysAgo.setDate(dataDate.getDate() - 2);
+
   return (
     <div className="flex flex-col md:flex-row gap-8">
       <Card className="flex-1">
         <CardHeader>
           <CardTitle>Top Growing Articles</CardTitle>
-          <CardDescription>
-            Articles with the most bytes added in the last three days.
-          </CardDescription>
+          <CardDescription>Articles with the most bytes added</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -107,7 +109,7 @@ const TopGrowingArticles = ({ backendData }: { backendData: BackendData }) => {
         <CardHeader>
           <CardTitle>Top Shrinking Articles</CardTitle>
           <CardDescription>
-            Articles with the most bytes removed in the last three days.
+            Articles with the most bytes removed
           </CardDescription>
         </CardHeader>
         <CardContent>
