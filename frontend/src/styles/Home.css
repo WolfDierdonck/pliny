@@ -54,12 +54,12 @@ body::before {
 }
 
 h1 {
-  text-align: center;
+  font-weight: 600;
+  font-size: 1.2rem;
 }
 
 p {
-  text-align: left;
-  font-size: 1.2em;
+  font-size: 1.2rem;
 }
 
 .home-main {

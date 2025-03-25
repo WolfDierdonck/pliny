@@ -62,51 +62,60 @@ const WikipediaStats = ({ backendData }: { backendData: BackendData }) => {
       label: 'Total Views',
       value: stats.total_view_count,
       icon: '👁️',
-      color: 'text-orange-700',
+      color: 'bg-orange-100',
+      textColor: 'text-orange-700',
       format: formatNumber,
     },
     {
       label: 'Total Edits',
       value: stats.total_edit_count,
       icon: '✏️',
-      color: 'text-red-700',
+      color: 'bg-red-100',
+      textColor: 'text-red-700',
       format: formatNumber,
     },
     {
       label: 'Unique Editors',
       value: stats.total_editor_count,
       icon: '👥',
-      color: 'text-amber-600',
+      color: 'bg-orange-100',
+      textColor: 'text-orange-700',
       format: formatNumber,
     },
     {
       label: 'Reverted Edits',
       value: stats.total_revert_count,
       icon: '↩️',
-      color: 'text-red-900/80',
+      color: 'bg-red-50',
+      textColor: 'text-red-900/80',
       format: formatNumber,
     },
     {
       label: 'Net Growth',
       value: stats.total_net_bytes_changed,
       icon: '📈',
-      color: 'text-rose-700',
+      color: 'bg-rose-100',
+      textColor: 'text-rose-700',
       format: formatBytes,
     },
   ];
 
   return (
-    <div className="flex gap-x-20 gap-y-10 p-6 justify-center items-center align-center flex-wrap py-10">
+    <div className="flex gap-8 justify-center items-center align-center flex-wrap">
       {statsConfig.map((stat) => (
         <Card
           key={stat.label}
-          className={`transition-transform hover:scale-105 bg-stone-100/40 ${stat.color} shadow-md`} //${stat.color} rounded-lg shadow-sm p-6 transition-transform
+          className={`transition-transform hover:scale-105 ${stat.color} shadow-md p-6 rounded-none`}
         >
-          <CardHeader className="flex items-center">
-            <CardTitle>{stat.label}</CardTitle>
+          <CardHeader className="flex pb-1">
+            <CardTitle className={`text-sm font-medium ${stat.textColor}`}>
+              {stat.label}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center items-center px-16">
-            <div className="text-3xl font-bold">{stat.format(stat.value)}</div>
+          <CardContent className="flex pt-0">
+            <div className={`text-5xl font-bold ${stat.textColor}`}>
+              {stat.format(stat.value)}
+            </div>
           </CardContent>
         </Card>
       ))}

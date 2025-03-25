@@ -114,7 +114,7 @@ const Home = () => {
             alt="Pliny logo"
             className="home-logo banner"
           />
-          <h1 className="home-splash-text">
+          <h1 className="text-center">
             Exploring & analyzing Wikipedia metadata
           </h1>
           <ScrollIndicator showText={true} />
@@ -122,10 +122,10 @@ const Home = () => {
 
         <section className="home-section relative">
           <p>
-            Wikipedia is the world's largest encyclopedia and a living document
-            constantly updated by volunteers around the world. It operates as
-            the world's largest encyclopedia at an unprecedented scale. On{' '}
-            {formatDateUTC(dataDate)}, Wikipedia amassed:
+            Wikipedia is the world's largest encyclopedia and operates at
+            incredible scale. As a living document constantly updated by
+            volunteers around the world, on {formatDateUTC(dataDate)}, Wikipedia
+            amassed:
           </p>
           <WikipediaStats backendData={backendData} />
           <ScrollIndicator showText={false} />
@@ -220,12 +220,12 @@ const Home = () => {
 
         {/* Updated Date Selection Section */}
         <section className="home-section relative">
+          <h1>Wikipedia is constantly evolving.</h1>
           <p>
-            Wikipedia is constantly evolving. Use the date picker in the top
-            right corner to explore how articles, edits, and viewership changed
-            throughout history on any section of Pliny. Discover trending
-            topics, editing patterns, and content growth from different time
-            periods.
+            Use the date picker in the top right corner to explore how articles,
+            edits, and viewership changed throughout time on any section of
+            Pliny. Discover trending topics, editing patterns, and content
+            growth from different time periods.
           </p>
           <ScrollToTop targetRef={topRef} />
         </section>
