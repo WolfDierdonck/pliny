@@ -9,6 +9,7 @@ import WikipediaStats from './visualizations/WikipediaStats';
 import TopDeltaGained from './visualizations/TopDeltaGained';
 import TopDeltaLost from './visualizations/TopDeltaLost';
 import ScrollIndicator from './ScrollIndicator';
+import ScrollToTop from './ScrollToTop';
 import {
   getTopEditorsData,
   getTopEditsData,
@@ -84,10 +85,6 @@ const Home = () => {
     }
   }, [date]);
 
-  const scrollToTop = () => {
-    topRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const dataDate = new Date(backendData.date);
   const twoDaysAgo = new Date(backendData.date);
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
@@ -122,6 +119,7 @@ const Home = () => {
           </h1>
           <ScrollIndicator showText={true} />
         </section>
+
         <section className="home-section relative">
           <p>
             Wikipedia is the world's largest encyclopedia and a living document
@@ -229,24 +227,7 @@ const Home = () => {
             topics, editing patterns, and content growth from different time
             periods.
           </p>
-          <button
-            onClick={scrollToTop}
-            className="mt-4 bg-[#ed856b] hover:bg-[#e67a5d] text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors duration-300 flex items-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Return to Top
-          </button>
+          <ScrollToTop targetRef={topRef} />
         </section>
       </main>
     </div>
