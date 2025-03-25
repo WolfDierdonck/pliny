@@ -162,6 +162,8 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
                   fill="#000"
                   fillOpacity={highlighted === article.page_name ? 1 : 0}
                   fontSize={12}
+                  onMouseEnter={() => null}
+                  onMouseLeave={() => null}
                 />
               </Line>
             ))}
@@ -169,7 +171,9 @@ const TopDeltaGained = ({ backendData }: { backendData: BackendData }) => {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex justify-center items-center">
-        <p className="text-center text-xl font-semibold p-3">{highlighted}</p>
+        <p className="text-center text-xl font-semibold p-3">
+          {highlighted || 'No Page Selected'}
+        </p>
       </CardFooter>
     </Card>
   );
