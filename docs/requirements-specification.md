@@ -68,7 +68,6 @@ FR3.6: The system shall specifically highlight vandalism patterns to increase tr
 FR4.1: The system shall consist of modular components: data pipeline, backend API, and frontend interface.
 FR4.2: The system shall enable independent operation of the data pipeline component.
 FR4.3: The system shall provide an API for retrieving processed trend data.
-FR4.4: The system shall include specialized components for vandalism detection and classification.
 
 ## 4. Non-Functional Requirements
 
@@ -81,7 +80,6 @@ NFR1.3: The frontend shall load initial visualizations within 3 seconds on stand
 NFR2.1: The system shall handle interruptions in data source availability without failure.
 NFR2.2: The system shall maintain data integrity across processing stages.
 NFR2.3: The system shall provide consistent visualization results for identical time periods.
-NFR2.4: The system shall clearly differentiate between confirmed vandalism and potential false positives.
 
 ### 4.3 Usability
 NFR3.1: Users shall be able to navigate between different visualizations without prior training.
